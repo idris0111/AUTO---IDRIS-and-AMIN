@@ -225,6 +225,7 @@ export default function Checkout() {
         <div className="mt-8 grid gap-8 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Checkout Steps Form (8 cols) */}
           <form
+            id="checkout-order-form"
             className="checkout-form lg:col-span-8 space-y-6"
             onSubmit={(e) => {
               e.preventDefault()
@@ -619,6 +620,12 @@ export default function Checkout() {
               бонусов на клубный счёт
             </div>}
           </aside>
+          <div className="checkout-mobile-summary" aria-live="polite">
+            <div><span>К оплате</span><strong>{calculatedTotal.toFixed(2)} TJS</strong></div>
+            <button type="submit" form="checkout-order-form" disabled={checkoutMutation.isPending || (shippingMethod === 'courier' && !shippingFee)}>
+              {checkoutMutation.isPending ? 'Оформляем…' : 'Подтвердить заказ'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

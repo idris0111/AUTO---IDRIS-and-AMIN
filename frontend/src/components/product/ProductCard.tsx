@@ -10,6 +10,11 @@ import { useFavorites } from '../../stores/favorites'
 import { useComparison } from '../../stores/comparison'
 import ProductMedia from './ProductMedia'
 
+// Official manufacturer image for the exact SKU; all unmatched SKUs keep the honest category placeholder.
+const verifiedProductImages: Record<string, string> = {
+  'MFL-W71295': 'https://s7g10.scene7.com/is/image/mannhummel/W_712.95-1?dpr=off&qlt=82',
+}
+
 export function FitmentBadge({ status }: { status: string | null }) {
   const { t } = useTranslation()
   if (!status) return null
@@ -21,7 +26,7 @@ export function FitmentBadge({ status }: { status: string | null }) {
     )
   if (status === 'not_compatible')
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-premium/15 px-2 py-0.5 text-[11px] font-semibold text-premium">
+      <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 px-2 py-0.5 text-[11px] font-semibold text-rose-400">
         <XCircle className="size-3" /> {t('fitmentNo')}
       </span>
     )
@@ -76,7 +81,7 @@ export default function ProductCard({ product }: { product: ProductBrief }) {
     >
       <div className="product-media">
       <Link to={`/product/${product.slug}`} className="product-photo" aria-label={product.name}>
-        <ProductMedia src={product.image_url} alt={product.name} categorySlug={product.category.slug} categoryName={product.category.name} />
+        <ProductMedia src={verifiedProductImages[product.sku] || product.image_url} alt={product.name} categorySlug={product.category.slug} categoryName={product.category.name} />
         {discount > 0 && (
           <span className="product-discount">
             −{discount}%
@@ -100,7 +105,11 @@ export default function ProductCard({ product }: { product: ProductBrief }) {
           <span className={`product-availability ${product.stock_quantity > 0 ? 'is-available' : ''}`}>{product.stock_quantity > 0 && <i />}{product.stock_quantity > 0 ? t('inStock') : t('notAvailable')}</span>
         </div>
         <div className="product-sku-row"><span title={product.sku}>{product.sku}</span><button type="button" aria-label={t('compare')} aria-pressed={inCompare} title={inCompare ? t('compareAdded') : t('compareAdd')} className={inCompare ? 'is-compared' : ''} onClick={() => toggleCompare(product.id)}><GitCompare size={16} /></button></div>
-        {product.fitment && <div className="product-fitment"><FitmentBadge status={product.fitment} /></div>}
+        <div className="product-fitment">
+          {product.fitment
+            ? <FitmentBadge status={product.fitment} />
+            : <span className="product-fitment-check"><HelpCircle size={13} /> Совместимость уточняется</span>}
+        </div>
         <button type="button" className={`product-add ${added ? 'is-added' : ''}`} aria-label={t('addToCart')} onClick={() => void handleAdd()} disabled={product.stock_quantity <= 0 || pending}>{added ? <CheckCircle2 size={17} /> : <ShoppingCart size={17} />}<span>{pending ? t('loading') : added ? t('added') : t('addToCart')}</span></button>
         {error && <p role="alert" className="inline-error">{error}</p>}
         {added && (
