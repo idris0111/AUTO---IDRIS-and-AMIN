@@ -1,8 +1,7 @@
-import { Bell, CheckCheck, Coins, GitCompare, Heart, Menu, Moon, Package, Search, ShoppingCart, Sun, Truck, User as UserIcon, X } from 'lucide-react'
+import { Bell, CheckCheck, Coins, GitCompare, Heart, Moon, Package, Search, ShoppingCart, Sun, Truck, User as UserIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { AnimatePresence, motion } from 'framer-motion'
 
 import { api } from '../../lib/api'
 import type { PaginatedProducts, ProductBrief } from '../../types'
