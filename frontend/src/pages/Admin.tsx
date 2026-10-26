@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   AlertCircle,
   AlertTriangle,
@@ -122,6 +122,11 @@ const STATUS_LABELS: Record<string, string> = {
   returned: 'Возврат',
 }
 
+const ORDER_REASON_OPTIONS: Record<string, string[]> = {
+  cancelled: ['Покупатель отменил заказ', 'Товара нет в наличии', 'Не удалось связаться с покупателем', 'Ошибка при оформлении', 'Другая причина'],
+  returned: ['Дефект или повреждение', 'Не подошла совместимость', 'Получен неверный товар', 'Покупатель передумал', 'Другая причина'],
+}
+
 const ROLE_LABELS: Record<string, string> = {
   customer: 'Клиент',
   support: 'Поддержка',
@@ -159,7 +164,12 @@ function flattenCategories(items: Category[] = [], prefix = ''): { id: string; n
 export default function Admin() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [tab, setTab] = useState<Tab>('overview')
+  const [searchParams] = useSearchParams()
+  const [tab, setTab] = useState<Tab>(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab')
+    const allowed: Tab[] = ['overview', 'analytics', 'orders', 'products', 'inventory', 'users', 'support', 'content', 'categories', 'brands', 'coupons', 'zones']
+    return allowed.includes(requested as Tab) ? requested as Tab : 'overview'
+  })
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true)
 
   useEffect(() => {
@@ -308,14 +318,22 @@ export default function Admin() {
   })
 
   // Order Details Modal state & query
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('order_id'))
   const [targetOrderStatus, setTargetOrderStatus] = useState<string>('')
+  const [statusReason, setStatusReason] = useState<string>('')
   const [statusChangeNote, setStatusChangeNote] = useState<string>('')
+
+  useEffect(() => {
+    const requestedTab = searchParams.get('tab')
+    const allowed: Tab[] = ['overview', 'analytics', 'orders', 'products', 'inventory', 'users', 'support', 'content', 'categories', 'brands', 'coupons', 'zones']
+    if (allowed.includes(requestedTab as Tab)) setTab(requestedTab as Tab)
+    setSelectedOrderId(searchParams.get('order_id'))
+  }, [searchParams])
 
   const orderDetailQuery = useQuery({
     queryKey: ['admin-order-detail', selectedOrderId],
     queryFn: () => api.get<any>(`/admin/orders/${selectedOrderId}`),
-    enabled: Boolean(selectedOrderId),
+    enabled: Boolean(selectedOrderId) && isAdmin,
   })
 
   const handleExportProductsCSV = () => {
@@ -2517,7 +2535,7 @@ export default function Admin() {
                         className="rounded-lg border px-3 py-2 text-xs outline-none focus:border-premium font-semibold"
                         style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}
                         value={targetOrderStatus}
-                        onChange={(e) => setTargetOrderStatus(e.target.value)}
+                        onChange={(e) => { setTargetOrderStatus(e.target.value); setStatusReason('') }}
                       >
                         <option value="">Выберите новый статус…</option>
                         {orderDetailQuery.data.allowed_transitions.map((st: string) => (
@@ -2526,24 +2544,38 @@ export default function Admin() {
                           </option>
                         ))}
                       </select>
+                      {ORDER_REASON_OPTIONS[targetOrderStatus] && <select
+                        aria-label="Причина отмены или возврата"
+                        className="rounded-lg border px-3 py-2 text-xs outline-none focus:border-premium font-semibold"
+                        style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}
+                        value={statusReason}
+                        onChange={(e) => setStatusReason(e.target.value)}
+                        required
+                      >
+                        <option value="">Укажите причину…</option>
+                        {ORDER_REASON_OPTIONS[targetOrderStatus].map(reason => <option key={reason} value={reason}>{reason}</option>)}
+                      </select>}
                       <input
+                        maxLength={450}
                         className="flex-1 rounded-lg border px-3 py-2 text-xs outline-none focus:border-premium"
                         style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}
-                        placeholder="Служебная заметка к статусу (причина, трек-номер и т.д.)..."
+                        placeholder={statusReason === 'Другая причина' ? 'Опишите причину обязательно…' : 'Дополнительная заметка или номер отслеживания…'}
                         value={statusChangeNote}
                         onChange={(e) => setStatusChangeNote(e.target.value)}
                       />
                       <button
                         type="button"
-                        disabled={!targetOrderStatus || advanceStatus.isPending}
+                        disabled={!targetOrderStatus || advanceStatus.isPending || (Boolean(ORDER_REASON_OPTIONS[targetOrderStatus]) && (!statusReason || (statusReason === 'Другая причина' && !statusChangeNote.trim())))}
                         onClick={() => {
                           if (targetOrderStatus) {
                             advanceStatus.mutate({
                               orderId: selectedOrderId,
                               status: targetOrderStatus,
-                              note: statusChangeNote,
+                              note: statusReason ? `Причина: ${statusReason}${statusChangeNote.trim() ? ` · ${statusChangeNote.trim()}` : ''}` : statusChangeNote,
                             })
                             setTargetOrderStatus('')
+                            setStatusReason('')
+                            setStatusChangeNote('')
                           }
                         }}
                         className="rounded-lg bg-premium px-4 py-2 text-xs font-bold text-ink transition hover:opacity-90 disabled:opacity-40"
