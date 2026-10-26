@@ -92,18 +92,6 @@ export default function ProductDetail() {
     function handleScroll() {
       if (!buySectionRef.current) return
       const rect = buySectionRef.current.getBoundingClientRect()
-      setShowStickyBar(rect.bottom < 80)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  // Track sticky purchase bar visibility on scroll
-  useEffect(() => {
-    function handleScroll() {
-      if (!buySectionRef.current) return
-      const rect = buySectionRef.current.getBoundingClientRect()
       // Show sticky bar when user scrolls past the main buy section
       setShowStickyBar(rect.bottom < 80)
     }
@@ -152,7 +140,7 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!product.data) return
-    document.title = `${product.data.name} — AUTO UNIVERSE PERFORMANCE`
+    document.title = `${product.data.name} — AUTO UNIVERSE`
 
     // Save to recently viewed
     addToRecentlyViewed({
@@ -291,10 +279,12 @@ export default function ProductDetail() {
           <span className="text-premium font-semibold truncate max-w-xs">{item.sku}</span>
         </nav>
 
+        <div className="product-detail-mobile-title lg:hidden"><span>{item.brand.name} · {item.category.name}</span><h1>{item.name}</h1><p>Артикул: {item.sku}</p></div>
+
         {/* Primary Showcase Grid (Apple / Porsche Luxury Layout) */}
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-start">
+        <div className="product-detail-layout grid grid-cols-1 gap-12 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Oversized Studio Gallery (7 cols) */}
-          <div className="lg:col-span-7 space-y-4">
+          <div className="min-w-0 lg:col-span-7 space-y-4">
             <div className="product-gallery-stage relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[var(--border)] p-6 flex items-center justify-center group">
               {/* Subtle ambient lighting */}
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.04),transparent_70%)]" />
@@ -307,7 +297,7 @@ export default function ProductDetail() {
                   </span>
                 )}
                 {item.oem_numbers && item.oem_numbers.length > 0 && (
-                  <span className="rounded bg-[#242A32]/90 backdrop-blur-md px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-ink border border-white/10">
+                  <span className="rounded bg-[var(--surface-3)] px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-muted border border-[var(--border)]">
                     OEM-номера
                   </span>
                 )}
@@ -347,7 +337,7 @@ export default function ProductDetail() {
             )}
 
             {/* Engineering Highlights Bar */}
-            <div className="grid grid-cols-2 gap-3 pt-2 sm:grid-cols-4">
+            <div className="product-service-highlights grid grid-cols-2 gap-3 pt-2 sm:grid-cols-4">
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-3 text-center backdrop-blur-sm">
                 <ShieldCheck className="mx-auto size-5 text-premium mb-1" />
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Гарантия</div>
@@ -374,10 +364,10 @@ export default function ProductDetail() {
           </div>
 
           {/* Right Column: High-Precision Product Spec & Actions (5 cols) */}
-          <div className="lg:col-span-5 space-y-6">
+          <div className="product-info-panel min-w-0 lg:col-span-5 space-y-6">
             {/* Monospace Brand Pill & Header */}
             <div>
-              <div className="flex items-center justify-between">
+              <div className="product-detail-brandline flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 font-mono text-xs font-bold uppercase tracking-widest text-premium">
                   <span className="size-1.5 rounded-full bg-premium" />
                   {item.brand.name}
@@ -387,7 +377,7 @@ export default function ProductDetail() {
                 </span>
               </div>
 
-              <h1 className="mt-2 text-2xl sm:text-3xl font-black tracking-tight text-ink leading-tight">
+              <h1 className="product-detail-desktop-title mt-2 text-2xl sm:text-3xl font-black tracking-tight text-ink leading-tight">
                 {item.name}
               </h1>
 
@@ -500,7 +490,7 @@ export default function ProductDetail() {
 
               {/* Buy Actions Hub */}
               <div ref={buySectionRef} className="mt-6 space-y-3">
-                <div className="flex items-center gap-3">
+                <div className="product-buy-actions flex items-center gap-3">
                   {/* Quantity selector */}
                   <div className="flex items-center rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-1 font-mono">
                     <button
@@ -591,7 +581,7 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Frequently Bought Together Bundle (AU Engineered Kits) */}
+        {/* Related products returned by the catalog API. */}
         {fbt.data && fbt.data.items.length > 0 && (
           <section className="mt-16 rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-6 sm:p-8 shadow-2xl relative overflow-hidden">
             <div className="pointer-events-none absolute right-0 top-0 size-72 bg-premium/5 blur-3xl rounded-full" />
@@ -599,13 +589,13 @@ export default function ProductDetail() {
             <div className="relative">
               <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-premium">
                 <Sparkles className="size-4" />
-                <span>AU PERFORMANCE BUNDLE</span>
+                <span>ИЗ КАТАЛОГА</span>
               </div>
               <h2 className="mt-1 text-xl sm:text-2xl font-black text-ink">
-                Рекомендуемый инженерный комплект для узла
+                Другие товары для вашего выбора
               </h2>
               <p className="mt-1 text-sm text-muted">
-                Замените сопутствующие компоненты одновременно, чтобы сохранить гарантию и ресурс узла.
+                Сверьте характеристики и совместимость каждой позиции перед покупкой.
               </p>
 
               <div className="mt-8 flex flex-col gap-6 lg:flex-row lg:items-center">
@@ -614,11 +604,7 @@ export default function ProductDetail() {
                   {/* Main Product Card */}
                   <div className="w-40 rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 text-xs">
                     <div className="aspect-square w-full overflow-hidden rounded-lg bg-[var(--surface)] p-2 flex items-center justify-center">
-                      {images[0]?.url ? (
-                        <img src={images[0].url} alt="" className="size-full object-contain" />
-                      ) : (
-                        <div className="font-mono text-xs font-black text-muted">AU</div>
-                      )}
+                      <ProductMedia src={images[0]?.url} alt={item.name} categorySlug={item.category.slug} categoryName={item.category.name} />
                     </div>
                     <div className="mt-2 line-clamp-1 font-bold text-ink">{item.name}</div>
                     <div className="font-mono font-black text-premium mt-0.5">
@@ -636,15 +622,7 @@ export default function ProductDetail() {
                         className="w-40 rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 text-xs transition hover:border-[#E32636] group"
                       >
                         <div className="aspect-square w-full overflow-hidden rounded-lg bg-[var(--surface)] p-2 flex items-center justify-center">
-                          {bItem.image_url ? (
-                            <img
-                              src={bItem.image_url}
-                              alt=""
-                              className="size-full object-contain transition-transform group-hover:scale-105"
-                            />
-                          ) : (
-                            <div className="font-mono text-xs font-black text-muted">AU</div>
-                          )}
+                          <ProductMedia src={bItem.image_url} alt={bItem.name} categorySlug={bItem.category.slug} categoryName={bItem.category.name} />
                         </div>
                         <div className="mt-2 line-clamp-1 font-bold text-ink group-hover:text-premium transition">
                           {bItem.name}
@@ -664,24 +642,18 @@ export default function ProductDetail() {
                 {/* Total & Action Box */}
                 <div className="rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-5 lg:ml-auto min-w-[240px]">
                   <div className="font-mono text-xs uppercase tracking-wider text-muted">
-                    Итого за комплект:
+                    Итого за все товары:
                   </div>
                   <div className="mt-1 text-2xl font-black text-ink font-mono">
                     {Number(fbt.data.total_bundle_price).toFixed(2)} TJS
                   </div>
-                  {Number(fbt.data.total_savings) > 0 && (
-                    <div className="mt-1 font-mono text-xs font-bold text-emerald-400">
-                      Экономия: {Number(fbt.data.total_savings).toFixed(2)} TJS
-                    </div>
-                  )}
-
                   <button
                     type="button"
                     onClick={handleBuyBundle}
                     className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-premium px-4 py-3 font-mono text-xs font-bold text-ink transition hover:bg-[#D91F32]"
                   >
                     <ShoppingCart className="size-4" />
-                    <span>{bundleAdded ? 'КОМПЛЕКТ В КОРЗИНЕ' : 'КУПИТЬ КОМПЛЕКТ'}</span>
+                    <span>{bundleAdded ? 'ТОВАРЫ В КОРЗИНЕ' : 'ДОБАВИТЬ ВСЁ В КОРЗИНУ'}</span>
                   </button>
                 </div>
               </div>
@@ -812,7 +784,7 @@ export default function ProductDetail() {
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <span className="font-mono text-xs font-bold uppercase tracking-widest text-premium">
-                  AU PERFORMANCE
+                  ИЗ КАТАЛОГА
                 </span>
                 <h2 className="text-2xl font-black text-ink mt-1">Сопутствующие компоненты</h2>
               </div>

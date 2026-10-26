@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import {
   AlertTriangle,
-  ArrowRight,
   Car,
   CheckCircle2,
   ChevronRight,
@@ -23,6 +22,7 @@ import { useComparison } from '../stores/comparison'
 import { useGarage } from '../stores/garage'
 import { useCart } from '../stores/cart'
 import type { ProductComparisonResponse, ProductDetail } from '../types'
+import ShopEmptyState from '../components/layout/ShopEmptyState'
 
 export default function Comparison() {
   const { t } = useTranslation()
@@ -87,23 +87,7 @@ export default function Comparison() {
 
   if (ids.length === 0) {
     return (
-      <div className="mx-auto max-w-4xl px-4 py-20 text-center">
-        <div className="mx-auto grid size-20 place-items-center rounded-3xl bg-[var(--surface-2)] text-premium shadow-[var(--shadow-glow)]">
-          <GitCompare className="size-10" />
-        </div>
-        <h1 className="mt-6 text-2xl font-black text-ink sm:text-3xl">
-          {t('compareEmpty')}
-        </h1>
-        <p className="mx-auto mt-2 max-w-md text-sm muted">
-          {t('compareEmptyHint')}
-        </p>
-        <div className="mt-8">
-          <Link to="/catalog" className="btn-premium inline-flex items-center gap-2 px-6 py-3 text-sm font-bold shadow-[var(--shadow-glow)]">
-            <span>{t('explore')}</span>
-            <ArrowRight className="size-4" />
-          </Link>
-        </div>
-      </div>
+      <div className="commerce-container shop-empty-page"><ShopEmptyState eyebrow="СРАВНЕНИЕ ДЕТАЛЕЙ" title={t('compareEmpty')} description={t('compareEmptyHint')} action={t('explore')} icon={GitCompare} visual="/images/category-parts-studio.jpg" /></div>
     )
   }
 

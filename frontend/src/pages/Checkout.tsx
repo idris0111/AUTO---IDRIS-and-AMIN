@@ -10,9 +10,11 @@ import {
   Package,
   RotateCcw,
   ShieldCheck,
+  ShoppingBag,
 } from 'lucide-react'
 
 import { api } from '../lib/api'
+import ShopEmptyState from '../components/layout/ShopEmptyState'
 import type { Cart, Order } from '../types'
 import { useAuth } from '../stores/auth'
 import { useCart } from '../stores/cart'
@@ -113,6 +115,8 @@ export default function Checkout() {
     mutationFn: () =>
       api.post<Order>('/orders/checkout', {
         ...form,
+        shipping_city: shippingMethod === 'pickup' ? (form.shipping_city.trim() || 'Душанбе') : form.shipping_city.trim(),
+        shipping_street: shippingMethod === 'pickup' ? 'Самовывоз — место выдачи уточняется' : form.shipping_street.trim(),
         contact_email: form.contact_email || undefined,
         shipping_method: shippingMethod,
         payment_method: paymentMethod,
@@ -133,13 +137,13 @@ export default function Checkout() {
 
   if (!user) {
     return (
-      <div className="min-h-[75vh] bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
+      <div className="access-page bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
         <div className="relative max-w-md w-full rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-8 text-center shadow-2xl">
           <div className="mx-auto grid size-14 place-items-center rounded-xl bg-premium/15 text-premium mb-4">
             <Lock className="size-6" />
           </div>
           <div className="font-mono text-xs uppercase tracking-widest text-premium">
-            AU AUTH REQUIRED
+            ВХОД ДЛЯ ОФОРМЛЕНИЯ
           </div>
           <h1 className="mt-1 text-2xl font-black text-ink">{t('checkout')}</h1>
           <p className="mt-2 text-xs text-muted leading-relaxed">
@@ -179,17 +183,8 @@ export default function Checkout() {
 
   if (!cart.data || cart.data.items.length === 0) {
     return (
-      <div className="min-h-[70vh] bg-[var(--canvas)] text-ink flex items-center justify-center px-4 text-center">
-        <div className="max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 shadow-xl">
-          <h1 className="text-xl font-black text-ink">{t('emptyCart')}</h1>
-          <p className="mt-2 text-xs text-muted">В вашей корзине нет товаров для оформления.</p>
-          <Link
-            to="/catalog"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 font-mono text-xs font-bold text-ink hover:bg-[#D91F32] transition"
-          >
-            {t('continueShopping')}
-          </Link>
-        </div>
+      <div className="commerce-container shop-empty-page">
+        <ShopEmptyState eyebrow="ОФОРМЛЕНИЕ ЗАКАЗА" title="Сначала найдём нужную деталь" description="Добавьте товары в корзину. Здесь вы сможете проверить состав заказа, выбрать получение и подтвердить покупку." action={t('continueShopping')} icon={ShoppingBag} visual="/images/engine-editorial.jpg" />
       </div>
     )
   }
@@ -200,7 +195,7 @@ export default function Checkout() {
   const calculatedTotal = Math.max(0, Number(cart.data.subtotal) + shippingCost - couponDiscount - bonusDiscount)
 
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-ink">
+    <div className="checkout-page min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-ink">
       {/* Background Accent */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,240,255,0.05),transparent)]" />
 
@@ -210,9 +205,9 @@ export default function Checkout() {
           <div>
             <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-premium">
               <span className="size-2 rounded-full bg-premium animate-pulse" />
-              <span>AU CHECKOUT TELEMETRY</span>
+              <span>ВАШ ЗАКАЗ</span>
               <span className="text-[#242A32]">/</span>
-              <span className="text-premium">SSL 256-BIT ENCRYPTION</span>
+              <span className="text-premium">ПРОВЕРКА И ОФОРМЛЕНИЕ</span>
             </div>
             <h1 className="mt-2 text-3xl font-black text-ink tracking-tight">
               Оформление заказа
@@ -230,7 +225,7 @@ export default function Checkout() {
         <div className="mt-8 grid gap-8 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Checkout Steps Form (8 cols) */}
           <form
-            className="lg:col-span-8 space-y-6"
+            className="checkout-form lg:col-span-8 space-y-6"
             onSubmit={(e) => {
               e.preventDefault()
               if (checkoutMutation.isPending || (shippingMethod === 'courier' && !shippingFee)) return
@@ -305,7 +300,7 @@ export default function Checkout() {
                   02
                 </span>
                 <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
-                  Способ и адрес доставки
+                  Способ получения
                 </h2>
               </div>
 
@@ -314,14 +309,14 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={() => setShippingMethod('pickup')}
-                  className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
+                  className={`checkout-method-card flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     shippingMethod === 'pickup'
                       ? 'border-premium bg-premium/10 shadow-[0_0_15px_rgba(0,240,255,0.15)]'
                       : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-ink text-xs">Самовывоз (Склад AU-1)</span>
+                    <span className="font-bold text-ink text-xs">Самовывоз</span>
                     <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
                       БЕСПЛАТНО
                     </span>
@@ -334,14 +329,14 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={() => setShippingMethod('courier')}
-                  className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
+                  className={`checkout-method-card flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     shippingMethod === 'courier'
                       ? 'border-premium bg-premium/10 shadow-[0_0_15px_rgba(0,240,255,0.15)]'
                       : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-ink text-xs">Экспресс-курьер</span>
+                    <span className="font-bold text-ink text-xs">Курьерская доставка</span>
                     <span className="font-mono text-[10px] font-bold text-premium bg-premium/10 px-2 py-0.5 rounded">
                       ПО ТАРИФУ
                     </span>
@@ -361,7 +356,7 @@ export default function Checkout() {
               {shippingMethod === 'courier' && !shippingFee && <p className="mt-4 text-sm muted" role={quoteError ? 'alert' : 'status'}>{quoteLoading ? 'Рассчитываем доставку…' : quoteError || 'Укажите город доставки.'} {!quoteLoading && <button type="button" className="text-premium underline" onClick={() => setQuoteRetry(n => n + 1)}>Повторить расчёт</button>}</p>}
 
               {/* Address inputs */}
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {shippingMethod === 'courier' ? <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 <div>
                   <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1.5">
                     Город / Населённый пункт <span className="text-premium">*</span>
@@ -390,7 +385,7 @@ export default function Checkout() {
                     className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
                   />
                 </div>
-              </div>
+              </div> : <p className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-xs text-muted">Место и время самовывоза уточнят после оформления заказа. Адрес доставки не требуется.</p>}
             </section>
 
             {/* Step 3: Payment Method */}
@@ -408,7 +403,7 @@ export default function Checkout() {
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('cash_on_delivery')}
-                  className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
+                  className={`checkout-method-card flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     paymentMethod === 'cash_on_delivery'
                       ? 'border-[#F59E0B] bg-[#F59E0B]/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
                       : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500'
@@ -424,7 +419,7 @@ export default function Checkout() {
 <button
                   type="button"
                   onClick={() => setPaymentMethod('bank_transfer')}
-                  className={`flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
+                  className={`checkout-method-card flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     paymentMethod === 'bank_transfer'
                       ? 'border-[#F59E0B] bg-[#F59E0B]/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
                       : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500'
@@ -433,7 +428,7 @@ export default function Checkout() {
                   <ShieldCheck className="size-4 text-emerald-400 mb-2" />
                   <span className="font-bold text-ink text-xs">Банковский счёт</span>
                   <p className="font-mono text-[10px] text-muted mt-1">
-                    Счёт-фактура для юрлиц и автосервисов
+                    Оплата банковским переводом
                   </p>
                 </button>
               </div>
@@ -441,12 +436,12 @@ export default function Checkout() {
               {/* Note */}
               <div className="mt-5">
                 <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-1.5">
-                  Комментарий к заказу или пожелания курьеру
+                  {shippingMethod === 'pickup' ? 'Комментарий к заказу' : 'Комментарий к заказу или пожелания курьеру'}
                 </label>
                 <textarea
                   maxLength={2000}
                   rows={2}
-                  placeholder="Код домофона, удобное время доставки, ориентиры..."
+                  placeholder={shippingMethod === 'pickup' ? 'Пожелания по получению заказа...' : 'Код домофона, удобное время доставки, ориентиры...'}
                   value={form.customer_note}
                   onChange={(e) => setForm({ ...form, customer_note: e.target.value })}
                   className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
@@ -481,7 +476,7 @@ export default function Checkout() {
           </form>
 
           {/* Right Column: Executive Order Receipt (4 cols) */}
-          <aside className="lg:col-span-4 rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-6 shadow-2xl space-y-6">
+          <aside className="checkout-receipt lg:col-span-4 rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-6 shadow-2xl space-y-6">
             <div>
               <div className="flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-widest text-premium">
                 <Package className="size-3.5" />

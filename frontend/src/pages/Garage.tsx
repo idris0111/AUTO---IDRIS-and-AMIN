@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   AlertCircle,
   ArrowRight,
@@ -23,6 +23,7 @@ import { useGarage } from '../stores/garage'
 
 export default function Garage() {
   const [selection] = useSearchParams()
+  const navigate = useNavigate()
   const { t } = useTranslation()
   const { user } = useAuth()
   const {
@@ -40,8 +41,10 @@ export default function Garage() {
     name: '',
     make_id: selection.get('make_id') || '',
     model_id: selection.get('model_id') || '',
-    generation_id: '',
-    year: '',
+    generation_id: selection.get('generation_id') || '',
+    modification_id: selection.get('modification_id') || '',
+    engine_id: selection.get('engine_id') || '',
+    year: selection.get('year') || '',
     vin: '',
     is_primary: false,
   })
@@ -57,7 +60,7 @@ export default function Garage() {
 
   useEffect(() => {
     if (user) void loadGarage()
-  }, [user])
+  }, [user, loadGarage])
 
   const createMutation = useMutation({
     mutationFn: () => {
@@ -66,18 +69,27 @@ export default function Garage() {
         make_id: form.make_id,
         model_id: form.model_id || null,
         generation_id: form.generation_id || null,
+        modification_id: form.modification_id || null,
+        engine_id: form.engine_id || null,
         year: form.year ? Number(form.year) : null,
         vin: form.vin.trim().length === 17 ? form.vin.trim().toUpperCase() : null,
         is_primary: form.is_primary,
       }
       return addVehicle(payload)
     },
-    async onSuccess() {
+    async onSuccess(vehicle) {
+      selectVehicle(vehicle.id)
+      if (selection.get('from') === 'home') {
+        navigate('/catalog')
+        return
+      }
       setForm({
         name: '',
         make_id: '',
         model_id: '',
         generation_id: '',
+        modification_id: '',
+        engine_id: '',
         year: '',
         vin: '',
         is_primary: false,
@@ -100,6 +112,8 @@ export default function Garage() {
 
   const selectedMake = vehicleTree.find((item) => item.id === form.make_id)
   const selectedModel = selectedMake?.models.find((item) => item.id === form.model_id)
+  const selectedGeneration = selectedModel?.generations.find((item) => item.id === form.generation_id)
+  const selectedModification = selectedGeneration?.modifications.find((item) => item.id === form.modification_id)
 
   // Popular makes quick select
   const popularMakeNames = ['BMW', 'Mercedes-Benz', 'Audi', 'Porsche', 'Toyota', 'Lexus', 'Volkswagen', 'Hyundai']
@@ -107,14 +121,14 @@ export default function Garage() {
 
   if (!user) {
     return (
-      <div className="min-h-[75vh] bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
+      <div className="access-page bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
         <div className="relative max-w-lg w-full rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-8 sm:p-10 text-center shadow-2xl overflow-hidden">
           <div className="pointer-events-none absolute -right-20 -top-20 size-60 bg-premium/10 blur-3xl rounded-full" />
           <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--canvas)] text-premium shadow-xl">
             <Car className="size-8" />
           </div>
           <div className="mt-6 font-mono text-xs uppercase tracking-widest text-premium">
-            AU GARAGE HANGAR
+            МОЙ АВТОМОБИЛЬ
           </div>
           <h1 className="mt-2 text-2xl sm:text-3xl font-black text-ink">
             {t('myGarage')}
@@ -152,15 +166,15 @@ export default function Garage() {
           <div>
             <div className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-widest text-premium">
               <span className="size-2 rounded-full bg-premium animate-pulse" />
-              <span>AU PERFORMANCE GARAGE</span>
+              <span>МОЙ ГАРАЖ</span>
               <span className="text-[#242A32]">/</span>
-              <span className="text-muted">HANGAR TELEMETRY</span>
+              <span className="text-muted">СОВМЕСТИМОСТЬ ДЕТАЛЕЙ</span>
             </div>
             <h1 className="mt-2 text-3xl font-black text-ink tracking-tight">
               Мой гараж
             </h1>
             <p className="mt-1 text-sm text-muted">
-              Интеллектуальная система контроля совместимости и профиль ваших автомобилей.
+              Ваши автомобили и доступные данные о совместимости деталей.
             </p>
           </div>
 
@@ -274,6 +288,15 @@ export default function Garage() {
               </button>
             </div>
 
+            {tree.isError && (
+              <div className="inline-error mt-6" role="alert">
+                Не удалось загрузить список автомобилей.{' '}
+                <button type="button" onClick={() => void tree.refetch()}>
+                  Повторить
+                </button>
+              </div>
+            )}
+
             {/* Popular makes quick select chips */}
             {popularMakes.length > 0 && (
               <div className="mt-6">
@@ -291,6 +314,8 @@ export default function Garage() {
                           make_id: m.id,
                           model_id: '',
                           generation_id: '',
+                          modification_id: '',
+                          engine_id: '',
                           name: form.name || m.name,
                         })
                       }
@@ -331,6 +356,8 @@ export default function Garage() {
                         make_id: makeId,
                         model_id: '',
                         generation_id: '',
+                        modification_id: '',
+                        engine_id: '',
                         name: m ? m.name : form.name,
                       })
                     }}
@@ -360,6 +387,8 @@ export default function Garage() {
                         ...form,
                         model_id: modelId,
                         generation_id: '',
+                        modification_id: '',
+                        engine_id: '',
                         name: selectedMake && mod ? `${selectedMake.name} ${mod.name}` : form.name,
                       })
                     }}
@@ -384,7 +413,7 @@ export default function Garage() {
                   <select
                     disabled={!selectedModel || selectedModel.generations.length === 0}
                     value={form.generation_id}
-                    onChange={(e) => setForm({ ...form, generation_id: e.target.value })}
+                    onChange={(e) => setForm({ ...form, generation_id: e.target.value, modification_id: '', engine_id: '' })}
                     className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink outline-none focus:border-[#E32636] disabled:opacity-40"
                   >
                     <option value="">Все поколения</option>
@@ -411,6 +440,23 @@ export default function Garage() {
                     onChange={(e) => setForm({ ...form, year: e.target.value })}
                     className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-[#E32636]"
                   />
+                </div>
+              </div>
+
+              <div className="grid gap-6 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-xs font-semibold text-muted">Модификация</label>
+                  <select value={form.modification_id} disabled={!selectedGeneration?.modifications.length} onChange={(e) => setForm({ ...form, modification_id: e.target.value, engine_id: '' })} className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-sm text-ink disabled:opacity-40">
+                    <option value="">{selectedGeneration ? 'Выберите модификацию' : 'Сначала выберите поколение'}</option>
+                    {selectedGeneration?.modifications.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-2 block text-xs font-semibold text-muted">Двигатель</label>
+                  <select value={form.engine_id} disabled={!selectedModification?.engines.length} onChange={(e) => setForm({ ...form, engine_id: e.target.value })} className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-sm text-ink disabled:opacity-40">
+                    <option value="">{selectedModification ? 'Выберите двигатель' : 'Сначала выберите модификацию'}</option>
+                    {selectedModification?.engines.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                  </select>
                 </div>
               </div>
 
@@ -498,10 +544,10 @@ export default function Garage() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted">
-                SAVED FLEET
+                СОХРАНЁННЫЕ АВТОМОБИЛИ
               </span>
               <h2 className="text-xl font-black text-ink mt-0.5">
-                Автомобили в вашем ангаре ({vehicles.length})
+                Ваши автомобили ({vehicles.length})
               </h2>
             </div>
             {tree.isLoading && (
@@ -514,7 +560,7 @@ export default function Garage() {
               <Car className="mx-auto size-12 text-[#242A32]" />
               <h3 className="mt-4 text-lg font-bold text-ink">Гараж пуст</h3>
               <p className="mt-2 text-sm text-muted max-w-md mx-auto">
-                Добавьте свой первый автомобиль, чтобы активировать персональный фильтр совместимости в каталоге деталей.
+                Добавьте автомобиль, чтобы искать подходящие детали по данным каталога.
               </p>
               <button
                 type="button"

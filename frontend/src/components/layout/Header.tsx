@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, Coins, GitCompare, Heart, Menu, Moon, Package, Search, ShoppingCart, Sparkles, Sun, Truck, User as UserIcon, X } from 'lucide-react'
+import { Bell, CheckCheck, Coins, GitCompare, Heart, Menu, Package, Search, ShoppingCart, Sparkles, Truck, User as UserIcon, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -18,7 +18,7 @@ import CatalogMenu from './CatalogMenu'
 export default function Header() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const { theme, toggleTheme, locale, setLocale } = useApp()
+  const { locale, setLocale } = useApp()
   const { user, logout } = useAuth()
   const { cart, fetchCart } = useCart()
   const { selectedVehicleId, vehicles, loadGarage } = useGarage()
@@ -106,7 +106,7 @@ export default function Header() {
       }
     }
     function onKey(event: KeyboardEvent) {
-      if (event.key === 'Escape') { setSuggestionsOpen(false); setNotifsOpen(false); setMobileOpen(false) }
+      if (event.key === 'Escape' && !document.querySelector('[role="dialog"][aria-modal="true"]')) { setSuggestionsOpen(false); setNotifsOpen(false); setMobileOpen(false) }
     }
     document.addEventListener('mousedown', onDocClick)
     document.addEventListener('keydown', onKey)
@@ -174,8 +174,9 @@ export default function Header() {
 
   return (
     <header className={`commerce-header sticky top-0 z-50 ${scrolled ? 'is-scrolled' : ''}`}>
-      <div className="mx-auto flex max-w-7xl items-center gap-4 px-4">
-        <Link to="/" className="group flex items-center gap-2.5">
+      <div className="mp-utility"><div className="commerce-container"><span>Таджикистан <b>·</b> Цены в сомони (TJS)</span><div><Link to="/orders">Мои заказы</Link><Link to="/support">Помощь покупателю</Link><Link to="/garage">Мой автомобиль</Link></div></div></div>
+      <div className="commerce-header-main mx-auto flex max-w-7xl items-center gap-4 px-4">
+        <Link to="/" className="commerce-header-brand group flex shrink-0 items-center gap-2.5">
           <span className="au-monogram">
             AU
           </span>
@@ -189,7 +190,7 @@ export default function Header() {
           </div>
         </Link>
 
-        <div ref={searchWrapRef} className="relative hidden flex-1 md:block">
+        <div ref={searchWrapRef} className="commerce-header-search relative hidden min-w-0 flex-1 md:block">
           <form onSubmit={submitSearch}>
             <div
               className="flex w-full items-center gap-2 rounded-xl border px-3 py-2 transition focus-within:border-premium"
@@ -241,7 +242,7 @@ export default function Header() {
           )}
         </div>
 
-        <div className="ml-auto hidden items-center gap-3 lg:flex">
+        <div className="commerce-header-actions ml-auto hidden shrink-0 items-center gap-3 lg:flex">
           <select
             aria-label="Language"
             value={locale}
@@ -257,15 +258,6 @@ export default function Header() {
             <option value="tg">TG</option>
             <option value="en">EN</option>
           </select>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label="Toggle theme"
-            className="rounded-lg border p-2 transition hover:border-premium hover:text-premium"
-            style={{ borderColor: 'var(--border)' }}
-          >
-            {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          </button>
           <Link
             to="/garage"
             className="flex max-w-40 items-center gap-1 rounded-lg border px-2 py-1.5 text-sm transition hover:border-premium"
@@ -514,10 +506,6 @@ export default function Header() {
               <nav className="flex flex-col gap-3 text-sm font-medium">{navLinks}</nav>
               <div className="mobile-tools mt-4 text-sm">
                 <select aria-label="Язык интерфейса" value={locale} onChange={e => { const value = e.target.value as 'ru' | 'tg' | 'en'; setLocale(value); void i18n.changeLanguage(value) }}><option value="ru">RU</option><option value="tg">TG</option><option value="en">EN</option></select>
-                <button type="button" onClick={toggleTheme} className="flex items-center gap-2">
-                  {theme === 'dark' ? <Sun className="size-4" /> : <Moon className="size-4" />}{' '}
-                  {theme === 'dark' ? 'Light' : 'Dark'}
-                </button>
                 <div className="flex items-center gap-3">
                   <Link to="/compare" onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5">
                     <GitCompare className="size-4" /> {t('compare')} {comparisonIds.length > 0 ? `(${comparisonIds.length})` : ''}

@@ -7,11 +7,11 @@
   --color-charcoal: #15191f;
   --color-carbon: #15191f;
   --color-obsidian: #0b0d10;
-  --color-premium: #e83d4f;
-  --color-racing-red: #e83d4f;
-  --color-brand: #e83d4f;
-  --color-brand-hover: #cf3041;
-  --color-premium-deep: #cf3041;
+  --color-premium: #c7cdd4;
+  --color-racing-red: #c7cdd4;
+  --color-brand: #c7cdd4;
+  --color-brand-hover: #e0e4e8;
+  --color-premium-deep: #929ba6;
   --color-silver: #707887;
   --color-titanium: #707887;
   --color-hyper-blue: #0080ff;
@@ -57,23 +57,23 @@
 }
 
 :root {
-  --canvas: #fafbfd;
+  --canvas: #f5f3ed;
   --surface: #ffffff;
-  --surface-2: #f2f4f8;
-  --surface-3: #e8ecf2;
-  --border: #e6e9ef;
-  --border-strong: #d2d7e0;
-  --text: #171b26;
-  --text-muted: #707887;
-  --color-premium: #e83d4f;
-  --color-brand: #e83d4f;
-  --color-brand-hover: #cf3041;
+  --surface-2: #f0eee8;
+  --surface-3: #e8e6df;
+  --border: #e5e3dc;
+  --border-strong: #cecfc9;
+  --text: #162337;
+  --text-muted: #687486;
+  --color-premium: #2855d9;
+  --color-brand: #2855d9;
+  --color-brand-hover: #153db9;
   --color-success: #15946a;
   --color-warning: #e99a22;
   --shadow-sm: 0 1px 3px rgba(23, 27, 38, 0.04);
   --shadow-md: 0 4px 16px -2px rgba(23, 27, 38, 0.06), 0 2px 4px -2px rgba(23, 27, 38, 0.03);
   --shadow-lg: 0 20px 40px -12px rgba(23, 27, 38, 0.08), 0 4px 12px -4px rgba(23, 27, 38, 0.04);
-  --shadow-glow: 0 8px 30px -8px rgba(232, 61, 79, 0.35);
+  --shadow-glow: 0 8px 30px -8px rgba(40, 85, 217, 0.25);
 }
 
 .dark {
@@ -107,7 +107,7 @@ body {
 }
 
 ::selection {
-  background: rgb(227 38 54 / 0.25);
+  background: rgb(40 85 217 / 0.22);
 }
 
 ::-webkit-scrollbar {

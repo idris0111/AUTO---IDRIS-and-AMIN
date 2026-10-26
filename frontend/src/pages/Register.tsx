@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuth } from '../stores/auth'
 import { useCart } from '../stores/cart'
+import AuthPanel from '../components/layout/AuthPanel'
 
 const FIELD = 'w-full rounded-md border bg-transparent px-3 py-2.5 text-sm outline-none focus:border-premium'
 const BORDER = { borderColor: 'var(--border)' }
@@ -29,8 +30,9 @@ export default function Register() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 py-14">
-      <h1 className="text-2xl font-black">{t('register')}</h1>
+    <div className="auth-layout commerce-container">
+      <AuthPanel />
+      <div className="auth-card auth-register-card"><span className="mp-kicker">НОВЫЙ АККАУНТ</span><h1 className="auth-title">{t('register')}</h1><p className="auth-subtitle">Создайте аккаунт, чтобы сохранить автомобиль и отслеживать заказы.</p>
       <form onSubmit={submit} className="mt-6 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="block text-sm">
@@ -63,7 +65,7 @@ export default function Register() {
       <p className="mt-5 text-sm muted">
         {t('haveAccount')}{' '}
         <Link to="/login" className="font-semibold text-premium">{t('login')}</Link>
-      </p>
+      </p></div>
     </div>
   )
 }

@@ -162,13 +162,13 @@ export default function AiMechanic() {
             <div>
               <div className="inline-flex items-center gap-2 rounded-full border border-[#E32636]/30 bg-premium/10 px-3 py-1 font-mono text-xs font-bold text-premium">
                 <Sparkles className="size-3.5" />
-                <span>AI DIAGNOSTIC SUITE // ZERO HALLUCINATIONS</span>
+                <span>ПОМОЩНИК ПО СИМПТОМАМ</span>
               </div>
               <h1 className="mt-3 text-2xl sm:text-4xl font-black text-ink tracking-tight">
                 {t('aiMechanicTitle')}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-                Профессиональная нейродиагностика неисправностей автомобиля с точным сопоставлением реальных артикулов запчастей и узлов.
+                Опишите симптомы автомобиля. Помощник предложит возможные причины и детали для проверки; окончательный вывод требует осмотра специалиста.
               </p>
             </div>
 
@@ -213,7 +213,7 @@ export default function AiMechanic() {
                 <div className="mt-2">
                   <div className="text-sm font-semibold text-ink">Автомобиль не привязан</div>
                   <p className="font-mono text-xs text-muted mt-0.5">
-                    Добавьте авто в Гараж для точной привязки геометрии деталей.
+                    Добавьте автомобиль в гараж, чтобы учитывать доступные данные о совместимости деталей.
                   </p>
                   <Link
                     to="/garage"

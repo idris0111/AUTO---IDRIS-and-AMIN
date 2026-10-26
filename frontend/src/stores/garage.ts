@@ -11,7 +11,7 @@ type GarageState = {
   selectedVehicleId: string | null
   loading: boolean
   loadGarage: () => Promise<void>
-  loadVehicleTree: () => Promise<void>
+  loadVehicleTree: () => Promise<VehicleMake[]>
   addVehicle: (payload: Record<string, unknown>) => Promise<UserVehicle>
   updateVehicle: (id: string, payload: Record<string, unknown>) => Promise<UserVehicle>
   removeVehicle: (id: string) => Promise<void>
@@ -42,9 +42,11 @@ export const useGarage = create<GarageState>((set, get) => ({
   },
 
   async loadVehicleTree() {
-    if (get().vehicleTree.length) return
+    const cached = get().vehicleTree
+    if (cached.length) return cached
     const tree = await api.get<VehicleMake[]>('/vehicles')
     set({ vehicleTree: tree })
+    return tree
   },
 
   async addVehicle(payload) {

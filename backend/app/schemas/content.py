@@ -1,10 +1,11 @@
 import math
+import json
 import re
 import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from app.models.content import ArticleCategory
 
@@ -80,6 +81,17 @@ class ArticleSummary(BaseModel):
     reading_time_minutes: int
     published_at: datetime | None = None
     created_at: datetime
+
+    @field_validator("tags", mode="before")
+    @classmethod
+    def decode_legacy_tags(cls, value: Any) -> list[str]:
+        # Older SQLite seed/import paths stored JSON arrays as encoded text.
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except (TypeError, ValueError):
+                return []
+        return value if isinstance(value, list) else []
 
 
 class ArticleDetail(ArticleSummary):

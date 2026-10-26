@@ -789,7 +789,7 @@ export default function Admin() {
       </div>
 
       {/* Navigation Tabs */}
-      <nav className="mt-6 flex flex-wrap gap-2">
+      <nav className="admin-section-nav mt-6 flex gap-2 overflow-x-auto pb-3" aria-label="Разделы управления">
         {tabs.map((item) => {
           const active = tab === item.id
           return (
@@ -797,7 +797,7 @@ export default function Admin() {
               key={item.id}
               type="button"
               onClick={() => setTab(item.id)}
-              className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
+              className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg border px-4 py-2.5 text-sm font-semibold transition ${
                 active ? 'border-premium text-premium shadow-sm' : 'hover:border-premium/50'
               }`}
               style={{
@@ -819,8 +819,8 @@ export default function Admin() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 rounded-xl border border-outline-variant bg-surface-container-low">
             <div className="flex items-center gap-2.5 font-mono text-xs">
               <span className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-              <span className="text-on-surface font-semibold">Stitch Executive Commerce Intelligence:</span>
-              <span className="text-outline">Полнофункциональный режим мониторинга</span>
+              <span className="text-on-surface font-semibold">Аналитика AUTO UNIVERSE</span>
+              <span className="text-outline">Показатели магазина в реальном времени</span>
             </div>
             <Link
               to="/cockpit"
@@ -828,7 +828,7 @@ export default function Admin() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-primary-container text-on-primary-container font-mono text-xs font-bold hover:brightness-110 transition shadow-lg shadow-sky-500/20"
             >
-              <span>Открыть Fullscreen Cockpit</span>
+              <span>Открыть панель аналитики</span>
               <ExternalLink className="size-3.5" />
             </Link>
           </div>
@@ -1634,7 +1634,7 @@ export default function Admin() {
                   <Warehouse className="size-5 text-premium" />
                   Склады и филиалы
                 </h2>
-                <p className="text-xs text-muted mt-0.5">Сеть распределительных центров и складских площадок компании</p>
+                <p className="text-xs text-muted mt-0.5">Доступные склады и учёт остатков магазина</p>
               </div>
               <button
                 type="button"
@@ -3053,7 +3053,7 @@ export default function Admin() {
 
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-[#12161D] p-5 shadow-lg transition-all duration-300 hover:border-premium/40 hover:shadow-[0_0_20px_rgba(0,240,255,0.1)]">
+    <div className="admin-stat-card relative overflow-hidden rounded-xl border border-white/10 bg-[#12161D] p-5 shadow-lg transition-all duration-300 hover:border-premium/40">
       <div className="pointer-events-none absolute -right-6 -top-6 size-20 rounded-full bg-white/5 blur-xl" />
       <div className="flex items-center gap-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-slate-400">
         <div className="grid size-7 place-items-center rounded-lg bg-white/5 border border-white/10">

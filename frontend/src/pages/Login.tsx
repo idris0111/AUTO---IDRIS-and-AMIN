@@ -5,6 +5,7 @@ import { AlertCircle, ArrowRight, Lock, LogIn, Mail } from 'lucide-react'
 
 import { useAuth } from '../stores/auth'
 import { useCart } from '../stores/cart'
+import AuthPanel from '../components/layout/AuthPanel'
 
 export default function Login() {
   const { t } = useTranslation()
@@ -30,23 +31,21 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-[80vh] bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
-      {/* Background radial accent */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_40%,rgba(227,38,54,0.08),transparent)]" />
-
-      <div className="relative w-full max-w-md rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-8 sm:p-10 shadow-2xl">
+    <div className="auth-layout commerce-container">
+      <AuthPanel />
+      <div className="auth-card w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 sm:p-10">
         <div className="text-center mb-8">
           <div className="inline-flex size-12 items-center justify-center rounded-xl bg-premium/15 text-premium border border-[#E32636]/30 mb-3">
             <LogIn className="size-6" />
           </div>
           <div className="font-mono text-xs uppercase tracking-widest text-premium">
-            AU PERFORMANCE AUTH
+            ЛИЧНЫЙ КАБИНЕТ
           </div>
           <h1 className="mt-1 text-2xl sm:text-3xl font-black text-ink tracking-tight">
             {t('login')}
           </h1>
           <p className="mt-2 text-xs text-muted">
-            Войдите в личный кабинет для доступа к заказам и панели управления.
+            Войдите, чтобы видеть свои заказы, избранное и гараж.
           </p>
         </div>
 
@@ -64,7 +63,7 @@ export default function Login() {
                 aria-label={t('email')}
                 required
                 autoComplete="email"
-                placeholder="admin@autouniverse.tj"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] py-3 pl-10 pr-4 font-mono text-xs text-ink placeholder-slate-600 outline-none transition focus:border-[#E32636]"
@@ -85,7 +84,7 @@ export default function Login() {
                 aria-label={t('password')}
                 required
                 autoComplete="current-password"
-                placeholder="••••••••••••"
+                placeholder="Введите пароль"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] py-3 pl-10 pr-4 font-mono text-xs text-ink placeholder-slate-600 outline-none transition focus:border-[#E32636]"
@@ -105,7 +104,7 @@ export default function Login() {
             disabled={loading}
             className="w-full flex items-center justify-center gap-2 rounded-xl bg-premium py-3.5 font-mono text-xs font-bold text-ink shadow-[0_4px_20px_rgba(227,38,54,0.35)] transition hover:bg-[#D91F32] disabled:opacity-50"
           >
-            <span>{loading ? 'ВХОД В СИСТЕМУ...' : 'ВОЙТИ В СИСТЕМУ'}</span>
+            <span>{loading ? 'ВХОД...' : 'ВОЙТИ'}</span>
             <ArrowRight className="size-4" />
           </button>
         </form>

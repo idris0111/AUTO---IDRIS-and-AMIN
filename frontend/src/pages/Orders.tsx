@@ -6,9 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import type { PaginatedOrders, OrderListItem } from '../types'
 import { useAuth } from '../stores/auth'
+import GuestGate from '../components/layout/GuestGate'
+import ShopEmptyState from '../components/layout/ShopEmptyState'
 
-export function StatusBadge({ status }: { status: string }) {
-  const label: Record<string, string> = {
+export const orderStatusLabel = (status: string) => {
+  const labels: Record<string, string> = {
     pending: 'Ожидает',
     awaiting_payment: 'Ожидает оплаты',
     confirmed: 'Подтверждён',
@@ -20,13 +22,17 @@ export function StatusBadge({ status }: { status: string }) {
     cancelled: 'Отменён',
     returned: 'Возврат',
   }
+  return labels[status] ?? status
+}
+
+export function StatusBadge({ status }: { status: string }) {
   const tone =
     status === 'cancelled'
       ? 'bg-premium/15 text-premium'
       : status === 'completed' || status === 'delivered'
         ? 'bg-emerald-500/15 text-emerald-500'
         : 'bg-amber-500/15 text-amber-500'
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${tone}`}>{label[status] ?? status}</span>
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${tone}`}>{orderStatusLabel(status)}</span>
 }
 
 export default function Orders() {
@@ -39,15 +45,7 @@ export default function Orders() {
     enabled: Boolean(user),
   })
 
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-20 text-center">
-        <h1 className="text-2xl font-black">{t('myOrders')}</h1>
-        <p className="mt-3 muted">{t('authRequired')} историю заказов.</p>
-        <Link to="/login" className="mt-6 inline-block rounded-lg bg-premium px-6 py-3 font-semibold text-ink">{t('login')}</Link>
-      </div>
-    )
-  }
+  if (!user) return <GuestGate eyebrow="ВАШИ ПОКУПКИ" title={t('myOrders')} description="Войдите, чтобы видеть историю заказов и следить за их статусом." next="/orders" />
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -56,11 +54,7 @@ export default function Orders() {
       {orders.isLoading && <div className="mt-6 text-sm muted">{t('loading')}</div>}
 
       {orders.data?.items.length === 0 && (
-        <div className="mt-8 rounded-xl border p-10 text-center" style={{ borderColor: 'var(--border)' }}>
-          <PackageOpen className="mx-auto size-10 muted" />
-          <p className="mt-3 font-semibold">Заказов пока нет</p>
-          <Link to="/catalog" className="mt-3 inline-block text-premium">{t('continueShopping')}</Link>
-        </div>
+        <ShopEmptyState eyebrow="ИСТОРИЯ ПОКУПОК" title="Ваш первый заказ ещё впереди" description="Когда оформите заказ, здесь появятся его состав и статус. Начните с каталога деталей для вашего автомобиля." action={t('continueShopping')} icon={PackageOpen} visual="/images/brake-hero.jpg" />
       )}
 
       <ul className="mt-6 space-y-3">

@@ -21,6 +21,7 @@ from app.schemas.commerce import (
     PaginatedOrders,
 )
 from app.services import commerce as commerce_service
+from app.services.payments import PaymentState, payment_state
 
 cart_router = APIRouter(prefix="/cart", tags=["Cart"])
 orders_router = APIRouter(prefix="/orders", tags=["Orders"])
@@ -167,6 +168,15 @@ def cancel_order(
 ) -> Order:
     order = commerce_service.get_order(db, user, order_id)
     return commerce_service.cancel_order(db, user, order)
+
+
+@orders_router.get('/{order_id}/payment', response_model=PaymentState)
+def read_payment_state(
+    order_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> PaymentState:
+    return payment_state(commerce_service.get_order(db, user, order_id))
 
 
 @orders_router.post("/{order_id}/reorder", response_model=CartRead)

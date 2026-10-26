@@ -23,6 +23,7 @@ article_category_enum = Enum(
     native_enum=False,
     create_constraint=False,
     length=32,
+    values_callable=lambda categories: [category.value for category in categories],
 )
 
 

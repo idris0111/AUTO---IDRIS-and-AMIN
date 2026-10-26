@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { api } from '../lib/api'
 import { SeoHead } from '../components/seo/SeoHead'
+import ArticleArtwork from '../components/common/ArticleArtwork'
 import type { ArticleCategory, ArticleDetail as ArticleDetailType } from '../types'
 
 const CATEGORY_NAMES: Record<ArticleCategory, { label: string; icon: any }> = {
@@ -205,13 +206,13 @@ export default function ArticleDetail() {
     '@type': 'Article',
     headline: article.seo_title || article.title,
     description: article.seo_description || article.excerpt,
-    image: article.cover_image || 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80',
+    ...(article.cover_image ? { image: article.cover_image } : {}),
     datePublished: article.published_at || article.created_at,
     dateModified: article.updated_at || article.created_at,
-    author: {
+    ...(article.author_name ? { author: {
       '@type': 'Organization',
-      name: article.author_name || 'Инженерная команда Auto Universe',
-    },
+      name: article.author_name,
+    } } : {}),
     publisher: {
       '@type': 'Organization',
       name: 'Auto Universe Tajikistan',
@@ -227,7 +228,7 @@ export default function ArticleDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-gray-200 py-10 px-4 sm:px-6 lg:px-8">
+    <div className="article-detail-page min-h-screen bg-[var(--canvas)] text-gray-200 py-10 px-4 sm:px-6 lg:px-8">
       <SeoHead
         title={article.seo_title || article.title}
         description={article.seo_description || article.excerpt}
@@ -306,7 +307,7 @@ export default function ArticleDetail() {
           <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 pt-2 border-y border-[#252B33] py-3">
             <span className="inline-flex items-center gap-1.5 text-gray-300">
               <UserIcon className="w-3.5 h-3.5 text-premium" />
-              {article.author_name || 'Инженер Auto Universe'}
+              {article.author_name || 'Auto Universe'}
             </span>
             <span>•</span>
             <span className="inline-flex items-center gap-1.5">
@@ -336,22 +337,18 @@ export default function ArticleDetail() {
 
         {/* Cover Image */}
         {article.cover_image && (
-          <div className="relative rounded-2xl overflow-hidden aspect-video max-h-[460px] w-full border border-[#252B33] shadow-2xl">
-            <img
-              src={article.cover_image}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
+          <div className="article-cover relative rounded-2xl overflow-hidden aspect-video max-h-[460px] w-full border border-[#252B33] shadow-2xl">
+            <ArticleArtwork key={article.id} src={article.cover_image} alt={article.title} category={article.category} className="absolute inset-0" />
           </div>
         )}
 
         {/* Lead Excerpt */}
-        <div className="p-5 rounded-2xl bg-gradient-to-r from-[var(--surface)] via-[#1a1f26] to-[#15191F] border border-[#252B33] text-gray-200 text-sm sm:text-base font-medium leading-relaxed italic">
+        <div className="article-lead p-5 rounded-2xl border text-sm sm:text-base font-medium leading-relaxed italic">
           {article.excerpt}
         </div>
 
         {/* Article Body Content */}
-        <div className="bg-[var(--surface)]/40 border border-[#252B33] rounded-2xl p-6 sm:p-10 shadow-lg">
+        <div className="article-content bg-[var(--surface)]/40 border rounded-2xl p-6 sm:p-10">
           <FormattedArticleContent content={article.content} />
         </div>
 
@@ -374,7 +371,7 @@ export default function ArticleDetail() {
         )}
 
         {/* Call to action card */}
-        <div className="mt-12 bg-gradient-to-r from-[var(--surface)] via-[#211b1b] to-[#15191F] p-8 rounded-2xl border border-[#E32636]/30 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+        <div className="article-cta mt-12 p-8 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
             <h4 className="text-lg font-bold text-ink">Нужна помощь с выбором запчастей?</h4>
             <p className="text-xs text-gray-400">

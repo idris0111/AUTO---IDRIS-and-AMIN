@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import {
-  Award,
   Bell,
   CheckCircle2,
   Coins,
@@ -11,18 +10,13 @@ import {
   Lock,
   Mail,
   Package,
-  Radio,
-  ShieldCheck,
   Smartphone,
-  Sparkles,
   Trash2,
   User as UserIcon,
   Car,
   Globe,
   Sun,
   Moon,
-  ArrowRight,
-  TrendingUp,
 } from 'lucide-react'
 import type { NotificationItem, NotificationListResponse, NotificationPreference } from '../types'
 
@@ -30,6 +24,12 @@ import { api } from '../lib/api'
 import { useAuth } from '../stores/auth'
 import { useApp } from '../stores/app'
 import { useLoyalty } from '../stores/loyalty'
+import GuestGate from '../components/layout/GuestGate'
+
+const loyaltyTierName = (tier: string) => {
+  const names: Record<string, string> = { silver: 'Серебряный', gold: 'Золотой', platinum: 'Платиновый' }
+  return names[tier] ?? tier
+}
 
 export default function Profile() {
   const { t, i18n } = useTranslation()
@@ -111,24 +111,7 @@ export default function Profile() {
     }
   }, [user, loadLoyalty])
 
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-2xl px-4 py-24 text-center">
-        <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-white/10 bg-[#12161D] text-premium shadow-2xl">
-          <UserIcon className="size-8" />
-        </div>
-        <h1 className="mt-6 text-3xl font-black text-ink">Личный кабинет AU</h1>
-        <p className="mt-3 text-sm text-slate-400">Требуется авторизация для входа в панель управления профилем.</p>
-        <Link
-          to="/login"
-          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0080FF] to-[#00F0FF] px-8 py-3.5 text-xs font-mono font-bold uppercase tracking-wider text-black shadow-lg shadow-cyan-500/20 transition hover:brightness-110"
-        >
-          {t('login')}
-          <ArrowRight className="size-4" />
-        </Link>
-      </div>
-    )
-  }
+  if (!user) return <GuestGate eyebrow="ВАШ АККАУНТ" title="Личный кабинет" description="Войдите, чтобы управлять профилем, адресами, заказами и автомобилями." next="/profile" />
 
   async function saveProfile(event: React.FormEvent) {
     event.preventDefault()
@@ -164,54 +147,13 @@ export default function Profile() {
     }
   }
 
-  // Tier styling helpers
-  const tier = (loyalty?.tier_info.current_tier ?? 'silver').toLowerCase()
-  const tierConfig = {
-    silver: {
-      label: 'AU SILVER PILOT',
-      badge: 'border-slate-400/40 bg-slate-400/10 text-slate-300',
-      icon: ShieldCheck,
-      cardGradient: 'from-[#1E232D] via-[#14181F] to-[#0D1015]',
-      cardBorder: 'border-slate-500/30',
-      accentColor: '#94A3B8',
-      glow: 'rgba(148, 163, 184, 0.15)',
-    },
-    gold: {
-      label: 'AU GOLD EXECUTIVE',
-      badge: 'border-amber-400/50 bg-amber-400/10 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.25)]',
-      icon: Award,
-      cardGradient: 'from-[#2B2313] via-[#1A160F] to-[#0D0B08]',
-      cardBorder: 'border-amber-500/40',
-      accentColor: '#F59E0B',
-      glow: 'rgba(245, 158, 11, 0.25)',
-    },
-    platinum: {
-      label: 'AU PLATINUM VIP',
-      badge: 'border-cyan-400/50 bg-cyan-400/10 text-cyan-300 shadow-[0_0_20px_rgba(0,240,255,0.3)]',
-      icon: Crown,
-      cardGradient: 'from-[#0B1E2B] via-[#0E1520] to-[#070B10]',
-      cardBorder: 'border-cyan-500/40',
-      accentColor: '#00F0FF',
-      glow: 'rgba(0, 240, 255, 0.25)',
-    },
-  }[tier] ?? {
-    label: 'AU CLUB MEMBER',
-    badge: 'border-slate-500/40 bg-slate-500/10 text-slate-300',
-    icon: ShieldCheck,
-    cardGradient: 'from-[#1A1F26] via-[#12161D] to-[#0B0D12]',
-    cardBorder: 'border-[#252B35]',
-    accentColor: '#00F0FF',
-    glow: 'rgba(0, 240, 255, 0.15)',
-  }
-
-  const TierIcon = tierConfig.icon
   const filteredNotifs = notifFilter === 'unread' ? notifHistory.filter((n) => !n.is_read) : notifHistory
   const unreadCount = notifHistory.filter((n) => !n.is_read).length
 
   return (
-    <div className="min-h-screen bg-[#07090C] text-ink pb-24 selection:bg-premium selection:text-black">
+    <div className="customer-profile min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-white">
       {/* Background Aurora / Ambient */}
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_70%_50%_at_50%_-10%,rgba(0,240,255,0.06),transparent_80%)]" />
+      <div className="pointer-events-none fixed inset-0" />
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-8">
         {/* Cockpit Status Header */}
@@ -219,9 +161,9 @@ export default function Profile() {
           <div>
             <div className="flex items-center gap-2 font-mono text-[11px] font-bold uppercase tracking-widest text-premium">
               <span className="size-2 rounded-full bg-premium animate-pulse" />
-              <span>AU PERFORMANCE OS</span>
+              <span>ЛИЧНЫЙ КАБИНЕТ</span>
               <span className="text-ink/20">/</span>
-              <span>PILOT COCKPIT</span>
+              <span>ПОКУПКИ И ПРОФИЛЬ</span>
               <span className="text-ink/20">/</span>
               <span className="text-slate-400">ID: AU-{user.id.slice(0, 8).toUpperCase()}</span>
             </div>
@@ -229,7 +171,7 @@ export default function Profile() {
               Личный кабинет
             </h1>
             <p className="mt-1 text-xs text-slate-400">
-              Управление персональной телеметрией, клубным статусом и параметрами безопасности.
+              Ваши данные, заказы, адреса и настройки аккаунта.
             </p>
           </div>
 
@@ -264,186 +206,14 @@ export default function Profile() {
         {/* ============================================================== */}
         {/* 1. AU CLUB MEMBERSHIP METALLIC FOIL CARD & TELEMETRY ROW       */}
         {/* ============================================================== */}
-        <div className="mt-8 grid gap-6 lg:grid-cols-12 items-stretch">
-          {/* Executive Metallic Card */}
-          <div
-            className={`lg:col-span-6 rounded-2xl border ${tierConfig.cardBorder} bg-gradient-to-br ${tierConfig.cardGradient} p-6 sm:p-7 shadow-2xl relative overflow-hidden flex flex-col justify-between`}
-            style={{
-              boxShadow: `0 10px 40px -10px ${tierConfig.glow}`,
-            }}
-          >
-            {/* Holographic light sweep effect */}
-            <div className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full opacity-30 blur-3xl" style={{ background: tierConfig.accentColor }} />
-            <div className="pointer-events-none absolute -left-20 -bottom-20 size-60 rounded-full opacity-15 blur-3xl bg-[#0080FF]" />
-
-            {/* Top row of card: Emblem & Contactless */}
-            <div className="relative flex items-start justify-between">
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className="size-8 rounded-lg bg-white/10 border border-white/20 grid place-items-center backdrop-blur-md">
-                    <Sparkles className="size-4 text-premium" />
-                  </div>
-                  <div>
-                    <span className="block font-black tracking-widest text-ink text-sm">AU PERFORMANCE</span>
-                    <span className="block font-mono text-[9px] uppercase tracking-widest text-premium">EXECUTIVE LUXURY PASS</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Radio className="size-4 text-slate-400 rotate-90" />
-                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider ${tierConfig.badge}`}>
-                  <TierIcon className="size-3" />
-                  {tierConfig.label}
-                </span>
-              </div>
-            </div>
-
-            {/* Smart EMV Chip & Monospace Card Number */}
-            <div className="relative my-8">
-              <div className="flex items-center gap-4 mb-4">
-                {/* Brushed Gold EMV Chip Visual */}
-                <div className="size-9 rounded-md bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 border border-amber-300/50 shadow-inner p-1 grid grid-cols-2 grid-rows-2 gap-0.5">
-                  <div className="border-r border-b border-amber-700/40 rounded-tl" />
-                  <div className="border-b border-amber-700/40 rounded-tr" />
-                  <div className="border-r border-amber-700/40 rounded-bl" />
-                  <div className="rounded-br" />
-                </div>
-                <div className="font-mono text-sm tracking-widest text-slate-400">
-                  AUTO UNIVERSE CLIENT CLUB
-                </div>
-              </div>
-
-              <div className="font-mono text-lg sm:text-xl font-bold tracking-[0.22em] text-ink/90 drop-shadow">
-                AU • 9920 • 8472 • {user.id.slice(0, 4).toUpperCase()}
-              </div>
-
-              <div className="mt-3 flex items-center justify-between text-xs font-mono text-slate-400">
-                <div>
-                  <span className="block text-[9px] uppercase tracking-wider text-slate-500">PILOT / HOLDER</span>
-                  <span className="font-bold text-ink">
-                    {user.first_name || user.last_name ? `${user.first_name} ${user.last_name}`.toUpperCase() : 'VIP CLIENT'}
-                  </span>
-                </div>
-                <div className="text-right">
-                  <span className="block text-[9px] uppercase tracking-wider text-slate-500">ROLE TIER</span>
-                  <span className="font-bold text-premium uppercase">{user.role}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom HUD bar on card: Live Balance & Cashback */}
-            <div className="relative border-t border-white/10 pt-4 flex items-center justify-between">
-              <div>
-                <span className="block font-mono text-[10px] uppercase text-slate-400">Баланс бонусов</span>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-2xl font-black text-amber-400 font-mono tracking-tight">
-                    {loyalty?.points_balance ?? 100}
-                  </span>
-                  <span className="font-mono text-xs font-bold text-slate-400">TJS</span>
-                </div>
-              </div>
-
-              <div className="text-right">
-                <span className="block font-mono text-[10px] uppercase text-slate-400">Кэшбэк на заказы</span>
-                <div className="inline-flex items-center gap-1.5 rounded-lg border border-premium/40 bg-premium/10 px-2.5 py-1 text-xs font-bold font-mono text-premium">
-                  <TrendingUp className="size-3.5" />
-                  <span>{loyalty?.tier_info.cashback_percent ?? 3}% МГНОВЕННО</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Telemetry Metrics & Tier Progress */}
-          <div className="lg:col-span-6 flex flex-col justify-between gap-4">
-            {/* 3 Compact HUD cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="rounded-xl border border-white/10 bg-[#12161D] p-4 flex flex-col justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400">Кэшбэк статус</span>
-                <div className="mt-2 text-2xl font-black text-[#10B981] font-mono">
-                  {loyalty?.tier_info.cashback_percent ?? 3}%
-                </div>
-                <p className="mt-1 text-[11px] text-slate-400">Возврат с каждой покупки</p>
-              </div>
-
-              <div className="rounded-xl border border-white/10 bg-[#12161D] p-4 flex flex-col justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400">Всего покупок</span>
-                <div className="mt-2 text-2xl font-black text-premium font-mono">
-                  {Number(loyalty?.total_spent ?? 0).toFixed(0)} <span className="text-xs font-normal text-slate-400">TJS</span>
-                </div>
-                <p className="mt-1 text-[11px] text-slate-400">Накопительный объем</p>
-              </div>
-
-              <div className="rounded-xl border border-white/10 bg-[#12161D] p-4 flex flex-col justify-between">
-                <span className="font-mono text-[10px] uppercase tracking-wider text-slate-400">Всего начислено</span>
-                <div className="mt-2 text-2xl font-black text-[#F59E0B] font-mono">
-                  {loyalty?.lifetime_points ?? 100}
-                </div>
-                <p className="mt-1 text-[11px] text-slate-400">1 балл = 1 сомони скидки</p>
-              </div>
-            </div>
-
-            {/* Next Tier Telemetry Progress Bar */}
-            <div className="rounded-xl border border-white/10 bg-[#12161D] p-5">
-              <div className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <Award className="size-4 text-amber-400" />
-                  <span className="font-medium text-ink">
-                    {loyalty?.tier_info.next_tier ? (
-                      <>
-                        Прогресс до статуса <strong className="font-mono uppercase text-amber-400">{loyalty.tier_info.next_tier}</strong>
-                      </>
-                    ) : (
-                      'Максимальный VIP уровень достигнут'
-                    )}
-                  </span>
-                </div>
-                {loyalty?.tier_info.next_tier && (
-                  <span className="font-mono text-xs text-slate-400">
-                    Осталось: <strong className="text-ink">{Number(loyalty.tier_info.spent_needed_for_next).toFixed(2)} TJS</strong>
-                  </span>
-                )}
-              </div>
-
-              <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/5 border border-white/10">
-                <div
-                  className="h-full bg-gradient-to-r from-[#0080FF] via-[#00F0FF] to-[#10B981] transition-all duration-700 rounded-full"
-                  style={{ width: `${Math.min(100, Math.max(10, loyalty?.tier_info.tier_progress_percent ?? 20))}%` }}
-                />
-              </div>
-
-              <div className="mt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
-                <span>Silver (3%)</span>
-                <span>Gold (5%)</span>
-                <span>Platinum VIP (7%)</span>
-              </div>
-            </div>
-
-            {/* Privilege Highlights */}
-            <div className="rounded-xl border border-white/10 bg-[#12161D] p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="inline-flex items-center gap-1.5 text-slate-300">
-                  <CheckCircle2 className="size-3.5 text-[#10B981]" />
-                  Оплата бонусами до 30%
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-slate-300">
-                  <CheckCircle2 className="size-3.5 text-premium" />
-                  1 бонус = 1 TJS
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-slate-300">
-                  <CheckCircle2 className="size-3.5 text-amber-400" />
-                  Возврат при отмене
-                </span>
-              </div>
-              <Link
-                to="/catalog"
-                className="font-mono text-xs font-bold text-premium hover:underline flex items-center gap-1"
-              >
-                В КАТАЛОГ <ArrowRight className="size-3" />
-              </Link>
-            </div>
-          </div>
-        </div>
+        {loyalty && <section className="profile-loyalty" aria-label="Программа лояльности">
+          <div className="profile-loyalty-intro"><span className="mp-kicker">AUTO UNIVERSE · БОНУСЫ</span><h2>Ваши бонусы</h2><p>Баланс и условия по вашему аккаунту.</p></div>
+          <div className="profile-loyalty-stat"><span>Доступно баллов</span><strong>{loyalty.points_balance}</strong></div>
+          <div className="profile-loyalty-stat"><span>Уровень</span><strong>{loyaltyTierName(loyalty.tier_info.current_tier)}</strong></div>
+          <div className="profile-loyalty-stat"><span>Кэшбэк</span><strong>{loyalty.tier_info.cashback_percent}%</strong></div>
+          <div className="profile-loyalty-stat"><span>Сумма покупок</span><strong>{Number(loyalty.total_spent).toLocaleString('ru-RU')} TJS</strong></div>
+          {loyalty.tier_info.next_tier && <p className="profile-loyalty-next">До уровня «{loyaltyTierName(loyalty.tier_info.next_tier)}»: {Number(loyalty.tier_info.spent_needed_for_next).toLocaleString('ru-RU')} TJS</p>}
+        </section>}
 
         {/* ============================================================== */}
         {/* 2. PERSONAL DATA & SECURITY DUAL COCKPIT                       */}
@@ -452,7 +222,7 @@ export default function Profile() {
           {/* Left: Personal Dossier */}
           <form
             onSubmit={saveProfile}
-            className="rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl relative overflow-hidden"
+            className="profile-card rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl relative overflow-hidden"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
               <div className="flex items-center gap-2.5">
@@ -465,7 +235,7 @@ export default function Profile() {
                 </div>
               </div>
               <span className="rounded-md border border-[#10B981]/30 bg-[#10B981]/10 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-[#10B981]">
-                VERIFIED
+                АККАУНТ
               </span>
             </div>
 
@@ -509,7 +279,7 @@ export default function Profile() {
               <button
                 type="submit"
                 disabled={isSavingProfile}
-                className="w-full mt-2 rounded-xl bg-gradient-to-r from-[#0080FF] to-[#00F0FF] py-3 font-mono text-xs font-bold uppercase tracking-wider text-black shadow-lg shadow-cyan-500/20 transition hover:brightness-110 disabled:opacity-50"
+                className="profile-save-button w-full mt-2 rounded-xl py-3 text-xs font-bold transition disabled:opacity-50"
               >
                 {isSavingProfile ? 'Сохранение...' : 'Сохранить изменения'}
               </button>
@@ -520,7 +290,7 @@ export default function Profile() {
           <div className="space-y-6">
             <form
               onSubmit={changePassword}
-              className="rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl"
+              className="profile-card rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl"
             >
               <div className="flex items-center gap-2.5 border-b border-white/10 pb-4 mb-5">
                 <div className="grid size-8 place-items-center rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30">
@@ -564,7 +334,7 @@ export default function Profile() {
                 <button
                   type="submit"
                   disabled={isChangingPassword}
-                  className="w-full mt-2 rounded-xl border border-amber-500/40 bg-amber-500/10 py-3 font-mono text-xs font-bold uppercase tracking-wider text-amber-300 hover:bg-amber-500/20 transition disabled:opacity-50"
+                  className="profile-password-button w-full mt-2 rounded-xl py-3 text-xs font-bold transition disabled:opacity-50"
                 >
                   {isChangingPassword ? 'Обновление...' : 'Обновить пароль'}
                 </button>
@@ -572,7 +342,7 @@ export default function Profile() {
             </form>
 
             {/* Interface & Garage Quick Links */}
-            <div className="rounded-2xl border border-white/10 bg-[#12161D] p-5">
+            <div className="profile-card rounded-2xl border border-white/10 bg-[#12161D] p-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   type="button"
@@ -628,7 +398,7 @@ export default function Profile() {
         {/* ============================================================== */}
         {/* 3. NOTIFICATION CENTER & DISPATCH PREFERENCES                 */}
         {/* ============================================================== */}
-        <div className="mt-8 rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl">
+        <div className="profile-card mt-8 rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
             <div className="flex items-center gap-3">
               <div className="grid size-9 place-items-center rounded-xl bg-premium/10 text-premium border border-premium/30">
@@ -842,14 +612,14 @@ export default function Profile() {
         {/* ============================================================== */}
         {/* 4. BONUS LEDGER & TRANSACTION HISTORY                          */}
         {/* ============================================================== */}
-        <div className="mt-8 rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl">
+        <div className="profile-card mt-8 rounded-2xl border border-white/10 bg-[#12161D] p-6 shadow-xl">
           <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
             <h3 className="flex items-center gap-2 text-sm font-bold text-ink uppercase tracking-wider font-mono">
               <History className="size-4 text-premium" />
               Журнал транзакций AU Club
             </h3>
             <span className="font-mono text-xs text-slate-400">
-              Баланс: <strong className="text-amber-400">{loyalty?.points_balance ?? 100} TJS</strong>
+              Баланс: <strong className="text-amber-400">{loyalty ? loyalty.points_balance : '—'} баллов</strong>
             </span>
           </div>
 
@@ -913,7 +683,7 @@ export default function Profile() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-right text-slate-400 whitespace-nowrap">
-                        {tx.balance_after} TJS
+                        {tx.balance_after} б.
                       </td>
                     </tr>
                   ))}
@@ -922,7 +692,7 @@ export default function Profile() {
             </div>
           ) : (
             <div className="rounded-xl border border-white/5 bg-[#07090C] p-6 text-center text-xs text-slate-400">
-              Пока нет операций по бонусному счету.
+              {loyalty ? 'Пока нет операций по бонусному счёту.' : 'Данные бонусного счёта пока недоступны.'}
             </div>
           )}
         </div>

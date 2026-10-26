@@ -10,6 +10,6 @@ export default function ProductMedia({ src, alt, categorySlug, categoryName, pri
   useEffect(() => { setFailed(false) }, [src])
   const placeholder = !src || demoScenes.some(id => src.includes(id)) || failed
   const Icon = categoryIcons[categorySlug as keyof typeof categoryIcons] || Package
-  if (placeholder) return <div className="product-media-placeholder" role="img" aria-label={`${categoryName || alt}: фото уточняется`}><Icon size={76} strokeWidth={.8} /><span>Фото уточняется</span></div>
+  if (placeholder) return <div className={`product-media-placeholder product-media-editorial product-media-editorial-${categorySlug || 'default'}`} role="img" aria-label={`${categoryName || alt}: иллюстрация категории, фото конкретного товара уточняется`}><span className="product-media-editorial-tag"><Icon size={14} strokeWidth={1.6} /> Иллюстрация категории</span><span className="product-media-editorial-note">Фото товара уточняется</span></div>
   return <img src={src!} alt={alt} loading={priority ? 'eager' : 'lazy'} fetchPriority={priority ? 'high' : 'auto'} className="product-real-image" onError={() => setFailed(true)} />
 }

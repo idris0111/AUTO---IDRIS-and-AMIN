@@ -1,6 +1,6 @@
 import uuid
 from fastapi.testclient import TestClient
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.models.catalog import Brand, Category, Product, ProductStatus
@@ -23,6 +23,12 @@ def test_public_content_articles_and_views(client: TestClient, db: Session) -> N
         reading_time_minutes=5,
     )
     db.add(article)
+    db.commit()
+    # The migration stores enum values (for example `guide`), not Python names (`GUIDE`).
+    db.execute(
+        text("UPDATE articles SET category = 'guide' WHERE slug = :slug"),
+        {"slug": article.slug},
+    )
     db.commit()
 
     # 1. Fetch public articles list
