@@ -217,4 +217,5 @@ Certbot активен. Если не активен — изучить уста
 
 Справка: [Nginx proxy](https://nginx.org/en/docs/http/ngx_http_proxy_module.html),
 [PostgreSQL peer](https://www.postgresql.org/docs/current/auth-peer.html),
+[PostgreSQL locale/ICU](https://www.postgresql.org/docs/16/sql-createdatabase.html),
 [Certbot](https://certbot.eff.org/).
