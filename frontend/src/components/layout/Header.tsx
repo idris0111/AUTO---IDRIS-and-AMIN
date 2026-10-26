@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, Coins, GitCompare, Heart, Menu, Package, Search, ShoppingCart, Sparkles, Truck, User as UserIcon, X } from 'lucide-react'
+import { Bell, CheckCheck, Coins, GitCompare, Heart, Menu, Moon, Package, Search, ShoppingCart, Sparkles, Sun, Truck, User as UserIcon, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -14,11 +14,12 @@ import { useComparison } from '../../stores/comparison'
 import { useLoyalty } from '../../stores/loyalty'
 import { useNotifications } from '../../stores/notifications'
 import CatalogMenu from './CatalogMenu'
+import BrandEmblem from '../common/BrandEmblem'
 
 export default function Header() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
-  const { locale, setLocale } = useApp()
+  const { locale, setLocale, theme, toggleTheme } = useApp()
   const { user, logout } = useAuth()
   const { cart, fetchCart } = useCart()
   const { selectedVehicleId, vehicles, loadGarage } = useGarage()
@@ -178,7 +179,7 @@ export default function Header() {
       <div className="commerce-header-main mx-auto flex max-w-7xl items-center gap-4 px-4">
         <Link to="/" className="commerce-header-brand group flex shrink-0 items-center gap-2.5">
           <span className="au-monogram">
-            AU
+            <BrandEmblem size={34} />
           </span>
           <div className="flex flex-col">
             <span className="brand-wordmark">
@@ -258,6 +259,16 @@ export default function Header() {
             <option value="tg">TG</option>
             <option value="en">EN</option>
           </select>
+          <button
+            type="button"
+            className="theme-toggle"
+            onClick={toggleTheme}
+            aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
+            aria-pressed={theme === 'light'}
+            title={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
+          >
+            {theme === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+          </button>
           <Link
             to="/garage"
             className="flex max-w-40 items-center gap-1 rounded-lg border px-2 py-1.5 text-sm transition hover:border-premium"
@@ -506,6 +517,16 @@ export default function Header() {
               <nav className="flex flex-col gap-3 text-sm font-medium">{navLinks}</nav>
               <div className="mobile-tools mt-4 text-sm">
                 <select aria-label="Язык интерфейса" value={locale} onChange={e => { const value = e.target.value as 'ru' | 'tg' | 'en'; setLocale(value); void i18n.changeLanguage(value) }}><option value="ru">RU</option><option value="tg">TG</option><option value="en">EN</option></select>
+                <button
+                  type="button"
+                  className="theme-toggle mobile-theme-toggle"
+                  onClick={toggleTheme}
+                  aria-label={theme === 'dark' ? 'Включить светлую тему' : 'Включить тёмную тему'}
+                  aria-pressed={theme === 'light'}
+                >
+                  {theme === 'dark' ? <Sun className="size-4" aria-hidden /> : <Moon className="size-4" aria-hidden />}
+                  <span>{theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}</span>
+                </button>
                 <div className="flex items-center gap-3">
                   <Link to="/compare" onClick={() => setMobileOpen(false)} className="flex items-center gap-1.5">
                     <GitCompare className="size-4" /> {t('compare')} {comparisonIds.length > 0 ? `(${comparisonIds.length})` : ''}
