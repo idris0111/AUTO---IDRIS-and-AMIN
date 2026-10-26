@@ -90,7 +90,7 @@ export default function Blog() {
     name: 'База знаний & Блог автолюбителей Auto Universe',
     description:
       'Статьи, технические регламенты и руководства по выбору автозапчастей и ремонту автомобилей в Таджикистане.',
-    url: 'https://autouniverse.tj/blog',
+    url: 'https://zapchast.king.tj/blog',
   }
 
   return (
@@ -98,7 +98,7 @@ export default function Blog() {
       <SeoHead
         title="База знаний & Блог автолюбителей"
         description="Материалы о выборе автозапчастей и обслуживании автомобиля."
-        canonical="https://autouniverse.tj/blog"
+        canonical="https://zapchast.king.tj/blog"
         structuredData={collectionSchema}
       />
 

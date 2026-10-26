@@ -218,12 +218,12 @@ export default function ArticleDetail() {
       name: 'Auto Universe Tajikistan',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://autouniverse.tj/logo.png',
+        url: 'https://zapchast.king.tj/favicon.svg',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://autouniverse.tj/blog/${article.slug}`,
+      '@id': `https://zapchast.king.tj/blog/${article.slug}`,
     },
   }
 
@@ -233,7 +233,7 @@ export default function ArticleDetail() {
         title={article.seo_title || article.title}
         description={article.seo_description || article.excerpt}
         keywords={article.seo_keywords || article.tags?.join(', ')}
-        canonical={`https://autouniverse.tj/blog/${article.slug}`}
+        canonical={`https://zapchast.king.tj/blog/${article.slug}`}
         ogImage={article.cover_image || undefined}
         ogType="article"
         articleData={{
