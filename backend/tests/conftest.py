@@ -6,13 +6,19 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, inspect
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import Session, sessionmaker
 
 _tmpdir = Path(tempfile.mkdtemp(prefix="autouniverse-tests-"))
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL") or f"sqlite:///{_tmpdir / 'test.db'}"
+if os.getenv("TEST_DATABASE_URL"):
+    test_url = make_url(TEST_DATABASE_URL)
+    if test_url.get_backend_name() != "postgresql" or not (test_url.database or "").endswith("_test"):
+        raise RuntimeError("Explicit TEST_DATABASE_URL must select a dedicated PostgreSQL database ending in _test")
 os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 os.environ.setdefault("JWT_SECRET", "test-secret-that-is-longer-than-thirty-two-characters")
 os.environ["APP_ENV"] = "test"
+os.environ["SITE_URL"] = "https://zapchast.king.tj"
 
 from app.database import Base, configure_sqlite_engine, get_db  # noqa: E402
 from app.main import app  # noqa: E402
