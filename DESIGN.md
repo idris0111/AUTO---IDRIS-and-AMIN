@@ -1,64 +1,76 @@
-# AUTO UNIVERSE — Black & Silver Automotive
+# AUTO UNIVERSE — Black & Silver × Amber
 
-Active direction from the user's request on 25 October 2026. This supersedes
-the former bright/red Modern Precision direction. Preserve the existing identity
-until the exact AUTO PRIME artwork and naming are supplied; do not claim a match
-to an image that is unavailable.
+Active direction confirmed 26 October 2026. This supersedes the former
+bright/red and blue marketplace layers. The storefront CSS has been
+consolidated into a single system; legacy marketplace/commerce files were
+removed.
 
 ## Palette and material
 
-Graphite canvas #0B0D10, panels #12161B / #171C22, raised controls #232830.
-Primary type #F7F8FA, muted type #A4ADB8, hairlines #2A313A, strong borders #414B56.
-Silver #C7CDD4 is the primary accent. Metallic gradients belong on small action
-surfaces, never across every panel. Avoid neon, saturated brand highlights and
-decorative financial numbers. Semantic stock/error colors remain subdued.
+Graphite canvas `#0D0F12`, panels `#14171B` / `#191D22`, raised `#20252B`.
+Primary type `#F0F1F2`, muted `#9CA4AD`, hairlines `#2B3037`.
+**Silver `#CBD0D5`** is the primary accent (actions, metal, focus).
+**Amber `#D9A441`** is the secondary accent (discount badges, ratings,
+loyalty, kickers, benefit rules) — warm, restrained, never neon.
+Semantic colors are subdued: success `#8FBF9F`, danger `#D98F8F`,
+warning `#D9B070`.
 
-The existing `frontend/src/black-silver.css` is now imported after legacy styles.
-The analytics workspace owns scoped `.pa-*` tokens in premium-analytics.css.
-Consolidation of legacy CSS needs visual regression checks before removing layers.
+Light mode mirrors the same roles with warm porcelain surfaces
+(`#F3F2EF` canvas, `#353A40` silver-ink, `#9A7328` amber-ink).
 
-## Composition and typography
+## File structure
 
-Storefront: cinematic automotive photography, a strong typographic lead, distinct
-vehicle selection and merchandising sections. Preserve the working catalogue,
-search and vehicle compatibility APIs. Editorial photographs must not impersonate
-verified SKU photographs. Keep missing-image labels when real media is absent.
+```
+frontend/src/index.css          — Tailwind entry, @theme bridge, base, cockpit icons
+frontend/src/styles/tokens.css  — single source of truth (dark + light)
+frontend/src/styles/components.css — all storefront components
+frontend/src/styles/motion.css  — keyframes + reduced-motion guard
+frontend/src/components/cockpit/premium-analytics.css — isolated cockpit layer (.pa-*)
+```
 
-Analytics: graphite sidebar, narrow workspace header, large figures, restrained
-silver lines, precise tables and generous separation between groups. Manrope for
-headings/body; tabular figures and monospace SKU detail. Strong hierarchy before
-decoration. The UI must remain useful with zero orders and an empty catalogue.
+`App.tsx` imports only `index.css`, which `@import`s the three style files.
+Do not reintroduce parallel CSS layers; extend `components.css`.
 
-## Interaction
+## Typography
 
-Visible focus rings, labelled form controls, keyboard-accessible native selects
-and details, inline errors and retry actions. Dialogs retain the existing focus
-management. Recharts includes tooltip/accessibility support and an alternate data
-table. Reduced motion disables decorative transitions; charts do not animate data.
+Manrope 300–800 for display and body (`--font-body`); JetBrains Mono for
+SKU, telemetry, kickers (`--font-mono`). Loaded in `frontend/index.html`.
+Display headings use weight 650–720 with `-0.045em` to `-0.055em` tracking.
 
-Filter changes query the server. Date drafts apply explicitly; presets apply
-immediately. Drill-down means a documented cohort of orders containing a category.
-No fake controls for unsupported payment or unavailable statistics.
+## Signature details
+
+- Asymmetric radii: cards `5px 15px 5px 15px`, hero `4px 22px 4px 22px`.
+- Satin-silver primary buttons (light gradient + inset highlight) in dark
+  mode; solid ink buttons in light mode.
+- Hero photo carries a fine SVG grain overlay and a mono caption chip.
+- Product photo fields are graphite studio radials, never white boxes.
+- Discount badges and rating stars use amber.
+- Vehicle picker fields carry mono step numbers `01–04`.
+- Scroll-reveal on home sections via framer-motion `Reveal`
+  (`whileInView`, once, guarded by `prefers-reduced-motion`).
+
+## Interaction and motion
+
+Visible focus rings (`--focus-ring`), labelled controls, inline errors.
+`motion.css` disables decorative animation under reduced motion; charts
+never animate data. Filter changes still query the server; date drafts
+apply explicitly.
 
 ## Responsive behavior
 
-Store product grids retain two mobile columns and four large-screen columns.
-Analytics sidebar gives way to wrapped navigation tabs below 900 px. KPI cards
-become two columns, graphs stack, and tables scroll inside their own containers.
-The entire page must not scroll horizontally. Check at 320, 390, 768, 1440 and
-1920 px in a real browser before accepting this as visually finished.
+Store grids: 4 columns desktop, 2 on mobile. Hero copy stacks above the
+photo below 767px. Catalog sidebar becomes a dialog below 1024px. Verify
+at 320, 390, 768, 1440 and 1920 px before accepting visual changes.
 
 ## Data truth
 
-Default monetary unit: TJS. Russian is the primary copy, with existing tg/en locale
-infrastructure retained; full translation of new analytics copy remains pending.
-No invented addresses, ratings, stock, compatibility or financial performance.
-Order value must never be called settled revenue. Unknown cost, payment and visit
-data must remain visibly unavailable. See docs/ANALYTICS_METRICS.md.
+Default monetary unit: TJS. Russian is the primary copy. No invented
+addresses, ratings, stock, compatibility or financial performance.
+Editorial photographs must not impersonate verified SKU photographs;
+missing-image labels remain when real media is absent.
 
 ## Acceptance status
 
-Code builds and backend tests pass. Exact AUTO PRIME comparison and browser visual
-QA are still pending: IAB/Edge were unavailable, and native Chrome launch through
-computer-use timed out. Existing screenshots are from prior versions and must not
-be used as proof that this revision passed visual acceptance.
+`npm run build`, `npm run lint` (pre-existing warnings only) and
+`npm test` pass after consolidation. Browser visual QA across breakpoints
+and both themes remains the owner's final gate.

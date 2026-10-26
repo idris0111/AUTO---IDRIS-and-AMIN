@@ -1,0 +1,29 @@
+/* AUTO UNIVERSE — motion primitives. Decorative only; charts never animate data. */
+
+@keyframes au-skeleton { from { opacity: .5; } to { opacity: 1; } }
+@keyframes au-reveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pop-badge { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+
+.fade-in-up { animation: fade-in-up .4s ease both; }
+.pop-badge { animation: pop-badge .3s ease; }
+.au-reveal { animation: au-reveal .55s cubic-bezier(.2, .7, .2, 1) both; }
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .06), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

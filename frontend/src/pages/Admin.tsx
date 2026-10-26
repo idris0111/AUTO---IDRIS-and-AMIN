@@ -39,7 +39,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import { useAuth } from '../stores/auth'
 import { ExecutiveCockpit } from '../components/cockpit/ExecutiveCockpit'
-import type { ArticleCategory, ArticleDetail as ArticleDetailType, ArticleListResponse, ArticleSummary, Brand, Category, TicketDetail, TicketListResponse, User } from '../types'
+import type { ArticleCategory, ArticleDetail as ArticleDetailType, ArticleListResponse, ArticleSummary, Brand, Category, TicketDetail, TicketListResponse, User, VehicleMake } from '../types'
 
 const FIELD =
   'w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition focus:border-premium focus:ring-1 focus:ring-premium'
@@ -105,8 +105,43 @@ interface ProductAdminItem {
   category: { id: string; name: string; slug: string }
   images: { id: string; url: string; is_primary: boolean }[]
   oem_numbers?: { id: string; number: string; manufacturer: string | null }[]
+  specifications?: { id: string; name: string; value: string; unit: string | null; position: number }[]
   short_description?: string | null
   description?: string | null
+}
+
+interface ProductCompatibilityAdminRow {
+  id: string
+  product_id: string
+  make_id: string
+  model_id: string | null
+  generation_id: string | null
+  modification_id: string | null
+  engine_id: string | null
+  year_from: number | null
+  year_to: number | null
+  note: string | null
+}
+
+function compatibilityLabel(rule: ProductCompatibilityAdminRow, makes: VehicleMake[] = []) {
+  const make = makes.find(item => item.id === rule.make_id)
+  const model = make?.models.find(item => item.id === rule.model_id)
+  const generation = model?.generations.find(item => item.id === rule.generation_id)
+  const modification = generation?.modifications.find(item => item.id === rule.modification_id)
+  const engine = modification?.engines.find(item => item.id === rule.engine_id)
+  const vehicle = [make?.name, model?.name, generation?.name, modification?.name, engine?.name].filter(Boolean).join(' ')
+  const years = rule.year_from || rule.year_to ? ` · ${rule.year_from ?? '…'}–${rule.year_to ?? '…'}` : ''
+  return `${vehicle || 'Марка из базы'}${years}`
+}
+
+function parseOemLines(value: string) {
+  return value.split(/\r?\n/).map(line => line.split('|').map(part => part.trim())).filter(parts => parts[0])
+    .map(([number, manufacturer]) => ({ number, manufacturer: manufacturer || null }))
+}
+
+function parseSpecificationLines(value: string) {
+  return value.split(/\r?\n/).map(line => line.split('|').map(part => part.trim())).filter(parts => parts[0] && parts[1])
+    .map(([name, specValue, unit], position) => ({ name, value: specValue, unit: unit || null, position }))
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -397,11 +432,52 @@ export default function Admin() {
     short_description: '',
     description: '',
     image_url: '',
-    oem_number: '',
+    oem_numbers_text: '',
+    specifications_text: '',
+  })
+  const [compatibilityForm, setCompatibilityForm] = useState({
+    make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '',
+    year_from: '', year_to: '', note: '',
+  })
+  const vehicleTreeQuery = useQuery({
+    queryKey: ['admin-compatibility-vehicle-tree'],
+    queryFn: () => api.get<VehicleMake[]>('/vehicles'),
+    enabled: isAdmin && isProductModalOpen,
+  })
+  const productCompatibilitiesQuery = useQuery({
+    queryKey: ['admin-product-compatibilities', editingProductId],
+    queryFn: () => api.get<ProductCompatibilityAdminRow[]>(`/admin/products/${editingProductId}/compatibilities`),
+    enabled: isAdmin && isProductModalOpen && Boolean(editingProductId),
+  })
+  const compatibilityMake = vehicleTreeQuery.data?.find(item => item.id === compatibilityForm.make_id)
+  const compatibilityModel = compatibilityMake?.models.find(item => item.id === compatibilityForm.model_id)
+  const compatibilityGeneration = compatibilityModel?.generations.find(item => item.id === compatibilityForm.generation_id)
+  const compatibilityModification = compatibilityGeneration?.modifications.find(item => item.id === compatibilityForm.modification_id)
+
+  const addCompatibilityMutation = useMutation({
+    mutationFn: () => api.post(`/admin/products/${editingProductId}/compatibilities`, {
+      make_id: compatibilityForm.make_id,
+      model_id: compatibilityForm.model_id || null,
+      generation_id: compatibilityForm.generation_id || null,
+      modification_id: compatibilityForm.modification_id || null,
+      engine_id: compatibilityForm.engine_id || null,
+      year_from: compatibilityForm.year_from ? Number(compatibilityForm.year_from) : null,
+      year_to: compatibilityForm.year_to ? Number(compatibilityForm.year_to) : null,
+      note: compatibilityForm.note.trim(),
+    }),
+    onSuccess: () => {
+      setCompatibilityForm({ make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '', year_from: '', year_to: '', note: '' })
+      void productCompatibilitiesQuery.refetch()
+    },
+  })
+  const deleteCompatibilityMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/admin/compatibilities/${id}`),
+    onSuccess: () => void productCompatibilitiesQuery.refetch(),
   })
 
   const openCreateProduct = () => {
     setEditingProductId(null)
+    setCompatibilityForm({ make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '', year_from: '', year_to: '', note: '' })
     setProductForm({
       name: '',
       sku: '',
@@ -415,13 +491,15 @@ export default function Admin() {
       short_description: '',
       description: '',
       image_url: '',
-      oem_number: '',
+      oem_numbers_text: '',
+      specifications_text: '',
     })
     setIsProductModalOpen(true)
   }
 
   const openEditProduct = (p: ProductAdminItem) => {
     setEditingProductId(p.id)
+    setCompatibilityForm({ make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '', year_from: '', year_to: '', note: '' })
     setProductForm({
       name: p.name,
       sku: p.sku,
@@ -435,7 +513,8 @@ export default function Admin() {
       short_description: p.short_description ?? '',
       description: p.description ?? '',
       image_url: p.images?.[0]?.url ?? '',
-      oem_number: p.oem_numbers?.[0]?.number ?? '',
+      oem_numbers_text: (p.oem_numbers ?? []).map(item => `${item.number}${item.manufacturer ? ` | ${item.manufacturer}` : ''}`).join('\n'),
+      specifications_text: (p.specifications ?? []).map(item => `${item.name} | ${item.value}${item.unit ? ` | ${item.unit}` : ''}`).join('\n'),
     })
     setIsProductModalOpen(true)
   }
@@ -468,9 +547,8 @@ export default function Admin() {
             { url: productForm.image_url.trim(), alt: productForm.name, is_primary: true, position: 0 },
           ]
         }
-        if (productForm.oem_number.trim()) {
-          updatePayload.oem_numbers = [{ number: productForm.oem_number.trim(), manufacturer: null }]
-        }
+        updatePayload.oem_numbers = parseOemLines(productForm.oem_numbers_text)
+        updatePayload.specifications = parseSpecificationLines(productForm.specifications_text)
         return api.patch(`/admin/products/${editingProductId}`, updatePayload)
       }
 
@@ -490,10 +568,8 @@ export default function Admin() {
         images: productForm.image_url.trim()
           ? [{ url: productForm.image_url.trim(), alt: productForm.name, is_primary: true, position: 0 }]
           : [],
-        oem_numbers: productForm.oem_number.trim()
-          ? [{ number: productForm.oem_number.trim(), manufacturer: null }]
-          : [],
-        specifications: [],
+        oem_numbers: parseOemLines(productForm.oem_numbers_text),
+        specifications: parseSpecificationLines(productForm.specifications_text),
         cross_references: [],
       }
       return api.post('/admin/products', createPayload)
@@ -2823,14 +2899,28 @@ export default function Admin() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-muted">Оригинальный OEM-номер</label>
-                <input
+                <label className="text-xs font-semibold text-muted">OEM-номера (один на строку; номер | изготовитель)</label>
+                <textarea
+                  rows={3}
                   className={FIELD}
                   style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
-                  placeholder="Например: 34116799964"
-                  value={productForm.oem_number}
-                  onChange={(e) => setProductForm({ ...productForm, oem_number: e.target.value })}
+                  placeholder={'34116799964 | BMW\n04465-33471 | Toyota'}
+                  value={productForm.oem_numbers_text}
+                  onChange={(e) => setProductForm({ ...productForm, oem_numbers_text: e.target.value })}
                 />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-muted">Характеристики (одна на строку: название | значение | единица)</label>
+                <textarea
+                  rows={4}
+                  className={FIELD}
+                  style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+                  placeholder={'Диаметр | 280 | мм\nСторона установки | Передняя |'}
+                  value={productForm.specifications_text}
+                  onChange={(e) => setProductForm({ ...productForm, specifications_text: e.target.value })}
+                />
+                <p className="mt-1 text-[10px] text-muted">Указывай значения из источника товара. Пустые и неполные строки не сохраняются.</p>
               </div>
 
               <div className="sm:col-span-2">
@@ -2844,6 +2934,78 @@ export default function Admin() {
                 />
               </div>
             </div>
+
+            <section className="mt-5 rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold">Применимость к автомобилям</h3>
+                  <p className="mt-1 text-xs text-muted">Укажите точный вариант и источник каталожных данных. Не добавляйте совпадения по предположению.</p>
+                </div>
+                <span className="shrink-0 rounded-full border px-2 py-1 text-[10px] text-muted" style={{ borderColor: 'var(--border)' }}>
+                  {productCompatibilitiesQuery.data?.length ?? 0} правил
+                </span>
+              </div>
+
+              {!editingProductId ? (
+                <p className="mt-3 rounded-lg bg-white/5 p-3 text-xs text-muted">Сначала сохрани товар, затем добавь к нему совместимость.</p>
+              ) : (
+                <>
+                  {productCompatibilitiesQuery.isLoading ? <p className="mt-3 text-xs text-muted">Загрузка правил…</p> : (
+                    productCompatibilitiesQuery.data?.length ? <ul className="mt-3 divide-y" style={{ borderColor: 'var(--border)' }}>
+                      {productCompatibilitiesQuery.data.map(rule => <li key={rule.id} className="flex items-start justify-between gap-3 py-2.5 text-xs">
+                        <div><strong>{compatibilityLabel(rule, vehicleTreeQuery.data)}</strong><span className="mt-1 block text-muted">Источник: {rule.note || 'не указан — проверь перед публикацией'}</span></div>
+                        <button type="button" aria-label="Удалить правило совместимости" disabled={deleteCompatibilityMutation.isPending} onClick={() => {
+                          if (window.confirm('Удалить это правило совместимости?')) deleteCompatibilityMutation.mutate(rule.id)
+                        }} className="rounded-md border p-1 text-muted hover:border-rose-500/50 hover:text-rose-400" style={{ borderColor: 'var(--border)' }}><Trash2 size={14} /></button>
+                      </li>)}
+                    </ul> : <p className="mt-3 text-xs text-amber-300">Правил пока нет: для покупателя совместимость будет показана как неизвестная.</p>
+                  )}
+
+                  <div className="mt-4 grid gap-3 border-t pt-4 sm:grid-cols-2" style={{ borderColor: 'var(--border)' }}>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Марка *
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.make_id} onChange={e => setCompatibilityForm({ ...compatibilityForm, make_id: e.target.value, model_id: '', generation_id: '', modification_id: '', engine_id: '' })}>
+                        <option value="">Выбери марку</option>{(vehicleTreeQuery.data ?? []).map(make => <option key={make.id} value={make.id}>{make.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Модель *
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.model_id} disabled={!compatibilityMake} onChange={e => setCompatibilityForm({ ...compatibilityForm, model_id: e.target.value, generation_id: '', modification_id: '', engine_id: '' })}>
+                        <option value="">Выбери модель</option>{compatibilityMake?.models.map(model => <option key={model.id} value={model.id}>{model.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Поколение
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.generation_id} disabled={!compatibilityModel} onChange={e => setCompatibilityForm({ ...compatibilityForm, generation_id: e.target.value, modification_id: '', engine_id: '' })}>
+                        <option value="">Любое поколение</option>{compatibilityModel?.generations.map(generation => <option key={generation.id} value={generation.id}>{generation.name}{generation.body_code ? ` (${generation.body_code})` : ''}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Модификация
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.modification_id} disabled={!compatibilityGeneration} onChange={e => setCompatibilityForm({ ...compatibilityForm, modification_id: e.target.value, engine_id: '' })}>
+                        <option value="">Любая модификация</option>{compatibilityGeneration?.modifications.map(mod => <option key={mod.id} value={mod.id}>{mod.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Двигатель
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.engine_id} disabled={!compatibilityModification} onChange={e => setCompatibilityForm({ ...compatibilityForm, engine_id: e.target.value })}>
+                        <option value="">Любой двигатель</option>{compatibilityModification?.engines.map(engine => <option key={engine.id} value={engine.id}>{engine.name}</option>)}
+                      </select>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="grid gap-1 text-[11px] font-semibold text-muted">Год с
+                        <input type="number" min={1900} max={2100} className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.year_from} onChange={e => setCompatibilityForm({ ...compatibilityForm, year_from: e.target.value })} placeholder="2012" />
+                      </label>
+                      <label className="grid gap-1 text-[11px] font-semibold text-muted">Год по
+                        <input type="number" min={1900} max={2100} className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.year_to} onChange={e => setCompatibilityForm({ ...compatibilityForm, year_to: e.target.value })} placeholder="2018" />
+                      </label>
+                    </div>
+                    <label className="sm:col-span-2 grid gap-1 text-[11px] font-semibold text-muted">Источник проверки *
+                      <input maxLength={500} className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.note} onChange={e => setCompatibilityForm({ ...compatibilityForm, note: e.target.value })} placeholder="Каталог производителя / TecDoc / номер документа или ссылка" />
+                    </label>
+                    <button type="button" disabled={!compatibilityForm.make_id || !compatibilityForm.model_id || !compatibilityForm.note.trim() || Boolean(compatibilityForm.year_from && compatibilityForm.year_to && Number(compatibilityForm.year_to) < Number(compatibilityForm.year_from)) || addCompatibilityMutation.isPending} onClick={() => addCompatibilityMutation.mutate()} className="sm:col-span-2 min-h-10 rounded-lg border px-3 text-xs font-bold text-ink disabled:opacity-40" style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}>
+                      {addCompatibilityMutation.isPending ? 'Сохраняю…' : 'Добавить правило из источника'}
+                    </button>
+                    {(addCompatibilityMutation.isError || productCompatibilitiesQuery.isError) && <p role="alert" className="sm:col-span-2 text-xs text-rose-400">Не удалось загрузить или сохранить совместимость. Проверь выбранную иерархию автомобиля.</p>}
+                  </div>
+                </>
+              )}
+            </section>
 
             {saveProductMutation.isError && (
               <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-premium">

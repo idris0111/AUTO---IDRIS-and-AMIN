@@ -1,7 +1,7 @@
 import uuid
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 
@@ -116,6 +116,12 @@ class CompatibilityCreate(BaseModel):
     year_from: int | None = Field(default=None, ge=1900, le=2100)
     year_to: int | None = Field(default=None, ge=1900, le=2100)
     note: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode='after')
+    def validate_year_range(self) -> 'CompatibilityCreate':
+        if self.year_from is not None and self.year_to is not None and self.year_to < self.year_from:
+            raise ValueError('year_to must be greater than or equal to year_from')
+        return self
 
 
 class CompatibilityRead(CompatibilityCreate):

@@ -4,12 +4,8 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import './i18n'
 import './index.css'
-import './commerce.css'
-import './marketplace.css'
-import './marketplace-rebuild.css'
-import './marketplace-next.css'
-import './black-silver.css'
 import Footer from './components/layout/Footer'
+import CategorySidebar from './components/layout/CategorySidebar'
 import Header from './components/layout/Header'
 import MobileTabBar from './components/layout/MobileTabBar'
 import ScrollToTop from './components/layout/ScrollToTop'
@@ -67,6 +63,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <ComparisonFloatingBar />
       <Footer />
       <MobileTabBar />
+      <CategorySidebar />
     </div>
   )
 }
