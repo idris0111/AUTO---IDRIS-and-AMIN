@@ -23,6 +23,7 @@ def analytics_report(
     start_date: date,
     end_date: date,
     grain: Literal['day', 'week', 'month'] = 'day',
+    comparison: Literal['previous_period', 'previous_year'] = 'previous_period',
     timezone: Literal['UTC', 'Asia/Dushanbe', 'Asia/Tashkent'] = 'Asia/Dushanbe',
     category_id: UUID | None = None,
     current_user: Annotated[User, Depends(require_permission(Permission.VIEW_STATISTICS))] = None,
@@ -32,7 +33,7 @@ def analytics_report(
         raise HTTPException(status_code=422, detail='Допустимые даты: 1900–2200 годы.')
     if not 0 <= (end_date - start_date).days < 366:
         raise HTTPException(status_code=422, detail='Период должен составлять от 1 до 366 дней.')
-    return get_report(db, start_date, end_date, grain, timezone, category_id)
+    return get_report(db, start_date, end_date, grain, timezone, category_id, comparison)
 
 
 @router.get("/dashboard", response_model=AnalyticsDashboardResponse)
