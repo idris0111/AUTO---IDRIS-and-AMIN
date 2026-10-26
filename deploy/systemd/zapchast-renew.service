@@ -1,0 +1,7 @@
+[Unit]
+Description=Renew only the Zapchast HTTPS certificate
+After=network-online.target nginx.service
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/certbot renew --quiet --cert-name zapchast.king.tj
+Nice=10

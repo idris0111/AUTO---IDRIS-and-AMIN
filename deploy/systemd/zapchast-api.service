@@ -13,7 +13,12 @@ Environment=PYTHONDONTWRITEBYTECODE=1
 Environment=PYTHONUNBUFFERED=1
 # One worker: the application's login rate limiter is stored in process memory.
 # Only Nginx on loopback is trusted to supply forwarding headers.
-ExecStart=/srv/zapchast/current/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1 --proxy-headers --forwarded-allow-ips=127.0.0.1
+ExecStart=/srv/zapchast/current/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 9157 --workers 1 --proxy-headers --forwarded-allow-ips=127.0.0.1
+MemoryHigh=192M
+MemoryMax=256M
+MemorySwapMax=256M
+TasksMax=64
+CPUQuota=100%
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=30
