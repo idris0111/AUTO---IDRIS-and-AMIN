@@ -202,11 +202,11 @@ def test_seo_sitemap_and_robots(client: TestClient, db: Session) -> None:
     xml_text = res_sitemap.text
     assert '<?xml version="1.0" encoding="UTF-8"?>' in xml_text
     assert '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' in xml_text
-    assert "<loc>https://autouniverse.tj/</loc>" in xml_text
-    assert "<loc>https://autouniverse.tj/catalog</loc>" in xml_text
-    assert "<loc>https://autouniverse.tj/blog</loc>" in xml_text
-    assert "<loc>https://autouniverse.tj/ai-mechanic</loc>" in xml_text
-    assert "<loc>https://autouniverse.tj/support</loc>" in xml_text
+    assert "<loc>https://zapchast.king.tj/</loc>" in xml_text
+    assert "<loc>https://zapchast.king.tj/catalog</loc>" in xml_text
+    assert "<loc>https://zapchast.king.tj/blog</loc>" in xml_text
+    assert "<loc>https://zapchast.king.tj/ai-mechanic</loc>" in xml_text
+    assert "<loc>https://zapchast.king.tj/support</loc>" in xml_text
     assert "/blog/vybor-tormoznyh-diskov-i-kolodok" in xml_text
     assert "/catalog?category=tormoznaya-sistema" in xml_text
 
@@ -224,7 +224,7 @@ def test_seo_sitemap_and_robots(client: TestClient, db: Session) -> None:
     assert "Disallow: /admin" in txt
     assert "Disallow: /checkout" in txt
     assert "Disallow: /profile" in txt
-    assert "Sitemap: https://autouniverse.tj/sitemap.xml" in txt
+    assert "Sitemap: https://zapchast.king.tj/sitemap.xml" in txt
 
     # 4. SEO meta defaults endpoint
     res_meta = client.get("/api/v1/seo/meta")
@@ -232,5 +232,5 @@ def test_seo_sitemap_and_robots(client: TestClient, db: Session) -> None:
     meta = res_meta.json()
     assert meta["site_name"] == "Auto Universe Tajikistan"
     assert "Душанбе" in meta["default_title"]
-    assert meta["site_url"] == "https://autouniverse.tj"
+    assert meta["site_url"] == "https://zapchast.king.tj"
 

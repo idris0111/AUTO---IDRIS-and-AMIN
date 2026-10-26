@@ -4,6 +4,7 @@ from xml.sax.saxutils import escape
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.models.catalog import Category, Product, ProductStatus
 from app.models.content import Article
 
@@ -14,9 +15,9 @@ def _format_date(dt: datetime | None) -> str:
     return dt.strftime("%Y-%m-%d")
 
 
-def generate_sitemap_xml(db: Session, base_url: str = "https://autouniverse.tj") -> str:
+def generate_sitemap_xml(db: Session, base_url: str | None = None) -> str:
     """Generate dynamic XML sitemap conforming to sitemaps.org standard."""
-    base = base_url.rstrip("/")
+    base = (base_url or get_settings().site_url).rstrip("/")
     now_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
     xml_lines = [
@@ -82,9 +83,9 @@ def generate_sitemap_xml(db: Session, base_url: str = "https://autouniverse.tj")
     return "\n".join(xml_lines)
 
 
-def generate_robots_txt(base_url: str = "https://autouniverse.tj") -> str:
+def generate_robots_txt(base_url: str | None = None) -> str:
     """Generate production robots.txt file."""
-    base = base_url.rstrip("/")
+    base = (base_url or get_settings().site_url).rstrip("/")
     return (
         "User-agent: *\n"
         "Allow: /\n"
