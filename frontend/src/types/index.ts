@@ -79,7 +79,20 @@ export interface ProductDetail extends Omit<ProductBrief, 'image_url'> {
   specifications: ProductSpecification[]
   oem_numbers: OEMNumber[]
   cross_references: CrossReference[]
+  compatibilities: ProductFitment[]
   fitment: string | null
+}
+
+export interface ProductFitment {
+  id: string
+  make_name: string
+  model_name: string | null
+  generation_name: string | null
+  modification_name: string | null
+  engine_name: string | null
+  year_from: number | null
+  year_to: number | null
+  note: string | null
 }
 
 export interface PaginatedProducts {

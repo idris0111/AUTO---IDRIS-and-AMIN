@@ -486,6 +486,34 @@ export default function ProductDetail() {
                     Гараж →
                   </Link>
                 </div>
+                {item.compatibilities.length > 0 ? (
+                  <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Совместимость по базе магазина</div>
+                    <ul className="mt-2 space-y-1.5">
+                      {item.compatibilities.map(rule => {
+                        const vehicleName = [rule.make_name, rule.model_name, rule.generation_name,
+                          rule.modification_name, rule.engine_name].filter(Boolean).join(' ')
+                        const years = rule.year_from || rule.year_to
+                          ? ` · ${rule.year_from ?? '…'}–${rule.year_to ?? '…'} гг.`
+                          : ''
+                        return <li key={rule.id} className="flex items-start gap-2 text-xs text-ink">
+                          <Wrench className="mt-0.5 size-3.5 shrink-0 text-muted" />
+                          <span>{vehicleName}{years}<small className="block text-muted">{rule.note ? `Источник: ${rule.note}` : 'Источник проверки не указан'}</small></span>
+                        </li>
+                      })}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="mt-3 border-t pt-3 text-xs text-amber-300" style={{ borderColor: 'var(--border)' }}>
+                    Совместимость не заполнена в каталоге. Сверьте OEM-номер или уточните применимость перед покупкой.
+                  </p>
+                )}
+                {selectedVehicleObj && item.fitment === 'unknown' && item.compatibilities.length > 0 && (
+                  <p className="mt-2 text-xs text-amber-300">Для точной проверки не хватает данных об автомобиле — добавьте год и двигатель в гараже.</p>
+                )}
+                {selectedVehicleObj && item.fitment === 'not_compatible' && (
+                  <p className="mt-2 text-xs text-rose-400">В каталоге нет совпадения с выбранным автомобилем. Не добавляйте деталь в заказ без проверки специалистом.</p>
+                )}
               </div>
 
               {/* Buy Actions Hub */}

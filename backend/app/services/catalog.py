@@ -312,6 +312,9 @@ def apply_product_filters(
     query: str | None = None,
     vehicle_make_id: uuid.UUID | None = None,
     vehicle_model_id: uuid.UUID | None = None,
+    vehicle_generation_id: uuid.UUID | None = None,
+    vehicle_modification_id: uuid.UUID | None = None,
+    vehicle_engine_id: uuid.UUID | None = None,
     vehicle_year: int | None = None,
 ) -> Select:
     if category_id is not None:
@@ -344,7 +347,7 @@ def apply_product_filters(
                 )
             )
     if vehicle_make_id is not None:
-        from app.models.vehicle import ProductCompatibility
+        from app.models.vehicle import ProductCompatibility, VehicleGeneration, VehicleModification
 
         compat = select(ProductCompatibility.product_id).where(
             ProductCompatibility.make_id == vehicle_make_id
@@ -356,11 +359,39 @@ def apply_product_filters(
                     ProductCompatibility.model_id == vehicle_model_id,
                 )
             )
+        if vehicle_generation_id is not None:
+            compat = compat.where(or_(
+                ProductCompatibility.generation_id.is_(None),
+                ProductCompatibility.generation_id == vehicle_generation_id,
+            ))
+        if vehicle_modification_id is not None:
+            compat = compat.where(or_(
+                ProductCompatibility.modification_id.is_(None),
+                ProductCompatibility.modification_id == vehicle_modification_id,
+            ))
+        if vehicle_engine_id is not None:
+            compat = compat.where(or_(
+                ProductCompatibility.engine_id.is_(None),
+                ProductCompatibility.engine_id == vehicle_engine_id,
+            ))
         if vehicle_year is not None:
             compat = compat.where(
                 or_(ProductCompatibility.year_from.is_(None), ProductCompatibility.year_from <= vehicle_year)
             ).where(
                 or_(ProductCompatibility.year_to.is_(None), ProductCompatibility.year_to >= vehicle_year)
+            )
+            generation_ids = select(VehicleGeneration.id).where(
+                or_(VehicleGeneration.year_from.is_(None), VehicleGeneration.year_from <= vehicle_year),
+                or_(VehicleGeneration.year_to.is_(None), VehicleGeneration.year_to >= vehicle_year),
+            )
+            modification_ids = select(VehicleModification.id).where(
+                or_(VehicleModification.year_from.is_(None), VehicleModification.year_from <= vehicle_year),
+                or_(VehicleModification.year_to.is_(None), VehicleModification.year_to >= vehicle_year),
+            )
+            compat = compat.where(
+                or_(ProductCompatibility.generation_id.is_(None), ProductCompatibility.generation_id.in_(generation_ids))
+            ).where(
+                or_(ProductCompatibility.modification_id.is_(None), ProductCompatibility.modification_id.in_(modification_ids))
             )
         base = base.where(Product.id.in_(compat))
     return base
@@ -396,6 +427,9 @@ def list_products(
     sort: str = "newest",
     vehicle_make_id: uuid.UUID | None = None,
     vehicle_model_id: uuid.UUID | None = None,
+    vehicle_generation_id: uuid.UUID | None = None,
+    vehicle_modification_id: uuid.UUID | None = None,
+    vehicle_engine_id: uuid.UUID | None = None,
     vehicle_year: int | None = None,
     include_unpublished: bool = False,
 ) -> tuple[list[Product], int]:
@@ -414,6 +448,9 @@ def list_products(
         query=query,
         vehicle_make_id=vehicle_make_id,
         vehicle_model_id=vehicle_model_id,
+        vehicle_generation_id=vehicle_generation_id,
+        vehicle_modification_id=vehicle_modification_id,
+        vehicle_engine_id=vehicle_engine_id,
         vehicle_year=vehicle_year,
     )
     total = db.scalar(select(func.count()).select_from(base.subquery())) or 0
