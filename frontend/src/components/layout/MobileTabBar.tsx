@@ -16,24 +16,24 @@ export default function MobileTabBar() {
   const items = [
     {
       to: '/',
-      label: 'Главная',
+      label: t('home'),
       icon: Home,
       isActive: location.pathname === '/',
-      ariaLabel: 'Главная страница',
+      ariaLabel: t('home'),
     },
     {
       to: '/catalog',
       label: t('explore') || 'Каталог',
       icon: Layers,
       isActive: location.pathname.startsWith('/catalog'),
-      ariaLabel: 'Каталог автозапчастей',
+      ariaLabel: t('catalogTitle'),
     },
     {
       to: '/ai-mechanic',
-      label: 'AI Механик',
+      label: t('aiMechanic'),
       icon: Sparkles,
       isActive: location.pathname.startsWith('/ai-mechanic'),
-      ariaLabel: 'AI Автомеханик консультант',
+      ariaLabel: t('aiMechanic'),
       isAi: true,
     },
     {
@@ -41,7 +41,7 @@ export default function MobileTabBar() {
       label: t('cart') || 'Корзина',
       icon: ShoppingCart,
       isActive: location.pathname.startsWith('/cart'),
-      ariaLabel: `Корзина покупок, ${cartCount} товаров`,
+      ariaLabel: `${t('cart')} · ${cartCount}`,
       badge: cartCount > 0 ? (cartCount > 99 ? '99+' : cartCount) : null,
     },
     {
@@ -53,14 +53,14 @@ export default function MobileTabBar() {
         location.pathname.startsWith('/orders') ||
         location.pathname.startsWith('/garage') ||
         location.pathname.startsWith('/login'),
-      ariaLabel: user ? 'Личный кабинет пользователя' : 'Вход в аккаунт',
+      ariaLabel: user ? t('profile') : t('login'),
     },
   ]
 
   return (
     <nav
       role="navigation"
-      aria-label="Мобильная навигация"
+      aria-label={t('Основная навигация')}
       className="fixed bottom-0 inset-x-0 z-40 block md:hidden border-t backdrop-blur-xl transition-colors duration-200"
       style={{
         background: 'color-mix(in srgb, var(--surface-2) 90%, transparent)',
@@ -80,13 +80,13 @@ export default function MobileTabBar() {
               className={`group relative flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-lg py-1 transition-all ${
                 item.isActive
                   ? 'text-premium font-semibold'
-                  : 'text-muted hover:text-ink'
+                  : 'text-muted hover:text-premium'
               }`}
             >
               <div className="relative flex items-center justify-center">
                 <Icon
                   className={`size-5 transition-transform duration-200 ${
-                    item.isActive ? 'scale-110 text-premium drop-shadow-[0_0_8px_rgba(227,38,54,0.4)]' : 'group-hover:scale-105'
+                    item.isActive ? 'scale-110 text-premium ' : 'group-hover:scale-105'
                   }`}
                   aria-hidden="true"
                 />
@@ -102,7 +102,7 @@ export default function MobileTabBar() {
                 {/* Cart Badge */}
                 {item.badge && (
                   <span
-                    className="absolute -top-1.5 -right-2.5 flex min-w-4 h-4 items-center justify-center rounded-full bg-premium px-1 text-[10px] font-bold text-ink shadow-sm"
+                    className="absolute -top-1.5 -right-2.5 flex min-w-4 h-4 items-center justify-center rounded-full bg-premium px-1 text-[10px] font-bold text-premium shadow-sm"
                     aria-hidden="true"
                   >
                     {item.badge}

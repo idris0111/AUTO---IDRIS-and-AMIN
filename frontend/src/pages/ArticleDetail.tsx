@@ -44,7 +44,7 @@ function FormattedArticleContent({ content }: { content: string }) {
           return (
             <h2
               key={idx}
-              className="text-xl sm:text-2xl font-bold text-ink pt-6 pb-2 border-b border-[#252B33] flex items-center gap-2"
+              className="text-xl sm:text-2xl font-bold text-premium pt-6 pb-2 border-b border-[#252B33] flex items-center gap-2"
             >
               <span className="w-1.5 h-5 bg-premium rounded-full inline-block" />
               {trimmed.replace(/^## /, '')}
@@ -57,7 +57,7 @@ function FormattedArticleContent({ content }: { content: string }) {
           return (
             <h3
               key={idx}
-              className="text-lg sm:text-xl font-semibold text-gray-100 pt-4 pb-1 text-ink"
+              className="text-lg sm:text-xl font-semibold text-gray-100 pt-4 pb-1 text-premium"
             >
               {trimmed.replace(/^### /, '')}
             </h3>
@@ -69,7 +69,7 @@ function FormattedArticleContent({ content }: { content: string }) {
           return (
             <blockquote
               key={idx}
-              className="p-4 rounded-xl bg-[var(--surface)] border-l-4 border-[#E32636] text-gray-300 italic text-sm my-3 shadow-inner"
+              className="p-4 rounded-xl bg-[var(--surface)] border-l-4 border-premium text-gray-300 italic text-sm my-3 shadow-inner"
             >
               {trimmed.replace(/^> /, '')}
             </blockquote>
@@ -131,7 +131,7 @@ function renderInline(text: string) {
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
       return (
-        <strong key={i} className="text-ink font-semibold">
+        <strong key={i} className="font-semibold">
           {part.slice(2, -2)}
         </strong>
       )
@@ -173,7 +173,7 @@ export default function ArticleDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--canvas)] text-gray-200 py-20 text-center">
-        <div className="inline-block animate-spin w-8 h-8 border-2 border-[#E32636] border-t-transparent rounded-full" />
+        <div className="inline-block animate-spin w-8 h-8 border-2 border-premium border-t-transparent rounded-full" />
         <p className="mt-3 text-xs text-gray-400">Загрузка статьи...</p>
       </div>
     )
@@ -184,11 +184,11 @@ export default function ArticleDetail() {
       <div className="min-h-screen bg-[var(--canvas)] text-gray-200 py-20 px-4">
         <div className="max-w-md mx-auto text-center bg-[var(--surface)] p-8 rounded-2xl border border-[#252B33] space-y-4">
           <BookOpen className="w-12 h-12 text-premium mx-auto" />
-          <h2 className="text-xl font-bold text-ink">Статья не найдена</h2>
+          <h2 className="text-xl font-bold text-premium">Статья не найдена</h2>
           <p className="text-xs text-gray-400">{error || 'Материал был удален или перенесен.'}</p>
           <Link
             to="/blog"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-premium text-ink text-xs font-semibold hover:bg-red-700 transition"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-premium text-premium text-xs font-semibold hover:bg-red-700 transition"
           >
             <ArrowLeft className="w-4 h-4" />
             Вернуться в базу знаний
@@ -248,17 +248,17 @@ export default function ArticleDetail() {
       <article className="max-w-4xl mx-auto space-y-8">
         {/* Navigation Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs text-gray-400 overflow-x-auto whitespace-nowrap pb-2">
-          <Link to="/" className="hover:text-ink transition">
+          <Link to="/" className="hover:text-premium transition">
             Главная
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-gray-600 shrink-0" />
-          <Link to="/blog" className="hover:text-ink transition">
+          <Link to="/blog" className="hover:text-premium transition">
             База знаний
           </Link>
           <ChevronRight className="w-3.5 h-3.5 text-gray-600 shrink-0" />
           <Link
             to={`/blog?category=${article.category}`}
-            className="hover:text-ink transition text-premium"
+            className="hover:text-premium transition text-premium"
           >
             {catMeta.label}
           </Link>
@@ -270,14 +270,14 @@ export default function ArticleDetail() {
         <div className="flex items-center justify-between pt-2">
           <Link
             to="/blog"
-            className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-ink transition group"
+            className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-premium transition group"
           >
             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition" />
             Назад ко всем статьям
           </Link>
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[#252B33] text-xs text-gray-300 hover:text-ink hover:border-gray-600 transition"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--surface)] border border-[#252B33] text-xs text-gray-300 hover:text-premium hover:border-gray-600 transition"
           >
             {copied ? (
               <>
@@ -295,11 +295,11 @@ export default function ArticleDetail() {
 
         {/* Article Header */}
         <header className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-premium/10 border border-[#E32636]/30 text-premium text-xs font-semibold uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-premium/10 border border-premium/30 text-premium text-xs font-semibold uppercase tracking-wider">
             <CatIcon className="w-3.5 h-3.5" />
             {catMeta.label}
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-ink tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-4xl font-extrabold text-premium tracking-tight leading-tight">
             {article.title}
           </h1>
 
@@ -373,7 +373,7 @@ export default function ArticleDetail() {
         {/* Call to action card */}
         <div className="article-cta mt-12 p-8 rounded-2xl border flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="space-y-1 text-center sm:text-left">
-            <h4 className="text-lg font-bold text-ink">Нужна помощь с выбором запчастей?</h4>
+            <h4 className="text-lg font-bold text-premium">Нужна помощь с выбором запчастей?</h4>
             <p className="text-xs text-gray-400">
               Воспользуйтесь каталогом совместимости по марке автомобиля или обратитесь к инженеру поддержки.
             </p>
@@ -381,13 +381,13 @@ export default function ArticleDetail() {
           <div className="flex flex-wrap gap-3">
             <Link
               to="/catalog"
-              className="px-5 py-2.5 rounded-xl bg-premium text-ink text-xs font-semibold hover:bg-red-700 transition shadow-lg shadow-[#E32636]/20"
+              className="px-5 py-2.5 rounded-xl bg-premium text-premium text-xs font-semibold hover:bg-red-700 transition shadow-md"
             >
               Перейти в каталог
             </Link>
             <Link
               to="/ai-mechanic"
-              className="px-5 py-2.5 rounded-xl bg-[#252B33] text-ink text-xs font-semibold hover:bg-gray-700 transition"
+              className="px-5 py-2.5 rounded-xl bg-[#252B33] text-premium text-xs font-semibold hover:bg-gray-700 transition"
             >
               Спросить AI Механика
             </Link>

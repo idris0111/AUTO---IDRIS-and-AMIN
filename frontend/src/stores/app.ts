@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import i18n from '../i18n'
 
 type Theme = 'dark' | 'light'
 
@@ -15,11 +16,19 @@ function applyTheme(theme: Theme) {
 }
 
 const initialTheme: Theme =
-  localStorage.getItem('au_theme') === 'light' ? 'light' : 'dark'
+  localStorage.getItem('au_theme') === 'dark' ? 'dark' : 'light'
+
+const savedLocale = localStorage.getItem('au_locale')
+const initialLocale: AppState['locale'] = savedLocale === 'en' || savedLocale === 'tg' ? savedLocale : 'ru'
+document.documentElement.lang = initialLocale
+
+if (i18n.language !== initialLocale) {
+  void i18n.changeLanguage(initialLocale)
+}
 
 export const useApp = create<AppState>((set) => ({
   theme: initialTheme,
-  locale: (localStorage.getItem('au_locale') as AppState['locale'] | null) ?? 'ru',
+  locale: initialLocale,
 
   toggleTheme() {
     set((state) => {
@@ -30,7 +39,9 @@ export const useApp = create<AppState>((set) => ({
   },
 
   setLocale(locale) {
+    document.documentElement.lang = locale
     localStorage.setItem('au_locale', locale)
+    void i18n.changeLanguage(locale)
     set({ locale })
   },
 }))

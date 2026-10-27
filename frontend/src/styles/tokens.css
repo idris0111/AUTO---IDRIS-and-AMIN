@@ -1,108 +1,53 @@
-/* AUTO UNIVERSE — single source of truth for the Black & Silver × Amber system.
-   Dark graphite is the default canvas; the light theme is a warm porcelain mirror.
-   Accent roles: silver is primary (actions, metal), amber is secondary (badges,
-   ratings, loyalty, attention). Never neon, never saturated brand floods. */
-
-:root,
-.dark {
-  --canvas: #0d0f12;
-  --surface: #14171b;
-  --surface-2: #191d22;
-  --surface-3: #20252b;
-  --surface-raised: #262c33;
-
-  --border: #2b3037;
-  --border-strong: #444c55;
-  --hairline: rgb(255 255 255 / .06);
-
-  --text: #f0f1f2;
-  --text-muted: #9ca4ad;
-  --text-faint: #6d757e;
-
-  --silver: #cbd0d5;
-  --silver-bright: #e4e7ea;
-  --silver-deep: #8f979f;
-  --amber: #d9a441;
-  --amber-soft: rgb(217 164 65 / .14);
-  --amber-line: rgb(217 164 65 / .38);
-
-  --success: #8fbf9f;
-  --success-soft: rgb(143 191 159 / .13);
-  --danger: #d98f8f;
-  --danger-soft: rgb(217 143 143 / .12);
-  --warning: #d9b070;
-  --warning-soft: rgb(217 176 112 / .13);
-  --info: #9db4c9;
-  --info-soft: rgb(157 180 201 / .13);
-
-  --shadow-sm: 0 2px 8px rgb(0 0 0 / .16);
-  --shadow-md: 0 12px 30px rgb(0 0 0 / .2);
-  --shadow-lg: 0 22px 56px rgb(0 0 0 / .28);
-  --shadow-metal: inset 0 1px 0 rgb(255 255 255 / .08);
-
-  --radius-control: 5px;
-  --radius-panel: 15px;
-  --radius-card: 5px 15px 5px 15px;
-  --radius-hero: 4px 22px 4px 22px;
-
-  --store-gutter: clamp(18px, 3.2vw, 48px);
-  --store-motion: 160ms ease;
-
-  --font-body: "Manrope", "Segoe UI", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-
-  --focus-ring: 2px solid var(--silver-bright);
-}
-
-html {
-  color-scheme: dark;
-  background: var(--canvas);
-}
-
-body {
-  font-family: var(--font-body);
-  letter-spacing: -.012em;
-}
-
-/* Warm porcelain light theme — same silver identity, inverted materials. */
-html:not(.dark) {
+/* Warm Luxury Glass V4 — shared semantic material and color roles. */
+:root {
   color-scheme: light;
-  --canvas: #f3f2ef;
-  --surface: #fbfaf8;
-  --surface-2: #f5f4f1;
-  --surface-3: #ecebe7;
-  --surface-raised: #ffffff;
-
-  --border: #e2e0db;
-  --border-strong: #c9c7c1;
-  --hairline: rgb(32 35 40 / .07);
-
-  --text: #202328;
-  --text-muted: #6d7279;
-  --text-faint: #8d9198;
-
-  --silver: #353a40;
-  --silver-bright: #171a1e;
-  --silver-deep: #5c646d;
-  --amber: #9a7328;
-  --amber-soft: rgb(154 115 40 / .1);
-  --amber-line: rgb(154 115 40 / .32);
-
-  --success: #365d40;
-  --success-soft: rgb(54 93 64 / .1);
-  --danger: #8f3a3d;
-  --danger-soft: rgb(143 58 61 / .1);
-  --warning: #7d5a1f;
-  --warning-soft: rgb(125 90 31 / .1);
-  --info: #3f566b;
-  --info-soft: rgb(63 86 107 / .1);
-
-  --shadow-sm: 0 2px 8px rgb(35 38 42 / .04);
-  --shadow-md: 0 10px 28px rgb(35 38 42 / .06);
-  --shadow-lg: 0 20px 48px rgb(35 38 42 / .09);
-  --shadow-metal: none;
-
-  --focus-ring: 2px solid #5c646d;
+  --canvas: #f6f1e8; --surface: #faf5ed; --surface-2: #efe4d4;
+  --surface-3: #e8d8c3; --surface-raised: #fffaf2;
+  --text: #252525; --text-muted: #62594f; --text-faint: #786b5d;
+  --border: #d9cbb7; --border-strong: #b7a184; --hairline: rgb(88 64 33 / .10);
+  --silver: #37312a; --silver-bright: #252525; --silver-deep: #71604b;
+  --amber: #856027; --amber-soft: rgb(184 138 68 / .10); --amber-line: rgb(184 138 68 / .34);
+  --gold: #d8b98a; --gold-bright: #fff2d8;
+  --chart-primary: #987039; --chart-secondary: #8b8980;
+  --success: #386248; --success-soft: rgb(56 98 72 / .10);
+  --danger: #9b4140; --danger-soft: rgb(155 65 64 / .09);
+  --warning: #805a27; --warning-soft: rgb(128 90 39 / .10);
+  --info: #476174; --info-soft: rgb(71 97 116 / .10);
+  --glass: rgb(255 255 255 / .22); --glass-elevated: rgb(255 255 255 / .43);
+  --glass-border: rgb(255 255 255 / .72); --glass-highlight: rgb(255 255 255 / .92);
+  --signal: #e3ef73;
+  --glass-blur: 18px;
+  --canvas-light: radial-gradient(ellipse at 12% 5%, #fff9e9 0%, transparent 45%), radial-gradient(ellipse at 90% 35%, #e7d4b9 0%, transparent 50%), linear-gradient(145deg, #f6f1e8, #ede1d0);
+  --shadow-sm: 0 3px 12px rgb(94 67 31 / .05);
+  --shadow-md: 0 12px 32px -12px rgb(94 67 31 / .20);
+  --shadow-lg: 0 24px 60px -22px rgb(94 67 31 / .25);
+  --shadow-metal: inset 0 1px 0 var(--glass-highlight), inset 0 -1px 0 rgb(184 138 68 / .10);
+  --radius-control: 12px; --radius-panel: 24px; --radius-card: 20px; --radius-hero: 30px;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-6: 24px; --space-8: 32px;
+  --store-gutter: clamp(16px, 3.2vw, 48px);
+  --store-motion: 180ms cubic-bezier(.2,.7,.2,1);
+  --font-body: "Manrope", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+  --focus-ring: 2px solid var(--amber);
 }
-
-/* Tailwind utility bridge lives in index.css (@theme) — this file is pure tokens. */
+.dark {
+  color-scheme: dark;
+  --canvas: #191816; --surface: #22201c; --surface-2: #2b2822;
+  --surface-3: #373128; --surface-raised: #3a342b;
+  --text: #f5efe5; --text-muted: #c2b7a6; --text-faint: #ad9d86;
+  --border: #494034; --border-strong: #79674d; --hairline: rgb(255 241 216 / .09);
+  --silver: #e4d5bc; --silver-bright: #fff2d8; --silver-deep: #c0ac8b;
+  --amber: #d8b98a; --amber-soft: rgb(216 185 138 / .11); --amber-line: rgb(216 185 138 / .32);
+  --chart-primary: #d8b98a; --chart-secondary: #8c9c93;
+  --success: #a2c4a5; --success-soft: rgb(162 196 165 / .12);
+  --danger: #e4a19a; --danger-soft: rgb(228 161 154 / .12);
+  --warning: #e0bb83; --warning-soft: rgb(224 187 131 / .12);
+  --info: #a8bbc5; --info-soft: rgb(168 187 197 / .12);
+  --glass: rgb(53 47 38 / .56); --glass-elevated: rgb(63 55 44 / .72);
+  --signal: #e3ef73;
+  --glass-border: rgb(237 211 169 / .16); --glass-highlight: rgb(255 242 216 / .15);
+  --canvas-light: radial-gradient(ellipse at 0% 0%, #453823 0%, transparent 50%), radial-gradient(ellipse at 95% 60%, #302b23 0%, transparent 50%), #191816;
+  --shadow-sm: 0 3px 12px #0002; --shadow-md: 0 12px 32px -12px #0006; --shadow-lg: 0 24px 60px -22px #0009;
+}
+html { background: var(--canvas); }
+body { font-family: var(--font-body); letter-spacing: -.012em; }

@@ -1,15 +1,165 @@
-/* AUTO UNIVERSE — motion primitives. Decorative only; charts never animate data. */
+/* AUTO UNIVERSE — motion layer. Decorative only; charts never animate data. */
 
+/* ——— keyframes ——— */
 @keyframes au-skeleton { from { opacity: .5; } to { opacity: 1; } }
 @keyframes au-reveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pop-badge { 0% { transform: scale(1); } 40% { transform: scale(1.35); } 100% { transform: scale(1); } }
 @keyframes shimmer { 100% { transform: translateX(100%); } }
+@keyframes ambient-drift { from { transform: translate3d(-3%, -2%, 0) rotate(-4deg); opacity: .6; } to { transform: translate3d(3%, 3%, 0) rotate(4deg); opacity: 1; } }
+@keyframes campaign-enter { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@keyframes shine-sweep { 0% { transform: translateX(-120%) skewX(-18deg); } 100% { transform: translateX(220%) skewX(-18deg); } }
+@keyframes glow-pulse { 0%, 100% { opacity: .45; } 50% { opacity: .9; } }
+@keyframes float-y { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes aurora { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes border-beam { 0% { background-position: 0% 0%; } 100% { background-position: 200% 0%; } }
+@keyframes ken-burns { 0% { transform: scale(1) translate(0, 0); } 100% { transform: scale(1.08) translate(-1.2%, -0.8%); } }
+@keyframes slide-up-fade { from { opacity: 0; transform: translateY(16px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes scale-in { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
+@keyframes spin-slow { to { transform: rotate(360deg); } }
+@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes gradient-pan { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+@keyframes pulse-ring { 0% { transform: scale(.8); opacity: .7; } 100% { transform: scale(2.1); opacity: 0; } }
+@keyframes count-flip { from { transform: translateY(60%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+/* ——— enter animations ——— */
+.mp-hero-copy > * { animation: campaign-enter .8s cubic-bezier(.2,.7,.2,1) both; }
+.mp-hero-copy h1 { animation-delay: .1s; }
+.mp-hero-copy p { animation-delay: .18s; }
+.mp-hero-copy .prime-hero-benefits { animation-delay: .25s; }
+.mp-hero-copy .mp-hero-search { animation-delay: .32s; }
+.mp-hero-copy .mp-hero-actions { animation-delay: .4s; }
+.au-auth-card { animation: campaign-enter .55s ease both; }
 
 .fade-in-up { animation: fade-in-up .4s ease both; }
 .pop-badge { animation: pop-badge .3s ease; }
 .au-reveal { animation: au-reveal .55s cubic-bezier(.2, .7, .2, 1) both; }
+.au-scale-in { animation: scale-in .35s cubic-bezier(.2,.7,.2,1) both; }
+.au-slide-up { animation: slide-up-fade .45s cubic-bezier(.2,.7,.2,1) both; }
+.au-count-in { animation: count-flip .4s cubic-bezier(.2,.7,.2,1) both; }
 
+/* staggered grid children */
+.au-stagger > * { animation: fade-in-up .5s cubic-bezier(.2,.7,.2,1) both; }
+.au-stagger > *:nth-child(1) { animation-delay: .04s; }
+.au-stagger > *:nth-child(2) { animation-delay: .08s; }
+.au-stagger > *:nth-child(3) { animation-delay: .12s; }
+.au-stagger > *:nth-child(4) { animation-delay: .16s; }
+.au-stagger > *:nth-child(5) { animation-delay: .2s; }
+.au-stagger > *:nth-child(6) { animation-delay: .24s; }
+.au-stagger > *:nth-child(7) { animation-delay: .28s; }
+.au-stagger > *:nth-child(8) { animation-delay: .32s; }
+
+/* ——— scroll progress ——— */
+.au-scroll-progress {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  z-index: 200;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, var(--silver-bright), var(--amber), var(--silver));
+  background-size: 200% 100%;
+  animation: gradient-pan 4s linear infinite;
+  pointer-events: none;
+}
+
+/* ——— 3D tilt cards ——— */
+.au-tilt {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .35s cubic-bezier(.2,.7,.2,1);
+  will-change: transform;
+}
+.au-tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--tilt-x, 50%) var(--tilt-y, 50%), rgb(255 255 255 / .07), transparent 55%);
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  z-index: 4;
+}
+.au-tilt:hover::after { opacity: 1; }
+html:not(.dark) .au-tilt::after { background: radial-gradient(420px circle at var(--tilt-x, 50%) var(--tilt-y, 50%), rgb(0 0 0 / .04), transparent 55%); }
+
+/* ——— shine sweep buttons ——— */
+.au-shine { position: relative; overflow: hidden; isolation: isolate; }
+.au-shine::before {
+  content: '';
+  position: absolute;
+  top: -20%; bottom: -20%;
+  width: 38%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .38), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+  pointer-events: none;
+  z-index: 1;
+}
+.au-shine:hover::before { animation: shine-sweep .7s cubic-bezier(.2,.7,.2,1); }
+html:not(.dark) .au-shine::before { background: linear-gradient(90deg, transparent, rgb(255 255 255 / .65), transparent); }
+
+/* ——— glow accents ——— */
+.au-glow { position: relative; }
+.au-glow::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(120deg, transparent 30%, var(--amber-line) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: border-beam 3.2s linear infinite;
+  opacity: 0;
+  transition: opacity .3s ease;
+  pointer-events: none;
+  z-index: 0;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  padding: 1px;
+}
+.au-glow:hover::after { opacity: 1; }
+
+.au-float { animation: float-y 4.5s ease-in-out infinite; }
+.au-spin-slow { animation: spin-slow 14s linear infinite; }
+
+/* ——— ambient hero glow ——— */
+.au-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.au-ambient::before,
+.au-ambient::after {
+  content: '';
+  position: absolute;
+  width: 52%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: .35;
+  animation: ambient-drift 16s ease-in-out infinite alternate;
+}
+.au-ambient::before { top: -18%; right: -8%; background: radial-gradient(circle, rgb(203 208 213 / .22), transparent 65%); }
+.au-ambient::after { bottom: -22%; left: -10%; background: radial-gradient(circle, rgb(241 173 120 / .16), transparent 65%); animation-delay: -7s; animation-duration: 20s; }
+
+/* ——— aurora gradient text / border ——— */
+.au-aurora-text {
+  background: linear-gradient(120deg, var(--silver-bright), var(--amber), var(--silver), var(--silver-bright));
+  background-size: 240% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: aurora 6s ease-in-out infinite;
+}
+
+/* ——— ticker / infinite marquee helper ——— */
+.au-ticker-track { display: flex; width: max-content; animation: ticker 32s linear infinite; }
+.au-ticker:hover .au-ticker-track { animation-play-state: paused; }
+
+/* ——— skeleton shimmer ——— */
+.skeleton { position: relative; overflow: hidden; }
 .skeleton::after {
   content: "";
   position: absolute;
@@ -18,7 +168,103 @@
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / .06), transparent);
   animation: shimmer 1.4s infinite;
 }
+html:not(.dark) .skeleton::after { background: linear-gradient(90deg, transparent, rgb(0 0 0 / .05), transparent); }
 
+/* ——— product card lift + image zoom ——— */
+.commerce-product-card { will-change: transform; }
+.commerce-product-card .product-photo img,
+.commerce-product-card .product-photo .product-media-placeholder { transition: transform .55s cubic-bezier(.2,.7,.2,1), filter .45s ease; }
+.commerce-product-card:hover .product-photo img { transform: scale(1.06); filter: brightness(1.05) saturate(1.05); }
+
+/* price digit roll on hover */
+.commerce-product-card:hover .product-price { animation: count-flip .35s cubic-bezier(.2,.7,.2,1); }
+
+/* ——— promo parallax hover ——— */
+.mp-promo { will-change: transform; transition: transform .5s cubic-bezier(.2,.7,.2,1), box-shadow .4s ease, border-color .4s ease; }
+.mp-promo:hover { transform: translateY(-4px); box-shadow: 0 22px 48px rgb(0 0 0 / .3); border-color: #5a636d; }
+.mp-promo .mp-promo-copy > span { transition: transform .35s cubic-bezier(.2,.7,.2,1), gap .35s ease; }
+.mp-promo:hover .mp-promo-copy > span { transform: translateX(4px); gap: 9px; }
+html:not(.dark) .mp-promo:hover { box-shadow: 0 18px 40px rgb(35 38 42 / .12); }
+
+/* ——— header: hide on scroll down, show on scroll up ——— */
+.store-header { transition: transform .38s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease, background-color .3s ease; }
+.store-header.au-header-hidden { transform: translateY(-105%); }
+.store-header.au-header-scrolled { box-shadow: 0 8px 28px rgb(0 0 0 / .18); }
+html:not(.dark) .store-header.au-header-scrolled { box-shadow: 0 8px 24px rgb(35 38 42 / .07); }
+
+/* ——— nav link underline ——— */
+.hd-link { position: relative; }
+.hd-link::after {
+  content: '';
+  position: absolute;
+  left: 10%; right: 10%; bottom: -5px;
+  height: 1.5px;
+  background: linear-gradient(90deg, var(--silver-bright), var(--amber));
+  transform: scaleX(0);
+  transform-origin: 50% 50%;
+  transition: transform .28s cubic-bezier(.2,.7,.2,1);
+}
+.hd-link:hover::after, .hd-link:focus-visible::after { transform: scaleX(1); }
+
+/* ——— icon buttons micro-bounce ——— */
+.hd-icon-btn, .hero-navigation button, .product-favorite { transition: transform .2s cubic-bezier(.2,.7,.2,1), border-color .2s ease, color .2s ease, background-color .2s ease; }
+.hd-icon-btn:hover, .hero-navigation button:hover { transform: translateY(-1px) scale(1.05); }
+.hd-icon-btn:active, .hero-navigation button:active { transform: scale(.94); }
+.product-favorite:hover { animation: pop-badge .35s ease; }
+
+/* ——— primary buttons ——— */
+.au-btn-primary, .commerce-button, .btn-premium, .product-add {
+  position: relative;
+  overflow: hidden;
+  transition: transform .18s cubic-bezier(.2,.7,.2,1), box-shadow .25s ease, filter .2s ease, background-color .2s ease, border-color .2s ease;
+}
+.au-btn-primary::before, .commerce-button::before, .btn-premium::before, .product-add::before {
+  content: '';
+  position: absolute;
+  top: -20%; bottom: -20%;
+  width: 38%;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / .35), transparent);
+  transform: translateX(-160%) skewX(-18deg);
+  pointer-events: none;
+  z-index: 1;
+}
+.au-btn-primary:hover::before, .commerce-button:hover::before, .btn-premium:hover::before, .product-add:hover::before { animation: shine-sweep .65s cubic-bezier(.2,.7,.2,1); }
+html:not(.dark) .au-btn-primary::before,
+html:not(.dark) .commerce-button::before,
+html:not(.dark) .btn-premium::before { background: linear-gradient(90deg, transparent, rgb(255 255 255 / .55), transparent); }
+.au-btn-primary > *, .commerce-button > *, .btn-premium > *, .product-add > * { position: relative; z-index: 2; }
+.au-btn-primary:hover:not(:disabled), .commerce-button:hover:not(:disabled), .btn-premium:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgb(0 0 0 / .25);
+}
+html:not(.dark) .au-btn-primary:hover:not(:disabled),
+html:not(.dark) .commerce-button:hover:not(:disabled),
+html:not(.dark) .btn-premium:hover:not(:disabled) { box-shadow: 0 10px 22px rgb(35 38 42 / .14); }
+.au-btn-primary:active:not(:disabled), .commerce-button:active:not(:disabled), .btn-premium:active:not(:disabled) { transform: translateY(0) scale(.985); }
+
+/* ——— hero slide ken-burns ——— */
+.hero-slide { transition: opacity .9s cubic-bezier(.2,.7,.2,1); }
+.hero-slide-active { animation: ken-burns 8s ease-out forwards; }
+
+/* ——— modal / dropdown enter ——— */
+.au-dropdown { animation: slide-up-fade .22s cubic-bezier(.2,.7,.2,1) both; transform-origin: top center; }
+
+/* ——— success pulse ring (add-to-cart etc.) ——— */
+.au-pulse-host { position: relative; }
+.au-pulse-host::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid var(--amber);
+  animation: pulse-ring .8s ease-out forwards;
+  pointer-events: none;
+}
+
+/* ——— focus ring, consistent everywhere ——— */
+:focus-visible { outline: var(--focus-ring); outline-offset: 2px; }
+
+/* ——— reduced motion ——— */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
@@ -26,4 +272,6 @@
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
+  .au-tilt { transform: none !important; }
+  .au-scroll-progress { display: none; }
 }

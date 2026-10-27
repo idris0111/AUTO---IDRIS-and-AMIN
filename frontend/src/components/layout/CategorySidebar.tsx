@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
+import { useDialogFocus } from '../../lib/useDialogFocus'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpRight, BookOpen, GitCompare, Heart, Layers, Sparkles, Truck, User, X } from 'lucide-react'
@@ -17,57 +19,59 @@ const navItems = [
 ]
 
 export default function CategorySidebar() {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
+  const panelRef = useDialogFocus(open, () => setOpen(false))
   const { data: categories } = useQuery({ queryKey: ['categories'], queryFn: () => api.get<Category[]>('/catalog/categories') })
 
   return <>
     <button
       type="button"
       className={`cs-fab${open ? ' cs-fab-open' : ''}`}
-      aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
+      aria-label={open ? t('Закрыть меню') : t('Открыть меню')}
       aria-expanded={open}
       onClick={() => setOpen(v => !v)}
     >
       {open ? <X size={20} /> : <Layers size={20} />}
-      <span>Меню</span>
+      <span>{t('Меню')}</span>
     </button>
 
     <div className={`cs-backdrop${open ? ' cs-backdrop-open' : ''}`} onClick={() => setOpen(false)} aria-hidden="true" />
 
-    <aside className={`cs-panel${open ? ' cs-panel-open' : ''}`} aria-hidden={!open} inert={!open}>
+    <aside ref={panelRef} role="dialog" aria-modal={open ? true : undefined} aria-label={t('Навигация')} tabIndex={-1} className={`cs-panel${open ? ' cs-panel-open' : ''}`} aria-hidden={!open} inert={!open}>
       <div className="cs-head">
         <div>
           <span className="mp-kicker">AUTO UNIVERSE</span>
-          <h2>Навигация</h2>
+          <h2>{t('Навигация')}</h2>
         </div>
-        <button type="button" aria-label="Закрыть" onClick={() => setOpen(false)}><X size={19} /></button>
+        <button type="button" aria-label={t('Закрыть')} onClick={() => setOpen(false)}><X size={19} /></button>
       </div>
 
-      <nav className="cs-section" aria-label="Основная навигация">
+      <nav className="cs-section" aria-label={t('Основная навигация')}>
         {navItems.map(item => {
           const Icon = item.icon
           return <Link key={item.to + item.label} to={item.to} onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
             <Icon size={16} className="cs-nav-icon" />
-            <span>{item.label}</span>
+            <span>{t(item.label)}</span>
             <ArrowUpRight size={14} className="cs-arrow" />
           </Link>
         })}
       </nav>
 
-      <div className="cs-subhead"><Layers size={14} /><span>Категории</span></div>
+      <div className="cs-subhead"><Layers size={14} /><span>{t('Категории')}</span></div>
 
-      <nav className="cs-list" aria-label="Категории запчастей">
+      <nav className="cs-list" aria-label={t('Категории запчастей')}>
         {categories?.map((category, i) => (
           <Link key={category.id} to={`/catalog?category_id=${category.id}`} onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>
             <span className="cs-num">{String(i + 1).padStart(2, '0')}</span>
-            <span className="cs-body"><strong>{category.name}</strong><small>{category.description || 'Смотреть запчасти'}</small></span>
+            <span className="cs-body"><strong>{t(category.name)}</strong><small>{t(category.description || 'Смотреть запчасти')}</small></span>
             <ArrowUpRight size={16} className="cs-arrow" />
           </Link>
         ))}
-        {!categories?.length && <p className="cs-empty">Категории загружаются…</p>}
+        {!categories?.length && <p className="cs-empty">{t('Категории загружаются…')}</p>}
       </nav>
 
-      <Link className="cs-all" to="/catalog" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>Весь каталог <ArrowUpRight size={16} /></Link>
+      <Link className="cs-all" to="/catalog" onClick={() => setOpen(false)} tabIndex={open ? 0 : -1}>{t('Весь каталог')} <ArrowUpRight size={16} /></Link>
     </aside>
   </>
 }
