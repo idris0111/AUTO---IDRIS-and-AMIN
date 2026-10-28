@@ -1110,6 +1110,15 @@ html .storefront .category-ribbon .category-tile { flex: none; width: 258px; min
   .category-ribbon .category-visual { height: 135px; border-radius: 13px; }.category-ribbon .category-tile-copy h3 { font-size: 14px; }.category-ribbon .category-tile .category-tile-copy>span { display: -webkit-box; font-size: 10px; }.category-ribbon .category-number { display: grid; top: 18px; left: 18px; }
 }
 @media(max-width:359px) { .storefront .commerce-header .brand-wordmark { font-size: 11px; }.storefront .commerce-header .commerce-header-brand { gap: 5px; }.storefront .commerce-header .commerce-header-main { padding-inline: 12px; }.auth-layout .au-auth-card { padding: 26px 20px; }.auth-layout .au-field-row { grid-template-columns: minmax(0,1fr); } }
+@media(min-width:768px) and (max-width:1199px) {
+  .storefront .commerce-header .commerce-header-actions>.hd-icon-btn:not([href='/cart']):not(.hd-theme) { display: none; }
+  .storefront .commerce-header .hd-logout,.storefront .commerce-header .hd-coins { display: none; }
+  .storefront .commerce-header .brand-wordmark { font-size: 14px; }
+  .storefront .commerce-header .commerce-header-main { gap: 14px; padding-inline: 24px; }
+  .storefront .commerce-header .commerce-header-actions { gap: 6px; }
+  .storefront .commerce-header :is(.hd-login,.hd-register) { padding-inline: 13px; font-size: 11px; }
+}
+@media(min-width:768px) and (max-width:1023px) { .storefront .commerce-header .hd-lang { display: none; } }
 @media(prefers-reduced-motion:reduce) { .category-ribbon-track { animation: none; transform: none; }.category-ribbon-window { overflow-x: auto; mask-image: none; }.category-ribbon-group[aria-hidden=true] { display: none; }.category-ribbon-toolbar { display: none; } }
 
 /* Account workspace — real account data, one glass hierarchy. */
@@ -1147,6 +1156,9 @@ html .storefront .commerce-product-card .product-add.is-added { background: var(
 html .storefront .account-form input:not([type=checkbox]) { display: block; width: 100%; min-width: 0; height: 50px; padding: 0 15px; border: 1px solid var(--border); border-radius: 13px; background: var(--glass); color: var(--text); font-size: 14px; box-shadow: inset 0 1px var(--glass-highlight); }.account-form input[readonly] { opacity: .65; }.account-form input:focus { outline: var(--focus-ring); outline-offset: 1px; }.account-form label>small { font-size: 11px; font-weight: 400; }
 .account-form .account-checkbox { flex-direction: row; align-items: center; gap: 10px; }.account-checkbox input { accent-color: var(--amber); width: 17px; height: 17px; }.account-description { font-size: 13px; color: var(--text-muted); line-height: 1.8; margin-bottom: 22px; }
 .account-main>.account-panel,.account-metrics,.account-bento { animation: account-section-in 240ms ease both; }.account-bento { animation-delay: 60ms; }
+.account-mobile-signout { display: none; }
+.account-sidebar nav { scrollbar-width: none; }.account-sidebar nav::-webkit-scrollbar { display: none; }
+@media(max-width:899px) { .account-identity .account-mobile-signout { display: grid; place-items: center; width: 42px; height: 42px; margin-left: auto; border: 1px solid var(--glass-border); border-radius: 13px; background: var(--glass); color: var(--text-muted); } }
 @keyframes account-section-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .account-order-list>a { display: flex; align-items: center; gap: 12px; padding: 17px 0; border-top: 1px solid var(--border); }.account-order-icon { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border-radius: 13px; background: var(--amber-soft); color: var(--amber); border: 1px solid var(--glass-border); }.account-order-list strong { font-size: 12px; font-weight: 650; }.account-order-list small { display: block; margin-top: 5px; font-size: 10px; color: var(--text-muted); }.account-order-end { margin-left: auto; text-align: right; }.account-order-end b { font-size: 12px; font-weight: 650; }.account-status { color: var(--amber); }.account-status.status-completed,.account-status.status-delivered { color: var(--success); }
 .account-addresses { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 18px; }.account-addresses article { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 18px; background: var(--glass); margin-top: 20px; }.account-addresses article>div { display: flex; gap: 10px; align-items: center; font-size: 13px; }.account-addresses article small { margin-left: auto; font-size: 9px; color: var(--amber); }.account-addresses article p { font-size: 13px; margin-top: 16px; line-height: 1.7; overflow-wrap: anywhere; }.account-addresses article>span { display: block; font-size: 11px; color: var(--text-muted); margin-top: 7px; overflow-wrap: anywhere; }.account-addresses footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid var(--border); margin-top: 18px; padding-top: 10px; }.account-addresses footer button { min-height: 44px; font-size: 11px; color: var(--text-muted); }

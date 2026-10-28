@@ -13,7 +13,7 @@ before(async () => {
   globalThis.window = Object.assign(new EventTarget(), { location: { origin: 'http://localhost:5173' } })
   globalThis.document = { documentElement: { lang: '', classList: { toggle() {} } } }
   globalThis.localStorage = { getItem: key => values.get(key) ?? null, setItem: (key, value) => values.set(key, String(value)), removeItem: key => values.delete(key) }
-  server = await createServer({ root: fileURLToPath(new URL('../', import.meta.url)), configFile: false, appType: 'custom', server: { middlewareMode: true, watch: null, hmr: false }, optimizeDeps: { noDiscovery: true } })
+  server = await createServer({ root: fileURLToPath(new URL('../', import.meta.url)), configFile: false, cacheDir: fileURLToPath(new URL('../node_modules/.vite-test/session', import.meta.url)), appType: 'custom', server: { middlewareMode: true, watch: null, hmr: false, ws: false }, optimizeDeps: { noDiscovery: true } })
   api = await server.ssrLoadModule('/src/lib/api.ts')
   ;({ useAuth: auth } = await server.ssrLoadModule('/src/stores/auth.ts'))
   ;({ useGarage: garage } = await server.ssrLoadModule('/src/stores/garage.ts'))

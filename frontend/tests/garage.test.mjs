@@ -23,8 +23,10 @@ before(async () => {
   server = await createServer({
     root: fileURLToPath(new URL('../', import.meta.url)),
     configFile: false,
+    cacheDir: fileURLToPath(new URL('../node_modules/.vite-test/garage', import.meta.url)),
     appType: 'custom',
-    server: { middlewareMode: true, watch: null },
+    server: { middlewareMode: true, watch: null, hmr: false, ws: false },
+    optimizeDeps: { noDiscovery: true },
   })
   ;({ useGarage } = await server.ssrLoadModule('/src/stores/garage.ts'))
 })

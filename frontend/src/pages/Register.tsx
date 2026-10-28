@@ -79,7 +79,7 @@ export default function Register() {
             <span>{t('password')}</span>
             <div className="au-input-wrap">
               <Lock size={15} />
-              <input type={showPassword ? 'text' : 'password'} required minLength={10} autoComplete="new-password" placeholder={t('Минимум 10 символов')} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+              <input aria-label={t('password')} type={showPassword ? 'text' : 'password'} required minLength={10} autoComplete="new-password" placeholder={t('Минимум 10 символов')} value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
               <button type="button" className="password-toggle" aria-label={t(showPassword ? 'Скрыть пароль' : 'Показать пароль')} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
             </div>
           </label>

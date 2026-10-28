@@ -107,22 +107,17 @@ export default function Header() {
   }
 
   const [scrolled, setScrolled] = useState(false)
-  const [headerHidden, setHeaderHidden] = useState(false)
   useEffect(() => {
-    let lastY = window.scrollY
     const handleScroll = () => {
-      const y = window.scrollY
-      setScrolled(y > 20)
-      if (y > 140 && y > lastY + 6) setHeaderHidden(true)
-      else if (y < lastY - 6 || y < 80) setHeaderHidden(false)
-      lastY = y
+      setScrolled(window.scrollY > 20)
     }
+    handleScroll()
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   return (
-    <GlassNavbar onKeyDown={event => { if (event.key === 'Escape') { setNotifsOpen(false); setSuggestionsOpen(false) } }} className={`commerce-header store-header sticky top-0 z-50 ${scrolled ? 'is-scrolled au-header-scrolled' : ''} ${headerHidden ? 'au-header-hidden' : ''}`}>
+    <GlassNavbar onKeyDown={event => { if (event.key === 'Escape') { setNotifsOpen(false); setSuggestionsOpen(false) } }} className={`commerce-header store-header sticky top-0 z-50 ${scrolled ? 'is-scrolled au-header-scrolled' : ''}`}>
       <div className="commerce-header-main flex items-center gap-3 px-4">
         <Link to="/" className="commerce-header-brand flex shrink-0 items-center gap-2.5">
           <span className="au-monogram"><BrandEmblem size={32} /></span>
