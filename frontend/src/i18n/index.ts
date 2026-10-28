@@ -1,4 +1,6 @@
 import i18n from 'i18next'
+import { storefront } from './storefront'
+import { tajik } from './tajik'
 import { initReactI18next } from 'react-i18next'
 
 const ru = {
@@ -462,8 +464,10 @@ const tg: typeof ru = {
 const saved = localStorage.getItem('au_locale') ?? 'ru'
 
 void i18n.use(initReactI18next).init({
-  resources: { ru: { translation: ru }, en: { translation: en }, tg: { translation: tg } },
-  lng: saved,
+  resources: { ru: { translation: { ...ru, ...storefront.ru } }, en: { translation: { ...en, ...storefront.en } }, tg: { translation: { ...tg, ...tajik, ...storefront.tg } } },
+  lng: ['ru', 'en', 'tg'].includes(saved) ? saved : 'ru',
+  supportedLngs: ['ru', 'en', 'tg'],
+  keySeparator: false,
   fallbackLng: 'ru',
   interpolation: { escapeValue: false },
 })

@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from decimal import Decimal
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
@@ -51,6 +52,16 @@ class CheckoutRequest(BaseModel):
     customer_note: str | None = Field(default=None, max_length=2000)
     coupon_code: str | None = Field(default=None, max_length=40)
     points_to_redeem: int = Field(default=0, ge=0)
+
+
+class OrderCancelRequest(BaseModel):
+    reason: Literal[
+        'Покупатель изменил решение',
+        'Нашёл товар в другом месте',
+        'Заказ оформлен ошибочно',
+        'Нужна другая деталь',
+        'Другая причина',
+    ]
 
 
 class OrderItemRead(BaseModel):

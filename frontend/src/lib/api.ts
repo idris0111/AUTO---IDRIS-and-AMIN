@@ -3,6 +3,7 @@ const API_BASE = '/api/v1'
 const ACCESS_KEY = 'au_access'
 const REFRESH_KEY = 'au_refresh'
 const GUEST_KEY = 'au_guest'
+let sessionEpoch = 0
 
 export function getAccessToken(): string | null {
   return localStorage.getItem(ACCESS_KEY)
@@ -18,8 +19,10 @@ export function setTokens(access: string, refresh: string) {
 }
 
 export function clearTokens() {
+  sessionEpoch += 1
   localStorage.removeItem(ACCESS_KEY)
   localStorage.removeItem(REFRESH_KEY)
+  window.dispatchEvent(new Event('au:session-ended'))
 }
 
 export function getGuestId(): string {
@@ -59,15 +62,18 @@ async function tryRefresh(): Promise<boolean> {
     body: JSON.stringify({ refresh_token: refresh }),
   })
   if (!response.ok) {
-    clearTokens()
+    if (getRefreshToken() === refresh) clearTokens()
     return false
   }
   const data = await response.json()
+  // A response from the previous session must never restore tokens after logout.
+  if (getRefreshToken() !== refresh) return false
   setTokens(data.access_token, data.refresh_token)
   return true
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const epoch = sessionEpoch
   const url = new URL(API_BASE + path, window.location.origin)
   if (options.query) {
     for (const [key, value] of Object.entries(options.query)) {
@@ -91,7 +97,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
   })
 
-  if (response.status === 401 && getRefreshToken()) {
+  if (response.status === 401 && getRefreshToken() && !path.startsWith('/auth/')) {
     const refreshed = await (refreshPromise ??= tryRefresh().finally(() => {
       refreshPromise = null
     }))
@@ -105,10 +111,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     }
   }
 
+  if (epoch !== sessionEpoch) throw new ApiError(401, 'Session ended')
   if (response.status === 204) return undefined as T
 
   const data = await response.json().catch(() => ({}))
   if (!response.ok) {
+    if (response.status === 401 && access && getAccessToken() === access && !path.startsWith('/auth/')) clearTokens()
     throw new ApiError(
       response.status,
       data.detail ?? 'Request failed',

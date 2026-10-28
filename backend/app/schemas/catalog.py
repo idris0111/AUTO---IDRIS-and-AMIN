@@ -230,6 +230,20 @@ class ProductCategoryBrief(BaseModel):
     slug: str
 
 
+class ProductFitmentRead(BaseModel):
+    """Vehicle rule attached to a product, presented without database-only IDs."""
+
+    id: uuid.UUID
+    make_name: str
+    model_name: str | None = None
+    generation_name: str | None = None
+    modification_name: str | None = None
+    engine_name: str | None = None
+    year_from: int | None = None
+    year_to: int | None = None
+    note: str | None = None
+
+
 class ProductRead(ProductBase):
     model_config = ConfigDict(from_attributes=True, str_strip_whitespace=True)
 
@@ -246,6 +260,7 @@ class ProductRead(ProductBase):
     specifications: list[ProductSpecificationRead] = []
     oem_numbers: list[OEMNumberRead] = []
     cross_references: list[CrossReferenceRead] = []
+    compatibilities: list[ProductFitmentRead] = Field(default_factory=list)
     fitment: str | None = None
 
 

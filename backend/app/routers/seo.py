@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Response
 from sqlalchemy.orm import Session
 
+from app.config import get_settings
 from app.database import get_db
 from app.services import seo as seo_service
 
@@ -46,8 +47,8 @@ def get_seo_meta_defaults(response: Response) -> dict:
             "автозапчасти душанбе, запчасти bmw mercedes audi toyota таджикистан, "
             "доставка автозапчастей, моторное масло motul, brembo, bosch"
         ),
-        "site_url": "https://autouniverse.tj",
-        "og_image": "https://autouniverse.tj/og-image.jpg",
+        "site_url": get_settings().site_url,
+        "og_image": f"{get_settings().site_url}/images/automotive-studio.png",
         "locale": "ru_TJ",
         "alternate_locales": ["tg_TJ", "en_US"],
     }

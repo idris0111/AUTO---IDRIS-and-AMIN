@@ -104,10 +104,10 @@ export default function PartsExplorer3D() {
               Каталог
             </Link>
             <ChevronRight className="size-3" />
-            <span className="text-ink">3D Parts Explorer</span>
+            <span className="text-premium">3D Parts Explorer</span>
           </div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black tracking-tight text-ink sm:text-3xl">
+            <h1 className="text-2xl font-black tracking-tight text-premium sm:text-3xl">
               ИНТЕРАКТИВНЫЙ 3D ПРОСМОТР УЗЛОВ
             </h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-premium/15 px-2.5 py-0.5 text-xs font-bold text-premium">
@@ -129,11 +129,11 @@ export default function PartsExplorer3D() {
               <select
                 value={selectedVehicleId ?? ''}
                 onChange={(e) => selectVehicle(e.target.value || null)}
-                className="bg-transparent font-semibold text-ink outline-none cursor-pointer"
+                className="bg-transparent font-semibold text-premium outline-none cursor-pointer"
               >
-                <option value="" className="bg-[var(--surface)] text-ink">Все автомобили</option>
+                <option value="" className="bg-[var(--surface)] text-premium">Все автомобили</option>
                 {vehicles.map((v) => (
-                  <option key={v.id} value={v.id} className="bg-[var(--surface)] text-ink">
+                  <option key={v.id} value={v.id} className="bg-[var(--surface)] text-premium">
                     {v.name} ({v.year})
                   </option>
                 ))}
@@ -157,8 +157,8 @@ export default function PartsExplorer3D() {
               onClick={() => handleSelectAssembly(item.id)}
               className={`flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-sm font-semibold transition ${
                 isActive
-                  ? 'border-premium bg-premium/10 text-ink shadow-[var(--shadow-glow)]'
-                  : 'border-[#252B33] bg-[var(--surface)] text-muted hover:border-muted hover:text-ink'
+                  ? 'border-premium bg-premium/10 text-premium shadow-[var(--shadow-glow)]'
+                  : 'border-[#252B33] bg-[var(--surface)] text-muted hover:border-muted hover:text-premium'
               }`}
             >
               <Box className={`size-4 ${isActive ? 'text-premium' : 'text-muted'}`} />
@@ -180,7 +180,7 @@ export default function PartsExplorer3D() {
             {/* Assembly Header Chip */}
             <div className="pointer-events-auto flex items-center gap-2 rounded-xl border border-[#252B33] bg-[var(--surface)]/85 px-3 py-1.5 backdrop-blur-md">
               <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-semibold text-ink">
+              <span className="text-xs font-semibold text-premium">
                 {assemblyDetail?.title ?? 'Загрузка 3D…'}
               </span>
               <span className="text-[10px] text-muted">| {assemblyDetail?.subsystem}</span>
@@ -191,7 +191,7 @@ export default function PartsExplorer3D() {
               <button
                 onClick={() => setResetTrigger((prev) => prev + 1)}
                 title="Сбросить ракурс камеры"
-                className="rounded-lg p-1.5 text-muted hover:bg-[#252B33] hover:text-ink transition"
+                className="rounded-lg p-1.5 text-muted hover:bg-[#252B33] hover:text-premium transition"
               >
                 <RotateCcw className="size-4" />
               </button>
@@ -199,7 +199,7 @@ export default function PartsExplorer3D() {
                 onClick={() => setAutoRotate((prev) => !prev)}
                 title={autoRotate ? 'Остановить авто-вращение' : 'Включить авто-вращение'}
                 className={`rounded-lg p-1.5 transition ${
-                  autoRotate ? 'bg-premium text-ink' : 'text-muted hover:bg-[#252B33] hover:text-ink'
+                  autoRotate ? 'bg-premium' : 'text-muted hover:bg-[#252B33] hover:text-premium'
                 }`}
               >
                 <RefreshCw className={`size-4 ${autoRotate ? 'animate-spin' : ''}`} />
@@ -208,7 +208,7 @@ export default function PartsExplorer3D() {
                 onClick={() => setWireframe((prev) => !prev)}
                 title={wireframe ? 'Обычный режим' : 'Рентген / Каркасный режим'}
                 className={`rounded-lg p-1.5 transition ${
-                  wireframe ? 'bg-premium text-ink' : 'text-muted hover:bg-[#252B33] hover:text-ink'
+                  wireframe ? 'bg-premium' : 'text-muted hover:bg-[#252B33] hover:text-premium'
                 }`}
               >
                 {wireframe ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -216,7 +216,7 @@ export default function PartsExplorer3D() {
               <button
                 onClick={() => setIsFullscreen((prev) => !prev)}
                 title={isFullscreen ? 'Свернуть' : 'Во весь экран'}
-                className="rounded-lg p-1.5 text-muted hover:bg-[#252B33] hover:text-ink transition"
+                className="rounded-lg p-1.5 text-muted hover:bg-[#252B33] hover:text-premium transition"
               >
                 {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
               </button>
@@ -228,7 +228,7 @@ export default function PartsExplorer3D() {
             {isLoading && (
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[var(--canvas)]/80 backdrop-blur-sm">
                 <div className="size-12 animate-spin rounded-full border-4 border-[#252B33] border-t-premium" />
-                <span className="mt-3 text-sm font-medium text-ink">Сборка 3D кинематики…</span>
+                <span className="mt-3 text-sm font-medium text-premium">Сборка 3D кинематики…</span>
               </div>
             )}
 
@@ -259,7 +259,7 @@ export default function PartsExplorer3D() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               {/* Explosion Slider */}
               <div className="flex flex-1 items-center gap-3">
-                <div className="flex items-center gap-1.5 text-xs font-semibold text-ink">
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-premium">
                   <Sliders className="size-4 text-premium" />
                   <span className="hidden sm:inline">Взрыв-схема:</span>
                   <span className="text-premium">{Math.round(explosionProgress * 100)}%</span>
@@ -273,7 +273,7 @@ export default function PartsExplorer3D() {
                     step={0.01}
                     value={explosionProgress}
                     onChange={(e) => setExplosionProgress(parseFloat(e.target.value))}
-                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-[#252B33] accent-[#E32636]"
+                    className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-[#252B33] accent-premium"
                   />
                 </div>
 
@@ -281,19 +281,19 @@ export default function PartsExplorer3D() {
                 <div className="flex gap-1 text-[11px]">
                   <button
                     onClick={() => setExplosionProgress(0)}
-                    className="rounded bg-[#252B33] px-2 py-1 text-muted hover:text-ink"
+                    className="rounded bg-[#252B33] px-2 py-1 text-muted hover:text-premium"
                   >
                     0%
                   </button>
                   <button
                     onClick={() => setExplosionProgress(0.5)}
-                    className="rounded bg-[#252B33] px-2 py-1 text-muted hover:text-ink"
+                    className="rounded bg-[#252B33] px-2 py-1 text-muted hover:text-premium"
                   >
                     50%
                   </button>
                   <button
                     onClick={() => setExplosionProgress(1)}
-                    className="rounded bg-[#252B33] px-2 py-1 text-muted hover:text-ink"
+                    className="rounded bg-[#252B33] px-2 py-1 text-muted hover:text-premium"
                   >
                     100%
                   </button>
@@ -330,7 +330,7 @@ export default function PartsExplorer3D() {
 
             {activeNode ? (
               <div>
-                <h3 className="text-lg font-bold text-ink">{activeNode.name}</h3>
+                <h3 className="text-lg font-bold text-premium">{activeNode.name}</h3>
                 <p className="mt-2 text-xs leading-relaxed text-muted">{activeNode.description}</p>
 
                 {/* Matched Real Catalog Product Box */}
@@ -369,7 +369,7 @@ export default function PartsExplorer3D() {
                           </span>
                           <Link
                             to={`/product/${activeNode.matching_product.slug}`}
-                            className="line-clamp-2 text-sm font-semibold text-ink hover:text-premium transition"
+                            className="line-clamp-2 text-sm font-semibold text-premium hover:text-premium transition"
                           >
                             {activeNode.matching_product.name}
                           </Link>
@@ -382,7 +382,7 @@ export default function PartsExplorer3D() {
                       {/* Price & Stock */}
                       <div className="mt-4 flex items-baseline justify-between">
                         <div>
-                          <div className="text-xl font-black text-ink">
+                          <div className="text-xl font-black text-premium">
                             {activeNode.matching_product.price} <span className="text-xs font-normal text-muted">TJS</span>
                           </div>
                           {activeNode.matching_product.old_price && (
@@ -406,8 +406,8 @@ export default function PartsExplorer3D() {
                           onClick={() => handleAddToCart(activeNode.matching_product!.id)}
                           className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition shadow-lg ${
                             addedItemIds[activeNode.matching_product.id]
-                              ? 'bg-emerald-600 text-ink'
-                              : 'bg-premium text-ink hover:bg-[#c91e2c] shadow-[var(--shadow-glow)]'
+                              ? 'bg-emerald-600'
+                              : 'bg-premium text-premium hover:bg-[#c91e2c] shadow-[var(--shadow-glow)]'
                           }`}
                         >
                           {addedItemIds[activeNode.matching_product.id] ? (
@@ -425,7 +425,7 @@ export default function PartsExplorer3D() {
 
                         <Link
                           to={`/product/${activeNode.matching_product.slug}`}
-                          className="flex items-center justify-center rounded-xl border border-[#252B33] bg-[var(--surface)] px-3 text-xs font-medium text-ink hover:border-premium transition"
+                          className="flex items-center justify-center rounded-xl border border-[#252B33] bg-[var(--surface)] px-3 text-xs font-medium text-premium hover:border-premium transition"
                         >
                           Детали
                         </Link>
@@ -464,15 +464,15 @@ export default function PartsExplorer3D() {
                     onMouseLeave={() => setHoveredNodeId(null)}
                     className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-xs transition ${
                       isSelected
-                        ? 'border-premium bg-premium/15 text-ink'
+                        ? 'border-premium bg-premium/15'
                         : isHovered
-                        ? 'border-[#252B33] bg-[#252B33]/60 text-ink'
-                        : 'border-[#252B33]/60 bg-[var(--canvas)] text-muted hover:text-ink'
+                        ? 'border-[#252B33] bg-[#252B33]/60'
+                        : 'border-[#252B33]/60 bg-[var(--canvas)] text-muted hover:text-premium'
                     }`}
                   >
                     <div className="flex items-center gap-2 min-w-0">
                       <span className={`grid size-5 shrink-0 place-items-center rounded-full text-[10px] font-bold ${
-                        isSelected ? 'bg-premium text-ink' : 'bg-[#252B33] text-muted'
+                        isSelected ? 'bg-premium' : 'bg-[#252B33] text-muted'
                       }`}>
                         {idx + 1}
                       </span>

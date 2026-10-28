@@ -28,7 +28,7 @@ export default function ComparisonFloatingBar() {
           className="flex items-center gap-3 rounded-2xl border px-4 py-2.5 shadow-[var(--shadow-lg)] backdrop-blur-md"
           style={{
             borderColor: 'var(--color-premium)',
-            background: 'rgba(21, 25, 31, 0.94)',
+            background: 'color-mix(in srgb, var(--surface-2) 94%, transparent)',
           }}
         >
           <span className="grid size-8 place-items-center rounded-xl bg-premium/15 text-premium">
@@ -36,7 +36,7 @@ export default function ComparisonFloatingBar() {
           </span>
 
           <div className="flex flex-col pr-1">
-            <span className="text-xs font-bold text-ink">
+            <span className="text-xs font-bold text-premium">
               {t('comparison')}
             </span>
             <span className="text-[11px] muted">
@@ -56,7 +56,7 @@ export default function ComparisonFloatingBar() {
             type="button"
             onClick={clear}
             title={t('compareClear')}
-            className="grid size-7 place-items-center rounded-lg text-slate-400 transition hover:bg-white/10 hover:text-ink"
+            className="grid size-7 place-items-center rounded-lg text-muted transition hover:bg-[var(--surface-3)] hover:text-premium"
           >
             <X className="size-4" />
           </button>

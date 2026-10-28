@@ -1,64 +1,39 @@
-# AUTO UNIVERSE — Black & Silver Automotive
+# AUTO UNIVERSE — Warm Luxury Glass V4
 
-Active direction from the user's request on 25 October 2026. This supersedes
-the former bright/red Modern Precision direction. Preserve the existing identity
-until the exact AUTO PRIME artwork and naming are supplied; do not claim a match
-to an image that is unavailable.
+Актуальное направление от 27 октября 2026. Заменяет Black & Silver × Amber.
 
-## Palette and material
+Уточнено по фотографиям пользователя: фактурный световой фон, более прозрачное стекло, плотная композиция аналитики, мягкие световые кромки и графитовые действия. Проверка и исправления: [docs/REFERENCE_V4_FIXES.md](docs/REFERENCE_V4_FIXES.md).
 
-Graphite canvas #0B0D10, panels #12161B / #171C22, raised controls #232830.
-Primary type #F7F8FA, muted type #A4ADB8, hairlines #2A313A, strong borders #414B56.
-Silver #C7CDD4 is the primary accent. Metallic gradients belong on small action
-surfaces, never across every panel. Avoid neon, saturated brand highlights and
-decorative financial numbers. Semantic stock/error colors remain subdued.
+## Цвет и материалы
 
-The existing `frontend/src/black-silver.css` is now imported after legacy styles.
-The analytics workspace owns scoped `.pa-*` tokens in premium-analytics.css.
-Consolidation of legacy CSS needs visual regression checks before removing layers.
+Основная тема — Warm Ivory `#F6F1E8`, Soft Cream `#EFE4D4`, Champagne `#E8D8C3`. Текст Charcoal `#252525`, muted `#62594F`. Действия — металл Champagne Gold `#D8B98A`; мелкий акцентный текст использует более контрастный `#856027`.
 
-## Composition and typography
+Тёмная тема — graphite `#191816`, тёплые поверхности `#22201C` / `#2B2822`, текст `#F5EFE5`, золото `#D8B98A`. Прозрачность, тени и блики настроены отдельно для каждой темы.
 
-Storefront: cinematic automotive photography, a strong typographic lead, distinct
-vehicle selection and merchandising sections. Preserve the working catalogue,
-search and vehicle compatibility APIs. Editorial photographs must not impersonate
-verified SKU photographs. Keep missing-image labels when real media is absent.
+Не используйте старые холодные синие/серебряные палитры. Все новые поверхности и состояния используют семантические переменные из tokens.css.
 
-Analytics: graphite sidebar, narrow workspace header, large figures, restrained
-silver lines, precise tables and generous separation between groups. Manrope for
-headings/body; tabular figures and monospace SKU detail. Strong hierarchy before
-decoration. The UI must remain useful with zero orders and an empty catalogue.
+## Организация
 
-## Interaction
+`frontend/src/styles/tokens.css` — единственный источник токенов. `components.css` — оформление витрины, торговых страниц и общие glass-материалы. `motion.css` — движения и prefers-reduced-motion. `premium-analytics.css` — изолированная геометрия и материалы dashboard. Не добавляйте параллельные глобальные таблицы стилей.
 
-Visible focus rings, labelled form controls, keyboard-accessible native selects
-and details, inline errors and retry actions. Dialogs retain the existing focus
-management. Recharts includes tooltip/accessibility support and an alternate data
-table. Reduced motion disables decorative transitions; charts do not animate data.
+`frontend/src/components/glass/Glass.tsx` содержит общие типизированные примитивы. Материалы: soft, elevated, inset. Кнопки: primary, secondary, quiet. Повторно используйте материал; семантика native HTML и существующие сценарии управления фокусом должны сохраняться.
 
-Filter changes query the server. Date drafts apply explicitly; presets apply
-immediately. Drill-down means a documented cohort of orders containing a category.
-No fake controls for unsupported payment or unavailable statistics.
+Хедер закреплён без автоматического скрытия при скролле. Иконки desktop — 44×44 px, общая высота кнопок — 44 px. Поля auth — 52 px с единственной рамкой на обёртке; не применять к вложенному input общие стили каталога. `AccountWorkspace.tsx` — личный кабинет с реальными данными API и навигацией. Категории используют бесконечный трек из двух одинаковых групп; его цикл — ровно 50% ширины, с паузой и fallback для reduced motion.
 
-## Responsive behavior
+## Типографика и геометрия
 
-Store product grids retain two mobile columns and four large-screen columns.
-Analytics sidebar gives way to wrapped navigation tabs below 900 px. KPI cards
-become two columns, graphs stack, and tables scroll inside their own containers.
-The entire page must not scroll horizontally. Check at 320, 390, 768, 1440 and
-1920 px in a real browser before accepting this as visually finished.
+Manrope для интерфейса, JetBrains Mono для SKU и служебных подписей. Заголовки 600–650, мягкий отрицательный tracking; крупные цифровые KPI с tabular numbers. Радиусы: 12 px control, 20 px card, 24 px panel, 30 px hero. Увеличенные интервалы отделяют главные показатели от операционных подробностей.
 
-## Data truth
+## Свет и движение
 
-Default monetary unit: TJS. Russian is the primary copy, with existing tg/en locale
-infrastructure retained; full translation of new analytics copy remains pending.
-No invented addresses, ratings, stock, compatibility or financial performance.
-Order value must never be called settled revenue. Unknown cost, payment and visit
-data must remain visibly unavailable. See docs/ANALYTICS_METRICS.md.
+Многослойный кремовый фон; стекло с белой внутренней кромкой, направленной мягкой тенью и умеренным blur 18–22 px. Не анимировать blur. Под фотографиями повышать непрозрачность текстовых поверхностей. Fallback без backdrop-filter — непрозрачная поверхность. Focus должен быть заметен в обеих темах.
 
-## Acceptance status
+## Адаптивность
 
-Code builds and backend tests pass. Exact AUTO PRIME comparison and browser visual
-QA are still pending: IAB/Edge were unavailable, and native Chrome launch through
-computer-use timed out. Existing screenshots are from prior versions and must not
-be used as proof that this revision passed visual acceptance.
+Проверять 320, 390, 768, 1440, 1920 px. На мобильном — нижняя навигация витрины, вкладки аналитики, раскрываемые фильтры; таблицы прокручиваются внутри панели. Управление не менее 44 px там, где возможно. Следовать prefers-reduced-motion; не скрывать важные данные ради декоративной композиции.
+
+## Правда о данных
+
+Валюта TJS, основной язык русский; сохранить английский и таджикский переводы. API, авторизацию и RBAC не заменять моками. Не считать стоимость заказов подтверждённой выручкой. Демонстрационные данные обозначать. Иллюстрации категории не выдавать за фото точного SKU. Отсутствующие метрики показывать как недоступные.
+
+Отчёт по реализации и проверкам: [docs/WARM_GLASS_V4.md](docs/WARM_GLASS_V4.md).

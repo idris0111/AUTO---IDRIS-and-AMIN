@@ -1,19 +1,17 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Suspense, lazy, useEffect } from 'react'
+import { Suspense, lazy, useEffect, useRef } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import './i18n'
 import './index.css'
-import './commerce.css'
-import './marketplace.css'
-import './marketplace-rebuild.css'
-import './marketplace-next.css'
-import './black-silver.css'
 import Footer from './components/layout/Footer'
+import CategorySidebar from './components/layout/CategorySidebar'
 import Header from './components/layout/Header'
 import MobileTabBar from './components/layout/MobileTabBar'
 import ScrollToTop from './components/layout/ScrollToTop'
 import ComparisonFloatingBar from './components/common/ComparisonFloatingBar'
+import ScrollProgress from './components/common/ScrollProgress'
+import PageTransition from './components/common/PageTransition'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -45,6 +43,7 @@ const queryClient = new QueryClient({
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="storefront flex min-h-dvh flex-col">
+      <ScrollProgress />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-lg focus:bg-premium focus:px-4 focus:py-2.5 focus:text-sm focus:font-bold focus:text-white focus:shadow-2xl focus:outline-none"
@@ -61,12 +60,13 @@ function Shell({ children }: { children: React.ReactNode }) {
             </div>
           }
         >
-          {children}
+          <PageTransition>{children}</PageTransition>
         </Suspense>
       </main>
       <ComparisonFloatingBar />
       <Footer />
       <MobileTabBar />
+      <CategorySidebar />
     </div>
   )
 }
@@ -74,6 +74,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 export default function App() {
   const initialize = useAuth((state) => state.initialize)
   const user = useAuth((state) => state.user)
+  const previousUserId = useRef(user?.id)
   const loadFavorites = useFavorites((state) => state.load)
   const clearFavorites = useFavorites((state) => state.clear)
 
@@ -82,6 +83,10 @@ export default function App() {
   }, [initialize])
 
   useEffect(() => {
+    if (previousUserId.current !== user?.id) {
+      queryClient.clear()
+      previousUserId.current = user?.id
+    }
     if (user) void loadFavorites()
     else clearFavorites()
   }, [user, loadFavorites, clearFavorites])

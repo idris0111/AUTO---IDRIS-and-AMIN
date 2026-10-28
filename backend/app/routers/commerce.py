@@ -18,6 +18,7 @@ from app.schemas.commerce import (
     QuickOrderResponse,
     OrderListItem,
     OrderRead,
+    OrderCancelRequest,
     PaginatedOrders,
 )
 from app.services import commerce as commerce_service
@@ -163,11 +164,12 @@ def order_detail(
 @orders_router.post("/{order_id}/cancel", response_model=OrderRead)
 def cancel_order(
     order_id: uuid.UUID,
+    payload: OrderCancelRequest | None = None,
     db: Session = Depends(get_db),
     user: User = Depends(get_current_user),
 ) -> Order:
     order = commerce_service.get_order(db, user, order_id)
-    return commerce_service.cancel_order(db, user, order)
+    return commerce_service.cancel_order(db, user, order, reason=payload.reason if payload else None)
 
 
 @orders_router.get('/{order_id}/payment', response_model=PaymentState)

@@ -11,5 +11,4 @@ python-multipart==0.0.20
 pytest==8.3.5
 httpx==0.28.1
 ruff==0.11.13
-# Optional PostgreSQL driver for the future Docker/production setup:
-# psycopg[binary]==3.2.9
+psycopg[binary]==3.2.9

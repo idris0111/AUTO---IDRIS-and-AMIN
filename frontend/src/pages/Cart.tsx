@@ -19,7 +19,7 @@ export default function Cart() {
   }
   if (loading && !cart) return <div className="commerce-container commerce-section"><div className="skeleton h-10 w-48 rounded-lg mb-8" /><div className="skeleton h-64 rounded-xl" /></div>
   if (error && !cart) return <div className="commerce-container commerce-section"><div className="commerce-empty" role="alert"><ShoppingBag size={36} /><h1>Корзина временно недоступна</h1><p>{error}</p><button className="commerce-button" onClick={() => void fetchCart()}>Повторить</button></div></div>
-  if (!cart?.items.length) return <div className="commerce-container commerce-section"><ShopEmptyState eyebrow="ВАША КОРЗИНА" title="Начните с правильной детали" description="Добавьте товары из каталога — они появятся здесь. Перед оформлением можно проверить количество и стоимость." action="Открыть каталог" icon={ShoppingBag} /></div>
+  if (!cart?.items.length) return <div className="commerce-container commerce-section"><ShopEmptyState headingLevel={1} eyebrow="ВАША КОРЗИНА" title="Начните с правильной детали" description="Добавьте товары из каталога — они появятся здесь. Перед оформлением можно проверить количество и стоимость." action="Открыть каталог" icon={ShoppingBag} /></div>
   return <div className="commerce-container commerce-section">
     <div className="section-heading"><div><span className="eyebrow">ВАШ ВЫБОР / AUTO UNIVERSE</span><h1 className="text-3xl font-bold mt-3 tracking-tight">Корзина</h1><p className="text-sm muted mt-2">{cart.count} шт. · Проверьте детали перед оформлением</p></div><Link className="text-link" to="/catalog"><ArrowLeft size={16} /> Продолжить покупки</Link></div>
     {error && <p role="alert" className="inline-error mb-6">{error}</p>}

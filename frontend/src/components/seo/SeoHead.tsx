@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { SITE_URL } from '../../lib/site'
 
 export interface SeoHeadProps {
   title?: string
@@ -20,7 +21,6 @@ const DEFAULT_TITLE = 'Auto Universe — Премиальные автозапч
 const DEFAULT_DESCRIPTION =
   'Каталог оригинальных премиальных автозапчастей, моторных масел и расходников в Душанбе. Гарантия совместимости по VIN, экспресс-доставка по всему Таджикистану.'
 const DEFAULT_OG_IMAGE = 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=1200&q=80'
-const SITE_URL = 'https://autouniverse.tj'
 
 function setOrCreateMeta(selector: string, attr: string, value: string) {
   let el = document.querySelector(selector)

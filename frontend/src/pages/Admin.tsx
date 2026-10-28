@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   AlertCircle,
   AlertTriangle,
@@ -39,7 +39,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../lib/api'
 import { useAuth } from '../stores/auth'
 import { ExecutiveCockpit } from '../components/cockpit/ExecutiveCockpit'
-import type { ArticleCategory, ArticleDetail as ArticleDetailType, ArticleListResponse, ArticleSummary, Brand, Category, TicketDetail, TicketListResponse, User } from '../types'
+import type { ArticleCategory, ArticleDetail as ArticleDetailType, ArticleListResponse, ArticleSummary, Brand, Category, TicketDetail, TicketListResponse, User, VehicleMake } from '../types'
 
 const FIELD =
   'w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition focus:border-premium focus:ring-1 focus:ring-premium'
@@ -105,8 +105,43 @@ interface ProductAdminItem {
   category: { id: string; name: string; slug: string }
   images: { id: string; url: string; is_primary: boolean }[]
   oem_numbers?: { id: string; number: string; manufacturer: string | null }[]
+  specifications?: { id: string; name: string; value: string; unit: string | null; position: number }[]
   short_description?: string | null
   description?: string | null
+}
+
+interface ProductCompatibilityAdminRow {
+  id: string
+  product_id: string
+  make_id: string
+  model_id: string | null
+  generation_id: string | null
+  modification_id: string | null
+  engine_id: string | null
+  year_from: number | null
+  year_to: number | null
+  note: string | null
+}
+
+function compatibilityLabel(rule: ProductCompatibilityAdminRow, makes: VehicleMake[] = []) {
+  const make = makes.find(item => item.id === rule.make_id)
+  const model = make?.models.find(item => item.id === rule.model_id)
+  const generation = model?.generations.find(item => item.id === rule.generation_id)
+  const modification = generation?.modifications.find(item => item.id === rule.modification_id)
+  const engine = modification?.engines.find(item => item.id === rule.engine_id)
+  const vehicle = [make?.name, model?.name, generation?.name, modification?.name, engine?.name].filter(Boolean).join(' ')
+  const years = rule.year_from || rule.year_to ? ` · ${rule.year_from ?? '…'}–${rule.year_to ?? '…'}` : ''
+  return `${vehicle || 'Марка из базы'}${years}`
+}
+
+function parseOemLines(value: string) {
+  return value.split(/\r?\n/).map(line => line.split('|').map(part => part.trim())).filter(parts => parts[0])
+    .map(([number, manufacturer]) => ({ number, manufacturer: manufacturer || null }))
+}
+
+function parseSpecificationLines(value: string) {
+  return value.split(/\r?\n/).map(line => line.split('|').map(part => part.trim())).filter(parts => parts[0] && parts[1])
+    .map(([name, specValue, unit], position) => ({ name, value: specValue, unit: unit || null, position }))
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -120,6 +155,11 @@ const STATUS_LABELS: Record<string, string> = {
   completed: 'Завершён',
   cancelled: 'Отменён',
   returned: 'Возврат',
+}
+
+const ORDER_REASON_OPTIONS: Record<string, string[]> = {
+  cancelled: ['Покупатель отменил заказ', 'Товара нет в наличии', 'Не удалось связаться с покупателем', 'Ошибка при оформлении', 'Другая причина'],
+  returned: ['Дефект или повреждение', 'Не подошла совместимость', 'Получен неверный товар', 'Покупатель передумал', 'Другая причина'],
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -159,7 +199,12 @@ function flattenCategories(items: Category[] = [], prefix = ''): { id: string; n
 export default function Admin() {
   const { t } = useTranslation()
   const { user } = useAuth()
-  const [tab, setTab] = useState<Tab>('overview')
+  const [searchParams] = useSearchParams()
+  const [tab, setTab] = useState<Tab>(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab')
+    const allowed: Tab[] = ['overview', 'analytics', 'orders', 'products', 'inventory', 'users', 'support', 'content', 'categories', 'brands', 'coupons', 'zones']
+    return allowed.includes(requested as Tab) ? requested as Tab : 'overview'
+  })
   const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true)
 
   useEffect(() => {
@@ -308,14 +353,22 @@ export default function Admin() {
   })
 
   // Order Details Modal state & query
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(() => new URLSearchParams(window.location.search).get('order_id'))
   const [targetOrderStatus, setTargetOrderStatus] = useState<string>('')
+  const [statusReason, setStatusReason] = useState<string>('')
   const [statusChangeNote, setStatusChangeNote] = useState<string>('')
+
+  useEffect(() => {
+    const requestedTab = searchParams.get('tab')
+    const allowed: Tab[] = ['overview', 'analytics', 'orders', 'products', 'inventory', 'users', 'support', 'content', 'categories', 'brands', 'coupons', 'zones']
+    if (allowed.includes(requestedTab as Tab)) setTab(requestedTab as Tab)
+    setSelectedOrderId(searchParams.get('order_id'))
+  }, [searchParams])
 
   const orderDetailQuery = useQuery({
     queryKey: ['admin-order-detail', selectedOrderId],
     queryFn: () => api.get<any>(`/admin/orders/${selectedOrderId}`),
-    enabled: Boolean(selectedOrderId),
+    enabled: Boolean(selectedOrderId) && isAdmin,
   })
 
   const handleExportProductsCSV = () => {
@@ -379,11 +432,52 @@ export default function Admin() {
     short_description: '',
     description: '',
     image_url: '',
-    oem_number: '',
+    oem_numbers_text: '',
+    specifications_text: '',
+  })
+  const [compatibilityForm, setCompatibilityForm] = useState({
+    make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '',
+    year_from: '', year_to: '', note: '',
+  })
+  const vehicleTreeQuery = useQuery({
+    queryKey: ['admin-compatibility-vehicle-tree'],
+    queryFn: () => api.get<VehicleMake[]>('/vehicles'),
+    enabled: isAdmin && isProductModalOpen,
+  })
+  const productCompatibilitiesQuery = useQuery({
+    queryKey: ['admin-product-compatibilities', editingProductId],
+    queryFn: () => api.get<ProductCompatibilityAdminRow[]>(`/admin/products/${editingProductId}/compatibilities`),
+    enabled: isAdmin && isProductModalOpen && Boolean(editingProductId),
+  })
+  const compatibilityMake = vehicleTreeQuery.data?.find(item => item.id === compatibilityForm.make_id)
+  const compatibilityModel = compatibilityMake?.models.find(item => item.id === compatibilityForm.model_id)
+  const compatibilityGeneration = compatibilityModel?.generations.find(item => item.id === compatibilityForm.generation_id)
+  const compatibilityModification = compatibilityGeneration?.modifications.find(item => item.id === compatibilityForm.modification_id)
+
+  const addCompatibilityMutation = useMutation({
+    mutationFn: () => api.post(`/admin/products/${editingProductId}/compatibilities`, {
+      make_id: compatibilityForm.make_id,
+      model_id: compatibilityForm.model_id || null,
+      generation_id: compatibilityForm.generation_id || null,
+      modification_id: compatibilityForm.modification_id || null,
+      engine_id: compatibilityForm.engine_id || null,
+      year_from: compatibilityForm.year_from ? Number(compatibilityForm.year_from) : null,
+      year_to: compatibilityForm.year_to ? Number(compatibilityForm.year_to) : null,
+      note: compatibilityForm.note.trim(),
+    }),
+    onSuccess: () => {
+      setCompatibilityForm({ make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '', year_from: '', year_to: '', note: '' })
+      void productCompatibilitiesQuery.refetch()
+    },
+  })
+  const deleteCompatibilityMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/admin/compatibilities/${id}`),
+    onSuccess: () => void productCompatibilitiesQuery.refetch(),
   })
 
   const openCreateProduct = () => {
     setEditingProductId(null)
+    setCompatibilityForm({ make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '', year_from: '', year_to: '', note: '' })
     setProductForm({
       name: '',
       sku: '',
@@ -397,13 +491,15 @@ export default function Admin() {
       short_description: '',
       description: '',
       image_url: '',
-      oem_number: '',
+      oem_numbers_text: '',
+      specifications_text: '',
     })
     setIsProductModalOpen(true)
   }
 
   const openEditProduct = (p: ProductAdminItem) => {
     setEditingProductId(p.id)
+    setCompatibilityForm({ make_id: '', model_id: '', generation_id: '', modification_id: '', engine_id: '', year_from: '', year_to: '', note: '' })
     setProductForm({
       name: p.name,
       sku: p.sku,
@@ -417,7 +513,8 @@ export default function Admin() {
       short_description: p.short_description ?? '',
       description: p.description ?? '',
       image_url: p.images?.[0]?.url ?? '',
-      oem_number: p.oem_numbers?.[0]?.number ?? '',
+      oem_numbers_text: (p.oem_numbers ?? []).map(item => `${item.number}${item.manufacturer ? ` | ${item.manufacturer}` : ''}`).join('\n'),
+      specifications_text: (p.specifications ?? []).map(item => `${item.name} | ${item.value}${item.unit ? ` | ${item.unit}` : ''}`).join('\n'),
     })
     setIsProductModalOpen(true)
   }
@@ -450,9 +547,8 @@ export default function Admin() {
             { url: productForm.image_url.trim(), alt: productForm.name, is_primary: true, position: 0 },
           ]
         }
-        if (productForm.oem_number.trim()) {
-          updatePayload.oem_numbers = [{ number: productForm.oem_number.trim(), manufacturer: null }]
-        }
+        updatePayload.oem_numbers = parseOemLines(productForm.oem_numbers_text)
+        updatePayload.specifications = parseSpecificationLines(productForm.specifications_text)
         return api.patch(`/admin/products/${editingProductId}`, updatePayload)
       }
 
@@ -472,10 +568,8 @@ export default function Admin() {
         images: productForm.image_url.trim()
           ? [{ url: productForm.image_url.trim(), alt: productForm.name, is_primary: true, position: 0 }]
           : [],
-        oem_numbers: productForm.oem_number.trim()
-          ? [{ number: productForm.oem_number.trim(), manufacturer: null }]
-          : [],
-        specifications: [],
+        oem_numbers: parseOemLines(productForm.oem_numbers_text),
+        specifications: parseSpecificationLines(productForm.specifications_text),
         cross_references: [],
       }
       return api.post('/admin/products', createPayload)
@@ -721,7 +815,7 @@ export default function Admin() {
         <p className="mt-3 text-muted">{t('authRequired')} доступа к админке.</p>
         <Link
           to="/login"
-          className="mt-6 inline-block rounded-lg bg-premium px-6 py-3 font-semibold text-ink transition hover:opacity-90"
+          className="mt-6 inline-block rounded-lg bg-premium px-6 py-3 font-semibold text-premium transition hover:opacity-90"
         >
           {t('login')}
         </Link>
@@ -754,7 +848,7 @@ export default function Admin() {
   ]
 
   return (
-    <div className="min-h-screen px-4 py-8 md:px-8" style={{ background: 'var(--surface)' }}>
+    <div className="admin-glass min-h-screen px-4 py-8 md:px-8" style={{ background: 'var(--canvas-light)' }}>
       {/* Offline Alert */}
       {!isOnline && (
         <div className="mb-6 flex items-center justify-between rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-amber-500">
@@ -801,8 +895,8 @@ export default function Admin() {
                 active ? 'border-premium text-premium shadow-sm' : 'hover:border-premium/50'
               }`}
               style={{
-                borderColor: active ? '#e32636' : 'var(--border)',
-                background: active ? 'rgba(227, 38, 54, 0.1)' : 'var(--surface-2)',
+                borderColor: active ? 'var(--amber-line)' : 'var(--glass-border)',
+                background: active ? 'var(--amber-soft)' : 'var(--glass)',
               }}
             >
               {item.icon}
@@ -1011,7 +1105,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={openCreateProduct}
-                className="flex items-center justify-center gap-2 rounded-lg bg-premium px-5 py-2.5 text-sm font-semibold text-ink shadow-lg transition hover:opacity-90"
+                className="flex items-center justify-center gap-2 rounded-lg bg-premium px-5 py-2.5 text-sm font-semibold text-premium shadow-lg transition hover:opacity-90"
               >
                 <Plus className="size-4" /> Добавить товар
               </button>
@@ -1055,7 +1149,7 @@ export default function Admin() {
               </p>
               <button
                 onClick={openCreateProduct}
-                className="mt-5 rounded-lg bg-premium px-5 py-2 text-sm font-semibold text-ink hover:opacity-90"
+                className="mt-5 rounded-lg bg-premium px-5 py-2 text-sm font-semibold text-premium hover:opacity-90"
               >
                 Создать первый товар
               </button>
@@ -1257,7 +1351,7 @@ export default function Admin() {
                 type="button"
                 disabled={!categoryForm.name.trim() || createCategoryMutation.isPending}
                 onClick={() => createCategoryMutation.mutate()}
-                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-ink transition hover:opacity-90 disabled:opacity-40"
+                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-premium transition hover:opacity-90 disabled:opacity-40"
               >
                 {createCategoryMutation.isPending ? 'Сохранение...' : 'Создать категорию'}
               </button>
@@ -1346,7 +1440,7 @@ export default function Admin() {
                 type="button"
                 disabled={!brandForm.name.trim() || createBrandMutation.isPending}
                 onClick={() => createBrandMutation.mutate()}
-                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-ink transition hover:opacity-90 disabled:opacity-40"
+                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-premium transition hover:opacity-90 disabled:opacity-40"
               >
                 {createBrandMutation.isPending ? 'Сохранение...' : 'Создать бренд'}
               </button>
@@ -1438,7 +1532,7 @@ export default function Admin() {
                   <button
                     type="button"
                     onClick={() => setSelectedOrderId(order.id)}
-                    className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-semibold text-muted hover:border-premium hover:text-ink transition"
+                    className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-semibold text-muted hover:border-premium hover:text-premium transition"
                     style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
                     title="Открыть детали заказа и историю статусов"
                   >
@@ -1515,7 +1609,7 @@ export default function Admin() {
                 type="button"
                 disabled={!couponForm.code.trim() || !couponForm.value || createCoupon.isPending}
                 onClick={() => createCoupon.mutate()}
-                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-ink transition hover:opacity-90 disabled:opacity-40"
+                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-premium transition hover:opacity-90 disabled:opacity-40"
               >
                 {createCoupon.isPending ? 'Создание...' : 'Создать промокод'}
               </button>
@@ -1586,7 +1680,7 @@ export default function Admin() {
                 type="button"
                 disabled={!zoneForm.city.trim() || !zoneForm.fee || createZone.isPending}
                 onClick={() => createZone.mutate()}
-                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-ink transition hover:opacity-90 disabled:opacity-40"
+                className="w-full rounded-lg bg-premium py-2.5 text-sm font-semibold text-premium transition hover:opacity-90 disabled:opacity-40"
               >
                 {createZone.isPending ? 'Добавление...' : 'Добавить зону'}
               </button>
@@ -1639,7 +1733,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={() => void warehousesQuery.refetch()}
-                className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold text-muted hover:text-ink"
+                className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
               >
                 <RefreshCw className={`size-3.5 ${warehousesQuery.isFetching ? 'animate-spin' : ''}`} />
@@ -1673,14 +1767,14 @@ export default function Admin() {
                             </span>
                           )}
                         </div>
-                        <h3 className="mt-2 text-base font-bold text-ink">{w.name}</h3>
+                        <h3 className="mt-2 text-base font-bold text-premium">{w.name}</h3>
                         <p className="text-xs text-muted mt-1">{w.city || 'Душанбе'}{w.address ? `, ${w.address}` : ''}</p>
                       </div>
                     </div>
 
                     <div className="mt-4 pt-3 border-t flex items-center justify-between text-xs" style={{ borderColor: 'var(--border)' }}>
                       <span className="text-muted">Номенклатура в наличии:</span>
-                      <span className="font-bold text-ink font-mono">{w.items_count ?? 0} позиций</span>
+                      <span className="font-bold text-premium font-mono">{w.items_count ?? 0} позиций</span>
                     </div>
                   </div>
                 ))}
@@ -1701,7 +1795,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={() => void movementsQuery.refetch()}
-                className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold text-muted hover:text-ink"
+                className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
               >
                 <RefreshCw className={`size-3.5 ${movementsQuery.isFetching ? 'animate-spin' : ''}`} />
@@ -1747,7 +1841,7 @@ export default function Admin() {
                               })}
                             </td>
                             <td className="px-4 py-3">
-                              <div className="font-semibold text-ink max-w-[260px] truncate" title={m.product_name}>
+                              <div className="font-semibold text-premium max-w-[260px] truncate" title={m.product_name}>
                                 {m.product_name || 'Товар'}
                               </div>
                               <div className="font-mono text-[11px] text-muted">{m.product_sku || m.product_id}</div>
@@ -1763,7 +1857,7 @@ export default function Admin() {
                             <td className={`px-4 py-3 text-right font-mono font-bold whitespace-nowrap ${isPositive ? 'text-emerald-400' : 'text-rose-400'}`}>
                               {isPositive ? `+${m.quantity_delta}` : m.quantity_delta}
                             </td>
-                            <td className="px-4 py-3 text-right font-mono font-semibold text-ink whitespace-nowrap">
+                            <td className="px-4 py-3 text-right font-mono font-semibold text-premium whitespace-nowrap">
                               {m.balance_after}
                             </td>
                             <td className="px-4 py-3 text-muted max-w-[220px] truncate" title={m.reason || m.reference_type}>
@@ -1816,7 +1910,7 @@ export default function Admin() {
             <button
               type="button"
               onClick={() => void usersQuery.refetch()}
-              className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-ink"
+              className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-premium"
               style={{ borderColor: 'var(--border)' }}
             >
               <RefreshCw className={`size-3.5 ${usersQuery.isFetching ? 'animate-spin' : ''}`} />
@@ -1849,11 +1943,11 @@ export default function Admin() {
                     {(usersQuery.data ?? []).map((u: any) => (
                       <tr key={u.id} className="hover:bg-white/5 transition">
                         <td className="px-4 py-3">
-                          <div className="font-semibold text-ink">{u.first_name ? `${u.first_name} ${u.last_name || ''}`.trim() : (u.email || 'Без имени')}</div>
+                          <div className="font-semibold text-premium">{u.first_name ? `${u.first_name} ${u.last_name || ''}`.trim() : (u.email || 'Без имени')}</div>
                           <div className="font-mono text-[10px] text-muted">{u.id}</div>
                         </td>
                         <td className="px-4 py-3">
-                          <div className="text-ink">{u.email}</div>
+                          <div className="text-premium">{u.email}</div>
                           {u.phone && <div className="text-[11px] text-muted">{u.phone}</div>}
                         </td>
                         <td className="px-4 py-3">
@@ -1955,7 +2049,7 @@ export default function Admin() {
                 href="/sitemap.xml"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-ink"
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
                 title="Открыть актуальный файл sitemap.xml"
               >
@@ -1967,7 +2061,7 @@ export default function Admin() {
                 href="/robots.txt"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-ink"
+                className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
                 title="Открыть robots.txt"
               >
@@ -1978,7 +2072,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={openCreateArticle}
-                className="flex items-center gap-1.5 rounded-lg bg-premium px-4 py-2 text-xs font-semibold text-ink hover:opacity-90 shadow-md"
+                className="flex items-center gap-1.5 rounded-lg bg-premium px-4 py-2 text-xs font-semibold text-premium hover:opacity-90 shadow-md"
               >
                 <Plus className="size-4" />
                 Написать статью
@@ -2032,7 +2126,7 @@ export default function Admin() {
                               <Link
                                 to={`/blog/${art.slug}`}
                                 target="_blank"
-                                className="font-semibold text-ink hover:text-premium line-clamp-1 flex items-center gap-1"
+                                className="font-semibold text-premium hover:text-premium line-clamp-1 flex items-center gap-1"
                               >
                                 {art.title}
                                 <ExternalLink className="size-3 text-muted shrink-0" />
@@ -2074,7 +2168,7 @@ export default function Admin() {
                             <button
                               type="button"
                               onClick={() => toggleArticlePublishMutation.mutate(art.id)}
-                              className="rounded-lg border px-2.5 py-1 text-[11px] font-medium hover:text-ink"
+                              className="rounded-lg border px-2.5 py-1 text-[11px] font-medium hover:text-premium"
                               style={{ borderColor: 'var(--border)' }}
                               title={art.is_published ? 'Снять с публикации' : 'Опубликовать'}
                             >
@@ -2149,7 +2243,7 @@ export default function Admin() {
             <button
               type="button"
               onClick={() => void adminTicketsQuery.refetch()}
-              className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-ink"
+              className="flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold text-muted hover:text-premium"
               style={{ borderColor: 'var(--border)' }}
             >
               <RefreshCw className={`size-3.5 ${adminTicketsQuery.isFetching ? 'animate-spin' : ''}`} />
@@ -2183,7 +2277,7 @@ export default function Admin() {
                       <tr key={t.id} className={`hover:bg-white/5 transition ${t.unread ? 'bg-premium/5' : ''}`}>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-ink">{t.number}</span>
+                            <span className="font-mono font-bold text-premium">{t.number}</span>
                             {t.unread && (
                               <span className="rounded bg-premium/20 px-1.5 py-0.2 text-[9px] font-bold text-premium">
                                 Новое
@@ -2196,7 +2290,7 @@ export default function Admin() {
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <div className="font-semibold text-ink">{t.customer_name}</div>
+                          <div className="font-semibold text-premium">{t.customer_name}</div>
                           <div className="text-[11px] text-muted">{t.customer_email}</div>
                         </td>
                         <td className="px-4 py-3">
@@ -2221,7 +2315,7 @@ export default function Admin() {
                           <button
                             type="button"
                             onClick={() => setSelectedTicketId(t.id)}
-                            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold text-ink hover:border-premium hover:text-premium transition"
+                            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold text-premium hover:border-premium hover:text-premium transition"
                             style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
                           >
                             <MessageSquare className="size-3.5" />
@@ -2254,14 +2348,14 @@ export default function Admin() {
                     {adminTicketDetailQuery.data.status}
                   </span>
                 </div>
-                <h2 className="text-lg font-bold text-ink mt-1">{adminTicketDetailQuery.data.subject}</h2>
+                <h2 className="text-lg font-bold text-premium mt-1">{adminTicketDetailQuery.data.subject}</h2>
                 <div className="text-xs text-muted mt-0.5">
                   Клиент: {adminTicketDetailQuery.data.customer_name} ({adminTicketDetailQuery.data.customer_email})
                 </div>
               </div>
               <button
                 onClick={() => setSelectedTicketId(null)}
-                className="rounded-lg p-1.5 text-muted hover:text-ink"
+                className="rounded-lg p-1.5 text-muted hover:text-premium"
               >
                 <X className="size-5" />
               </button>
@@ -2300,7 +2394,7 @@ export default function Admin() {
               {adminTicketDetailQuery.data.messages.map((m) => (
                 <div key={m.id} className={`flex flex-col ${m.is_staff ? 'items-end' : 'items-start'}`}>
                   <div className="flex items-center gap-2 mb-1 text-[11px] text-muted">
-                    <span className={m.is_staff ? 'text-premium font-bold' : 'text-ink font-medium'}>
+                    <span className={m.is_staff ? 'text-premium font-bold' : 'font-medium'}>
                       {m.author_name}
                     </span>
                     <span className="font-mono text-[10px]">
@@ -2310,8 +2404,8 @@ export default function Admin() {
                   <div
                     className={`rounded-2xl px-4 py-2.5 text-xs max-w-[85%] leading-relaxed ${
                       m.is_staff
-                        ? 'bg-premium text-ink rounded-tr-sm shadow-md'
-                        : 'bg-[#1C222B] border border-white/10 text-ink rounded-tl-sm'
+                        ? 'bg-premium text-premium rounded-tr-sm shadow-md'
+                        : 'bg-[#1C222B] border border-white/10 text-premium rounded-tl-sm'
                     }`}
                   >
                     <p className="whitespace-pre-wrap">{m.body}</p>
@@ -2341,7 +2435,7 @@ export default function Admin() {
                       body: staffReplyText.trim(),
                     })
                   }}
-                  className="rounded-xl bg-premium px-5 text-xs font-bold text-ink transition hover:brightness-110 disabled:opacity-40 shrink-0"
+                  className="rounded-xl bg-premium px-5 text-xs font-bold text-premium transition hover:brightness-110 disabled:opacity-40 shrink-0"
                 >
                   {staffReplyMutation.isPending ? 'Отправка...' : 'Отправить'}
                 </button>
@@ -2379,7 +2473,7 @@ export default function Admin() {
                   setTargetOrderStatus('')
                   setStatusChangeNote('')
                 }}
-                className="rounded-lg p-1.5 text-muted hover:text-ink"
+                className="rounded-lg p-1.5 text-muted hover:text-premium"
               >
                 <X className="size-5" />
               </button>
@@ -2395,7 +2489,7 @@ export default function Admin() {
                 <div className="grid gap-4 sm:grid-cols-2 text-xs">
                   <div className="rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
                     <div className="font-bold text-muted uppercase mb-2">Клиент и контакты</div>
-                    <div className="text-sm font-semibold text-ink">{orderDetailQuery.data.contact_name}</div>
+                    <div className="text-sm font-semibold text-premium">{orderDetailQuery.data.contact_name}</div>
                     <div className="text-muted mt-1">📞 {orderDetailQuery.data.contact_phone || 'Не указан'}</div>
                     <div className="text-muted">✉️ {orderDetailQuery.data.contact_email || 'Не указан'}</div>
                     {orderDetailQuery.data.customer_note && (
@@ -2406,10 +2500,10 @@ export default function Admin() {
                   </div>
                   <div className="rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
                     <div className="font-bold text-muted uppercase mb-2">Доставка и оплата</div>
-                    <div className="text-sm font-semibold text-ink">{orderDetailQuery.data.shipping_city || 'Душанбе'}</div>
+                    <div className="text-sm font-semibold text-premium">{orderDetailQuery.data.shipping_city || 'Душанбе'}</div>
                     <div className="text-muted mt-1">{orderDetailQuery.data.shipping_street || 'Самовывоз / офис'}</div>
-                    <div className="mt-2 text-muted">Способ доставки: <span className="text-ink font-medium">{orderDetailQuery.data.shipping_method}</span></div>
-                    <div className="text-muted">Оплата: <span className="text-ink font-medium">{orderDetailQuery.data.payment_method}</span></div>
+                    <div className="mt-2 text-muted">Способ доставки: <span className="font-medium">{orderDetailQuery.data.shipping_method}</span></div>
+                    <div className="text-muted">Оплата: <span className="font-medium">{orderDetailQuery.data.payment_method}</span></div>
                   </div>
                 </div>
 
@@ -2431,7 +2525,7 @@ export default function Admin() {
                     <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
                       {(orderDetailQuery.data.items ?? []).map((it: any) => (
                         <tr key={it.id}>
-                          <td className="px-4 py-2.5 font-semibold text-ink">{it.product_name}</td>
+                          <td className="px-4 py-2.5 font-semibold text-premium">{it.product_name}</td>
                           <td className="px-4 py-2.5 font-mono text-muted">{it.product_sku}</td>
                           <td className="px-4 py-2.5 text-center font-mono">{it.quantity} шт</td>
                           <td className="px-4 py-2.5 text-right font-mono">{Number(it.unit_price).toFixed(2)} TJS</td>
@@ -2464,7 +2558,7 @@ export default function Admin() {
                         <span className="font-mono">-{Number(orderDetailQuery.data.points_discount).toFixed(2)} TJS</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-base font-black text-ink pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
+                    <div className="flex justify-between text-base font-black text-premium pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
                       <span>Итого к оплате:</span>
                       <span className="text-premium font-mono">{Number(orderDetailQuery.data.total).toFixed(2)} TJS</span>
                     </div>
@@ -2485,7 +2579,7 @@ export default function Admin() {
                         <div key={h.id} className="relative text-xs">
                           <div className="absolute -left-[21px] top-1.5 size-2 rounded-full bg-premium" />
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-ink">
+                            <span className="font-bold text-premium">
                               {STATUS_LABELS[h.to_status] ?? h.to_status}
                             </span>
                             {h.from_status && (
@@ -2517,7 +2611,7 @@ export default function Admin() {
                         className="rounded-lg border px-3 py-2 text-xs outline-none focus:border-premium font-semibold"
                         style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}
                         value={targetOrderStatus}
-                        onChange={(e) => setTargetOrderStatus(e.target.value)}
+                        onChange={(e) => { setTargetOrderStatus(e.target.value); setStatusReason('') }}
                       >
                         <option value="">Выберите новый статус…</option>
                         {orderDetailQuery.data.allowed_transitions.map((st: string) => (
@@ -2526,27 +2620,41 @@ export default function Admin() {
                           </option>
                         ))}
                       </select>
+                      {ORDER_REASON_OPTIONS[targetOrderStatus] && <select
+                        aria-label="Причина отмены или возврата"
+                        className="rounded-lg border px-3 py-2 text-xs outline-none focus:border-premium font-semibold"
+                        style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}
+                        value={statusReason}
+                        onChange={(e) => setStatusReason(e.target.value)}
+                        required
+                      >
+                        <option value="">Укажите причину…</option>
+                        {ORDER_REASON_OPTIONS[targetOrderStatus].map(reason => <option key={reason} value={reason}>{reason}</option>)}
+                      </select>}
                       <input
+                        maxLength={450}
                         className="flex-1 rounded-lg border px-3 py-2 text-xs outline-none focus:border-premium"
                         style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}
-                        placeholder="Служебная заметка к статусу (причина, трек-номер и т.д.)..."
+                        placeholder={statusReason === 'Другая причина' ? 'Опишите причину обязательно…' : 'Дополнительная заметка или номер отслеживания…'}
                         value={statusChangeNote}
                         onChange={(e) => setStatusChangeNote(e.target.value)}
                       />
                       <button
                         type="button"
-                        disabled={!targetOrderStatus || advanceStatus.isPending}
+                        disabled={!targetOrderStatus || advanceStatus.isPending || (Boolean(ORDER_REASON_OPTIONS[targetOrderStatus]) && (!statusReason || (statusReason === 'Другая причина' && !statusChangeNote.trim())))}
                         onClick={() => {
                           if (targetOrderStatus) {
                             advanceStatus.mutate({
                               orderId: selectedOrderId,
                               status: targetOrderStatus,
-                              note: statusChangeNote,
+                              note: statusReason ? `Причина: ${statusReason}${statusChangeNote.trim() ? ` · ${statusChangeNote.trim()}` : ''}` : statusChangeNote,
                             })
                             setTargetOrderStatus('')
+                            setStatusReason('')
+                            setStatusChangeNote('')
                           }
                         }}
-                        className="rounded-lg bg-premium px-4 py-2 text-xs font-bold text-ink transition hover:opacity-90 disabled:opacity-40"
+                        className="rounded-lg bg-premium px-4 py-2 text-xs font-bold text-premium transition hover:opacity-90 disabled:opacity-40"
                       >
                         {advanceStatus.isPending ? 'Обновление...' : 'Применить'}
                       </button>
@@ -2573,14 +2681,14 @@ export default function Admin() {
               </div>
               <button
                 onClick={() => setAdjustPointsModalUser(null)}
-                className="rounded-lg p-1 text-muted hover:text-ink"
+                className="rounded-lg p-1 text-muted hover:text-premium"
               >
                 <X className="size-5" />
               </button>
             </div>
 
             <div className="text-xs text-muted">
-              Пользователь: <span className="font-semibold text-ink">{adjustPointsModalUser.first_name ? `${adjustPointsModalUser.first_name} ${adjustPointsModalUser.last_name || ''}`.trim() : adjustPointsModalUser.email}</span>
+              Пользователь: <span className="font-semibold text-premium">{adjustPointsModalUser.first_name ? `${adjustPointsModalUser.first_name} ${adjustPointsModalUser.last_name || ''}`.trim() : adjustPointsModalUser.email}</span>
             </div>
 
             <div className="space-y-3.5">
@@ -2611,7 +2719,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={() => setAdjustPointsModalUser(null)}
-                className="rounded-lg border px-4 py-2 text-xs font-semibold text-muted hover:text-ink"
+                className="rounded-lg border px-4 py-2 text-xs font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
               >
                 Отмена
@@ -2626,7 +2734,7 @@ export default function Admin() {
                     description: adjustPointsReason.trim(),
                   })
                 }}
-                className="rounded-lg bg-premium px-5 py-2 text-xs font-bold text-ink transition hover:opacity-90 disabled:opacity-40"
+                className="rounded-lg bg-premium px-5 py-2 text-xs font-bold text-premium transition hover:opacity-90 disabled:opacity-40"
               >
                 {adjustLoyaltyMutation.isPending ? 'Проведение...' : 'Сохранить проводку'}
               </button>
@@ -2791,14 +2899,28 @@ export default function Admin() {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="text-xs font-semibold text-muted">Оригинальный OEM-номер</label>
-                <input
+                <label className="text-xs font-semibold text-muted">OEM-номера (один на строку; номер | изготовитель)</label>
+                <textarea
+                  rows={3}
                   className={FIELD}
                   style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
-                  placeholder="Например: 34116799964"
-                  value={productForm.oem_number}
-                  onChange={(e) => setProductForm({ ...productForm, oem_number: e.target.value })}
+                  placeholder={'34116799964 | BMW\n04465-33471 | Toyota'}
+                  value={productForm.oem_numbers_text}
+                  onChange={(e) => setProductForm({ ...productForm, oem_numbers_text: e.target.value })}
                 />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-muted">Характеристики (одна на строку: название | значение | единица)</label>
+                <textarea
+                  rows={4}
+                  className={FIELD}
+                  style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
+                  placeholder={'Диаметр | 280 | мм\nСторона установки | Передняя |'}
+                  value={productForm.specifications_text}
+                  onChange={(e) => setProductForm({ ...productForm, specifications_text: e.target.value })}
+                />
+                <p className="mt-1 text-[10px] text-muted">Указывай значения из источника товара. Пустые и неполные строки не сохраняются.</p>
               </div>
 
               <div className="sm:col-span-2">
@@ -2813,6 +2935,78 @@ export default function Admin() {
               </div>
             </div>
 
+            <section className="mt-5 rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-sm font-bold">Применимость к автомобилям</h3>
+                  <p className="mt-1 text-xs text-muted">Укажите точный вариант и источник каталожных данных. Не добавляйте совпадения по предположению.</p>
+                </div>
+                <span className="shrink-0 rounded-full border px-2 py-1 text-[10px] text-muted" style={{ borderColor: 'var(--border)' }}>
+                  {productCompatibilitiesQuery.data?.length ?? 0} правил
+                </span>
+              </div>
+
+              {!editingProductId ? (
+                <p className="mt-3 rounded-lg bg-white/5 p-3 text-xs text-muted">Сначала сохрани товар, затем добавь к нему совместимость.</p>
+              ) : (
+                <>
+                  {productCompatibilitiesQuery.isLoading ? <p className="mt-3 text-xs text-muted">Загрузка правил…</p> : (
+                    productCompatibilitiesQuery.data?.length ? <ul className="mt-3 divide-y" style={{ borderColor: 'var(--border)' }}>
+                      {productCompatibilitiesQuery.data.map(rule => <li key={rule.id} className="flex items-start justify-between gap-3 py-2.5 text-xs">
+                        <div><strong>{compatibilityLabel(rule, vehicleTreeQuery.data)}</strong><span className="mt-1 block text-muted">Источник: {rule.note || 'не указан — проверь перед публикацией'}</span></div>
+                        <button type="button" aria-label="Удалить правило совместимости" disabled={deleteCompatibilityMutation.isPending} onClick={() => {
+                          if (window.confirm('Удалить это правило совместимости?')) deleteCompatibilityMutation.mutate(rule.id)
+                        }} className="rounded-md border p-1 text-muted hover:border-rose-500/50 hover:text-rose-400" style={{ borderColor: 'var(--border)' }}><Trash2 size={14} /></button>
+                      </li>)}
+                    </ul> : <p className="mt-3 text-xs text-amber-300">Правил пока нет: для покупателя совместимость будет показана как неизвестная.</p>
+                  )}
+
+                  <div className="mt-4 grid gap-3 border-t pt-4 sm:grid-cols-2" style={{ borderColor: 'var(--border)' }}>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Марка *
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.make_id} onChange={e => setCompatibilityForm({ ...compatibilityForm, make_id: e.target.value, model_id: '', generation_id: '', modification_id: '', engine_id: '' })}>
+                        <option value="">Выбери марку</option>{(vehicleTreeQuery.data ?? []).map(make => <option key={make.id} value={make.id}>{make.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Модель *
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.model_id} disabled={!compatibilityMake} onChange={e => setCompatibilityForm({ ...compatibilityForm, model_id: e.target.value, generation_id: '', modification_id: '', engine_id: '' })}>
+                        <option value="">Выбери модель</option>{compatibilityMake?.models.map(model => <option key={model.id} value={model.id}>{model.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Поколение
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.generation_id} disabled={!compatibilityModel} onChange={e => setCompatibilityForm({ ...compatibilityForm, generation_id: e.target.value, modification_id: '', engine_id: '' })}>
+                        <option value="">Любое поколение</option>{compatibilityModel?.generations.map(generation => <option key={generation.id} value={generation.id}>{generation.name}{generation.body_code ? ` (${generation.body_code})` : ''}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Модификация
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.modification_id} disabled={!compatibilityGeneration} onChange={e => setCompatibilityForm({ ...compatibilityForm, modification_id: e.target.value, engine_id: '' })}>
+                        <option value="">Любая модификация</option>{compatibilityGeneration?.modifications.map(mod => <option key={mod.id} value={mod.id}>{mod.name}</option>)}
+                      </select>
+                    </label>
+                    <label className="grid gap-1 text-[11px] font-semibold text-muted">Двигатель
+                      <select className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.engine_id} disabled={!compatibilityModification} onChange={e => setCompatibilityForm({ ...compatibilityForm, engine_id: e.target.value })}>
+                        <option value="">Любой двигатель</option>{compatibilityModification?.engines.map(engine => <option key={engine.id} value={engine.id}>{engine.name}</option>)}
+                      </select>
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <label className="grid gap-1 text-[11px] font-semibold text-muted">Год с
+                        <input type="number" min={1900} max={2100} className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.year_from} onChange={e => setCompatibilityForm({ ...compatibilityForm, year_from: e.target.value })} placeholder="2012" />
+                      </label>
+                      <label className="grid gap-1 text-[11px] font-semibold text-muted">Год по
+                        <input type="number" min={1900} max={2100} className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.year_to} onChange={e => setCompatibilityForm({ ...compatibilityForm, year_to: e.target.value })} placeholder="2018" />
+                      </label>
+                    </div>
+                    <label className="sm:col-span-2 grid gap-1 text-[11px] font-semibold text-muted">Источник проверки *
+                      <input maxLength={500} className={FIELD} style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }} value={compatibilityForm.note} onChange={e => setCompatibilityForm({ ...compatibilityForm, note: e.target.value })} placeholder="Каталог производителя / TecDoc / номер документа или ссылка" />
+                    </label>
+                    <button type="button" disabled={!compatibilityForm.make_id || !compatibilityForm.model_id || !compatibilityForm.note.trim() || Boolean(compatibilityForm.year_from && compatibilityForm.year_to && Number(compatibilityForm.year_to) < Number(compatibilityForm.year_from)) || addCompatibilityMutation.isPending} onClick={() => addCompatibilityMutation.mutate()} className="sm:col-span-2 min-h-10 rounded-lg border px-3 text-xs font-bold text-premium disabled:opacity-40" style={{ borderColor: 'var(--border)', background: 'var(--surface-2)' }}>
+                      {addCompatibilityMutation.isPending ? 'Сохраняю…' : 'Добавить правило из источника'}
+                    </button>
+                    {(addCompatibilityMutation.isError || productCompatibilitiesQuery.isError) && <p role="alert" className="sm:col-span-2 text-xs text-rose-400">Не удалось загрузить или сохранить совместимость. Проверь выбранную иерархию автомобиля.</p>}
+                  </div>
+                </>
+              )}
+            </section>
+
             {saveProductMutation.isError && (
               <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-premium">
                 Не удалось сохранить товар. Проверьте обязательные поля (название, артикул, цену).
@@ -2823,7 +3017,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={() => setIsProductModalOpen(false)}
-                className="rounded-lg border px-4 py-2 text-sm font-semibold text-muted hover:text-ink"
+                className="rounded-lg border px-4 py-2 text-sm font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
               >
                 Отмена
@@ -2837,7 +3031,7 @@ export default function Admin() {
                   saveProductMutation.isPending
                 }
                 onClick={() => saveProductMutation.mutate()}
-                className="rounded-lg bg-premium px-6 py-2 text-sm font-semibold text-ink shadow-lg transition hover:opacity-90 disabled:opacity-40"
+                className="rounded-lg bg-premium px-6 py-2 text-sm font-semibold text-premium shadow-lg transition hover:opacity-90 disabled:opacity-40"
               >
                 {saveProductMutation.isPending ? 'Сохранение...' : 'Сохранить товар'}
               </button>
@@ -2863,7 +3057,7 @@ export default function Admin() {
               </div>
               <button
                 onClick={() => setIsArticleModalOpen(false)}
-                className="rounded-lg p-1.5 text-muted hover:text-ink"
+                className="rounded-lg p-1.5 text-muted hover:text-premium"
               >
                 <X className="size-5" />
               </button>
@@ -3009,7 +3203,7 @@ export default function Admin() {
                   checked={articleForm.is_published}
                   onChange={(e) => setArticleForm({ ...articleForm, is_published: e.target.checked })}
                 />
-                <label htmlFor="art_pub" className="text-xs font-semibold text-ink cursor-pointer">
+                <label htmlFor="art_pub" className="text-xs font-semibold text-premium cursor-pointer">
                   Опубликовать статью сразу (если выключено — останется в черновиках)
                 </label>
               </div>
@@ -3025,7 +3219,7 @@ export default function Admin() {
               <button
                 type="button"
                 onClick={() => setIsArticleModalOpen(false)}
-                className="rounded-lg border px-4 py-2 text-sm font-semibold text-muted hover:text-ink"
+                className="rounded-lg border px-4 py-2 text-sm font-semibold text-muted hover:text-premium"
                 style={{ borderColor: 'var(--border)' }}
               >
                 Отмена
@@ -3039,7 +3233,7 @@ export default function Admin() {
                   saveArticleMutation.isPending
                 }
                 onClick={() => saveArticleMutation.mutate()}
-                className="rounded-lg bg-premium px-6 py-2 text-sm font-semibold text-ink shadow-lg transition hover:opacity-90 disabled:opacity-40"
+                className="rounded-lg bg-premium px-6 py-2 text-sm font-semibold text-premium shadow-lg transition hover:opacity-90 disabled:opacity-40"
               >
                 {saveArticleMutation.isPending ? 'Сохранение...' : 'Сохранить статью'}
               </button>
@@ -3061,7 +3255,7 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
         </div>
         <span>{label}</span>
       </div>
-      <div className="mt-3 text-2xl font-black tracking-tight text-ink font-mono">{value}</div>
+      <div className="mt-3 text-2xl font-black tracking-tight text-premium font-mono">{value}</div>
     </div>
   )
 }

@@ -1,0 +1,34 @@
+[Unit]
+Description=Zapchast FastAPI
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=zapchast
+Group=zapchast
+WorkingDirectory=/srv/zapchast/current/backend
+EnvironmentFile=/etc/zapchast/backend.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+# One worker: the application's login rate limiter is stored in process memory.
+# Only Nginx on loopback is trusted to supply forwarding headers.
+ExecStart=/srv/zapchast/current/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+LockPersonality=true
+
+[Install]
+WantedBy=multi-user.target

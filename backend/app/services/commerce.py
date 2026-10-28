@@ -293,7 +293,7 @@ def list_orders(db: Session, user: User, offset: int = 0, limit: int = 20) -> tu
     return orders, total
 
 
-def cancel_order(db: Session, user: User, order: Order) -> Order:
+def cancel_order(db: Session, user: User, order: Order, reason: str | None = None) -> Order:
     if OrderStatus.CANCELLED not in ALLOWED_TRANSITIONS[order.status]:
         raise HTTPException(status_code=400, detail="Order cannot be cancelled in its current status")
     inventory.restock_order(db, order, user_id=user.id, reason="Cancelled by customer")
@@ -302,7 +302,8 @@ def cancel_order(db: Session, user: User, order: Order) -> Order:
     loyalty_service.refund_points_for_order(db, order)
     db.add(
         OrderStatusHistory(
-            order_id=order.id, from_status=order.status, to_status=OrderStatus.CANCELLED, changed_by=user.id
+            order_id=order.id, from_status=order.status, to_status=OrderStatus.CANCELLED,
+            changed_by=user.id, note=f"Причина: {reason}" if reason else None,
         )
     )
     old_status = order.status

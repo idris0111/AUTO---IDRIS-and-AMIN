@@ -65,7 +65,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <div
         ref={dialog} role="dialog" aria-modal="true" aria-label="Быстрый заказ" tabIndex={-1}
-        className="relative w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 text-ink shadow-2xl overflow-hidden"
+        className="relative w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 sm:p-8 shadow-2xl overflow-hidden"
         style={{ background: 'var(--surface)', maxHeight:'90dvh', overflowY:'auto' }}
       >
         {/* Close Button */}
@@ -73,7 +73,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
           type="button"
           onClick={handleClose}
           aria-label="Закрыть быстрый заказ"
-          className="absolute right-4 top-4 rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-ink hover:border-premium transition"
+          className="absolute right-4 top-4 rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-premium hover:border-premium transition"
         >
           <X className="size-4" />
         </button>
@@ -86,7 +86,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
             </div>
 
             <span className="racing-badge">Заказ принят</span>
-            <h3 className="text-2xl font-black uppercase tracking-tight text-ink">
+            <h3 className="text-2xl font-black uppercase tracking-tight">
               Спасибо за заказ!
             </h3>
 
@@ -97,11 +97,11 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Итоговая сумма:</span>
-                <span className="font-bold text-ink">{Number(orderResult.total).toFixed(2)} TJS</span>
+                <span className="font-bold">{Number(orderResult.total).toFixed(2)} TJS</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted">Способ связи:</span>
-                <span className="font-bold text-ink uppercase">{contactMethod}</span>
+                <span className="font-bold uppercase">{contactMethod}</span>
               </div>
             </div>
 
@@ -112,7 +112,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
             <button
               type="button"
               onClick={handleClose}
-              className="mt-4 rounded-xl bg-premium px-8 py-3 text-sm font-bold text-ink hover:brightness-110 transition"
+              className="mt-4 rounded-xl bg-premium px-8 py-3 text-sm font-bold hover:brightness-110 transition"
             >
               Вернуться к покупкам
             </button>
@@ -125,7 +125,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
               <span className="font-mono text-[10px] text-muted uppercase">Без регистрации</span>
             </div>
 
-            <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-ink">
+            <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
               Купить в 1 клик
             </h3>
             <p className="text-xs text-muted mt-1">
@@ -145,8 +145,8 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                 <span className="font-mono text-[10px] uppercase text-premium font-bold">
                   {product.brand.name} · {product.sku}
                 </span>
-                <h4 className="truncate text-sm font-semibold text-ink">{product.name}</h4>
-                <div className="text-xs font-mono font-bold text-ink mt-0.5">
+                <h4 className="truncate text-sm font-semibold">{product.name}</h4>
+                <div className="text-xs font-mono font-bold mt-0.5">
                   {unitPrice.toFixed(2)} TJS
                 </div>
               </div>
@@ -166,15 +166,15 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                    className="size-7 rounded border border-[var(--border)] bg-[var(--canvas)] text-sm font-bold text-ink hover:border-premium"
+                    className="size-7 rounded border border-[var(--border)] bg-[var(--canvas)] text-sm font-bold hover:border-premium"
                   >
                     -
                   </button>
-                  <span className="font-mono font-bold text-sm text-ink w-6 text-center">{quantity}</span>
+                  <span className="font-mono font-bold text-sm w-6 text-center">{quantity}</span>
                   <button
                     type="button"
                     onClick={() => setQuantity((q) => Math.min(product.stock_quantity, q + 1))}
-                    className="size-7 rounded border border-[var(--border)] bg-[var(--canvas)] text-sm font-bold text-ink hover:border-premium"
+                    className="size-7 rounded border border-[var(--border)] bg-[var(--canvas)] text-sm font-bold hover:border-premium"
                   >
                     +
                   </button>
@@ -192,7 +192,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                   placeholder="Например: Алишер"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 text-sm text-ink outline-none focus:border-premium transition"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 text-sm outline-none focus:border-premium transition"
                 />
               </div>
 
@@ -207,7 +207,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                   placeholder="+992 90 123 4567"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 text-sm text-ink font-mono outline-none focus:border-premium transition"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 text-sm font-mono outline-none focus:border-premium transition"
                 />
               </div>
 
@@ -223,7 +223,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                     className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-bold transition ${
                       contactMethod === 'whatsapp'
                         ? 'border-emerald-500 bg-emerald-500/15 text-emerald-400'
-                        : 'border-[var(--border)] text-muted hover:text-ink'
+                        : 'border-[var(--border)] text-muted hover:text-premium'
                     }`}
                   >
                     <MessageCircle className="size-3.5" />
@@ -236,7 +236,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                     className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-bold transition ${
                       contactMethod === 'telegram'
                         ? 'border-sky-500 bg-sky-500/15 text-sky-400'
-                        : 'border-[var(--border)] text-muted hover:text-ink'
+                        : 'border-[var(--border)] text-muted hover:text-premium'
                     }`}
                   >
                     <Send className="size-3.5" />
@@ -249,7 +249,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                     className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-bold transition ${
                       contactMethod === 'phone'
                         ? 'border-premium bg-premium/15 text-premium'
-                        : 'border-[var(--border)] text-muted hover:text-ink'
+                        : 'border-[var(--border)] text-muted hover:text-premium'
                     }`}
                   >
                     <Phone className="size-3.5" />
@@ -268,7 +268,7 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
                   placeholder="Район доставки, ориентир или вопрос"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2 text-xs text-ink outline-none focus:border-premium transition"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2 text-xs outline-none focus:border-premium transition"
                 />
               </div>
 
@@ -276,13 +276,13 @@ export default function QuickOrderModal({ product, isOpen, onClose }: QuickOrder
               <div className="pt-3 border-t border-[var(--border)] flex items-center justify-between">
                 <div>
                   <span className="block text-[10px] font-mono uppercase text-muted">Итого к оплате:</span>
-                  <span className="text-xl font-black text-ink">{totalPrice.toFixed(2)} TJS</span>
+                  <span className="text-xl font-black">{totalPrice.toFixed(2)} TJS</span>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 font-bold text-ink transition hover:brightness-110 disabled:opacity-50 shadow-[0_0_20px_rgba(227,38,54,0.35)]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 font-bold transition hover:brightness-110 disabled:opacity-50 shadow-md"
                 >
                   <ShoppingBag className="size-4" />
                   <span>{loading ? 'Оформление...' : 'Заказать в 1 клик'}</span>

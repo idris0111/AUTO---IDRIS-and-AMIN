@@ -137,7 +137,7 @@ export default function Checkout() {
 
   if (!user) {
     return (
-      <div className="access-page bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
+      <div className="access-page bg-[var(--canvas)] text-premium flex items-center justify-center px-4 py-16">
         <div className="relative max-w-md w-full rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-8 text-center shadow-2xl">
           <div className="mx-auto grid size-14 place-items-center rounded-xl bg-premium/15 text-premium mb-4">
             <Lock className="size-6" />
@@ -145,20 +145,20 @@ export default function Checkout() {
           <div className="font-mono text-xs uppercase tracking-widest text-premium">
             ВХОД ДЛЯ ОФОРМЛЕНИЯ
           </div>
-          <h1 className="mt-1 text-2xl font-black text-ink">{t('checkout')}</h1>
+          <h1 className="mt-1 text-2xl font-black text-premium">{t('checkout')}</h1>
           <p className="mt-2 text-xs text-muted leading-relaxed">
             Войдите, чтобы оформить заказ и отслеживать его статус.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3">
             <Link
               to="/login?next=%2Fcheckout"
-              className="flex-1 rounded-xl bg-premium px-5 py-3 font-mono text-xs font-bold text-ink transition hover:bg-[#D91F32]"
+              className="flex-1 rounded-xl bg-premium px-5 py-3 font-mono text-xs font-bold text-premium transition hover:brightness-110"
             >
               {t('login')}
             </Link>
             <Link
               to="/register"
-              className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-5 py-3 font-mono text-xs font-bold text-muted transition hover:text-ink"
+              className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-5 py-3 font-mono text-xs font-bold text-muted transition hover:text-premium"
             >
               {t('register')}
             </Link>
@@ -170,7 +170,7 @@ export default function Checkout() {
 
   if (cart.isLoading) {
     return (
-      <div className="min-h-[70vh] bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
+      <div className="min-h-[70vh] bg-[var(--canvas)] text-premium flex items-center justify-center px-4 py-16">
         <div className="mx-auto max-w-4xl w-full animate-pulse space-y-4">
           <div className="h-8 w-48 rounded-xl bg-[var(--surface)]" />
           <div className="h-60 rounded-2xl bg-[var(--surface)] border border-[var(--border)]" />
@@ -184,7 +184,7 @@ export default function Checkout() {
   if (!cart.data || cart.data.items.length === 0) {
     return (
       <div className="commerce-container shop-empty-page">
-        <ShopEmptyState eyebrow="ОФОРМЛЕНИЕ ЗАКАЗА" title="Сначала найдём нужную деталь" description="Добавьте товары в корзину. Здесь вы сможете проверить состав заказа, выбрать получение и подтвердить покупку." action={t('continueShopping')} icon={ShoppingBag} visual="/images/engine-editorial.jpg" />
+        <ShopEmptyState headingLevel={1} eyebrow="ОФОРМЛЕНИЕ ЗАКАЗА" title="Сначала найдём нужную деталь" description="Добавьте товары в корзину. Здесь вы сможете проверить состав заказа, выбрать получение и подтвердить покупку." action={t('continueShopping')} icon={ShoppingBag} visual="/images/engine-editorial.jpg" />
       </div>
     )
   }
@@ -195,7 +195,7 @@ export default function Checkout() {
   const calculatedTotal = Math.max(0, Number(cart.data.subtotal) + shippingCost - couponDiscount - bonusDiscount)
 
   return (
-    <div className="checkout-page min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-ink">
+    <div className="checkout-page min-h-screen bg-[var(--canvas)] text-premium pb-24 selection:bg-premium selection:text-[var(--canvas)]">
       {/* Background Accent */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(0,240,255,0.05),transparent)]" />
 
@@ -209,7 +209,7 @@ export default function Checkout() {
               <span className="text-[#242A32]">/</span>
               <span className="text-premium">ПРОВЕРКА И ОФОРМЛЕНИЕ</span>
             </div>
-            <h1 className="mt-2 text-3xl font-black text-ink tracking-tight">
+            <h1 className="mt-2 text-3xl font-black text-premium tracking-tight">
               Оформление заказа
             </h1>
           </div>
@@ -225,6 +225,7 @@ export default function Checkout() {
         <div className="mt-8 grid gap-8 lg:grid-cols-12 lg:items-start">
           {/* Left Column: Checkout Steps Form (8 cols) */}
           <form
+            id="checkout-order-form"
             className="checkout-form lg:col-span-8 space-y-6"
             onSubmit={(e) => {
               e.preventDefault()
@@ -239,7 +240,7 @@ export default function Checkout() {
                 <span className="grid size-7 place-items-center rounded-lg bg-premium/15 text-premium font-mono text-xs font-bold">
                   01
                 </span>
-                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
+                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-premium">
                   Контактные данные получателя
                 </h2>
               </div>
@@ -256,7 +257,7 @@ export default function Checkout() {
                     value={form.contact_name}
                     aria-label="Имя и фамилия получателя"
                     onChange={(e) => setForm({ ...form, contact_name: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-premium placeholder-slate-600 outline-none focus:border-premium transition"
                   />
                 </div>
 
@@ -272,7 +273,7 @@ export default function Checkout() {
                     placeholder="+992 900 000 000"
                     value={form.contact_phone}
                     onChange={(e) => setForm({ ...form, contact_phone: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-premium placeholder-slate-600 outline-none focus:border-premium transition"
                   />
                 </div>
 
@@ -287,7 +288,7 @@ export default function Checkout() {
                     placeholder="client@mail.tj"
                     value={form.contact_email}
                     onChange={(e) => setForm({ ...form, contact_email: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-premium placeholder-slate-600 outline-none focus:border-premium transition"
                   />
                 </div>
               </div>
@@ -299,7 +300,7 @@ export default function Checkout() {
                 <span className="grid size-7 place-items-center rounded-lg bg-premium/15 text-premium font-mono text-xs font-bold">
                   02
                 </span>
-                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
+                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-premium">
                   Способ получения
                 </h2>
               </div>
@@ -316,7 +317,7 @@ export default function Checkout() {
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-ink text-xs">Самовывоз</span>
+                    <span className="font-bold text-premium text-xs">Самовывоз</span>
                     <span className="font-mono text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
                       БЕСПЛАТНО
                     </span>
@@ -336,7 +337,7 @@ export default function Checkout() {
                   }`}
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="font-bold text-ink text-xs">Курьерская доставка</span>
+                    <span className="font-bold text-premium text-xs">Курьерская доставка</span>
                     <span className="font-mono text-[10px] font-bold text-premium bg-premium/10 px-2 py-0.5 rounded">
                       ПО ТАРИФУ
                     </span>
@@ -367,7 +368,7 @@ export default function Checkout() {
                     value={form.shipping_city}
                     aria-label="Город доставки"
                     onChange={(e) => setForm({ ...form, shipping_city: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink outline-none focus:border-premium transition"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-premium outline-none focus:border-premium transition"
                   />
                 </div>
 
@@ -382,7 +383,7 @@ export default function Checkout() {
                     value={form.shipping_street}
                     aria-label="Улица, дом и квартира"
                     onChange={(e) => setForm({ ...form, shipping_street: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-premium placeholder-slate-600 outline-none focus:border-premium transition"
                   />
                 </div>
               </div> : <p className="mt-5 rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-xs text-muted">Место и время самовывоза уточнят после оформления заказа. Адрес доставки не требуется.</p>}
@@ -391,10 +392,10 @@ export default function Checkout() {
             {/* Step 3: Payment Method */}
             <section className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-xl">
               <div className="flex items-center gap-2.5 mb-5 pb-3 border-b border-[var(--border)]">
-                <span className="grid size-7 place-items-center rounded-lg bg-[#F59E0B]/15 text-[#F59E0B] font-mono text-xs font-bold">
+                <span className="grid size-7 place-items-center rounded-lg bg-amber-500/15 text-amber-500 font-mono text-xs font-bold">
                   03
                 </span>
-                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-ink">
+                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-premium">
                   Способ оплаты
                 </h2>
               </div>
@@ -405,12 +406,12 @@ export default function Checkout() {
                   onClick={() => setPaymentMethod('cash_on_delivery')}
                   className={`checkout-method-card flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     paymentMethod === 'cash_on_delivery'
-                      ? 'border-[#F59E0B] bg-[#F59E0B]/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                      ? 'border-amber-500 bg-amber-500/10 shadow-sm'
                       : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500'
                   }`}
                 >
-                  <Banknote className="size-4 text-[#F59E0B] mb-2" />
-                  <span className="font-bold text-ink text-xs">При получении</span>
+                  <Banknote className="size-4 text-amber-500 mb-2" />
+                  <span className="font-bold text-premium text-xs">При получении</span>
                   <p className="font-mono text-[10px] text-muted mt-1">
                     Наличными курьеру или при самовывозе
                   </p>
@@ -421,12 +422,12 @@ export default function Checkout() {
                   onClick={() => setPaymentMethod('bank_transfer')}
                   className={`checkout-method-card flex flex-col items-start p-4 rounded-xl border text-left transition-all ${
                     paymentMethod === 'bank_transfer'
-                      ? 'border-[#F59E0B] bg-[#F59E0B]/10 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                      ? 'border-amber-500 bg-amber-500/10 shadow-sm'
                       : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500'
                   }`}
                 >
                   <ShieldCheck className="size-4 text-emerald-400 mb-2" />
-                  <span className="font-bold text-ink text-xs">Банковский счёт</span>
+                  <span className="font-bold text-premium text-xs">Банковский счёт</span>
                   <p className="font-mono text-[10px] text-muted mt-1">
                     Оплата банковским переводом
                   </p>
@@ -444,13 +445,13 @@ export default function Checkout() {
                   placeholder={shippingMethod === 'pickup' ? 'Пожелания по получению заказа...' : 'Код домофона, удобное время доставки, ориентиры...'}
                   value={form.customer_note}
                   onChange={(e) => setForm({ ...form, customer_note: e.target.value })}
-                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-premium transition"
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 font-mono text-xs text-premium placeholder-slate-600 outline-none focus:border-premium transition"
                 />
               </div>
             </section>
 
             {error && (
-              <div className="flex items-center gap-2 rounded-xl border border-[#E32636]/40 bg-premium/10 p-4 font-mono text-xs text-premium">
+              <div className="flex items-center gap-2 rounded-xl border border-premium/40 bg-premium/10 p-4 font-mono text-xs text-premium">
                 <AlertCircle className="size-4 shrink-0" />
                 <span>{error}</span>
               </div>
@@ -459,7 +460,7 @@ export default function Checkout() {
             <button
               type="submit"
               disabled={checkoutMutation.isPending || (shippingMethod === 'courier' && !shippingFee)}
-              className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-premium py-4 font-mono text-xs font-bold text-ink shadow-[0_4px_25px_rgba(227,38,54,0.4)] transition-all hover:bg-[#D91F32] disabled:opacity-50 active:scale-[0.99]"
+              className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-premium py-4 font-mono text-xs font-bold text-premium shadow-md transition-all hover:brightness-110 disabled:opacity-50 active:scale-[0.99]"
             >
               {checkoutMutation.isPending ? (
                 <>
@@ -482,7 +483,7 @@ export default function Checkout() {
                 <Package className="size-3.5" />
                 <span>ВАШ ЗАКАЗ</span>
               </div>
-              <h2 className="text-xl font-black text-ink mt-1">Спецификация</h2>
+              <h2 className="text-xl font-black text-premium mt-1">Спецификация</h2>
             </div>
 
             {/* Items Mini List */}
@@ -490,12 +491,12 @@ export default function Checkout() {
               {cart.data.items.map((item) => (
                 <div key={item.id} className="py-2.5 flex items-center justify-between text-xs">
                   <div className="min-w-0 pr-2">
-                    <p className="truncate font-bold text-ink text-xs">{item.product_name}</p>
+                    <p className="truncate font-bold text-premium text-xs">{item.product_name}</p>
                     <span className="font-mono text-[10px] text-muted">
                       {item.quantity} шт. × {Number(item.unit_price).toFixed(2)} TJS
                     </span>
                   </div>
-                  <span className="font-mono font-black text-ink text-xs shrink-0">
+                  <span className="font-mono font-black text-premium text-xs shrink-0">
                     {Number(item.line_total).toFixed(2)} TJS
                   </span>
                 </div>
@@ -509,13 +510,13 @@ export default function Checkout() {
                   placeholder="ПРОМОКОД"
                   value={couponInput}
                   onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                  className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 font-mono text-xs uppercase text-ink placeholder-slate-600 outline-none focus:border-premium"
+                  className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 font-mono text-xs uppercase text-premium placeholder-slate-600 outline-none focus:border-premium"
                 />
                 <button
                   type="button"
                   disabled={!couponInput.trim() || validateCoupon.isPending}
                   onClick={() => validateCoupon.mutate(cart.data!.subtotal)}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 font-mono text-xs font-bold text-ink transition hover:border-premium hover:text-premium disabled:opacity-40"
+                  className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 font-mono text-xs font-bold text-premium transition hover:border-premium hover:text-premium disabled:opacity-40"
                 >
                   {validateCoupon.isPending ? '...' : 'ОК'}
                 </button>
@@ -536,16 +537,16 @@ export default function Checkout() {
             {(loyaltyAccount?.points_balance ?? 0) > 0 && maxAllowedPoints > 0 && (
               <div className="border-t border-[var(--border)] pt-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 font-mono text-xs font-bold text-ink cursor-pointer select-none">
+                  <label className="flex items-center gap-2 font-mono text-xs font-bold text-premium cursor-pointer select-none">
                     <input
                       type="checkbox"
                       checked={usePoints}
                       onChange={(e) => setUsePoints(e.target.checked)}
-                      className="size-4 accent-[#E32636] rounded"
+                      className="size-4 accent-premium rounded"
                     />
                     <span>Списать баллы AU Club</span>
                   </label>
-                  <span className="font-mono text-xs font-bold text-[#F59E0B]">
+                  <span className="font-mono text-xs font-bold text-amber-500">
                     🪙 {loyaltyAccount?.points_balance} доступно
                   </span>
                 </div>
@@ -560,9 +561,9 @@ export default function Checkout() {
                         step={1}
                         value={pointsToRedeem}
                         onChange={(e) => setPointsToRedeem(Number(e.target.value))}
-                        className="w-full accent-[#E32636] h-1.5 bg-[var(--canvas)] rounded"
+                        className="w-full accent-premium h-1.5 bg-[var(--canvas)] rounded"
                       />
-                      <span className="text-xs font-bold w-12 text-right text-ink">
+                      <span className="text-xs font-bold w-12 text-right text-premium">
                         {pointsToRedeem} б.
                       </span>
                     </div>
@@ -579,7 +580,7 @@ export default function Checkout() {
             <div className="border-t border-[var(--border)] pt-4 space-y-2 font-mono text-xs">
               <div className="flex justify-between text-muted">
                 <span>Товары:</span>
-                <span className="text-ink font-bold">{Number(cart.data.subtotal).toFixed(2)} TJS</span>
+                <span className="font-bold">{Number(cart.data.subtotal).toFixed(2)} TJS</span>
               </div>
               <div className="flex justify-between text-muted">
                 <span>Доставка:</span>
@@ -594,7 +595,7 @@ export default function Checkout() {
                 </div>
               )}
               {bonusDiscount > 0 && (
-                <div className="flex justify-between text-[#F59E0B]">
+                <div className="flex justify-between text-amber-500">
                   <span>Бонусы AU Club:</span>
                   <span>−{bonusDiscount}.00 TJS</span>
                 </div>
@@ -603,9 +604,9 @@ export default function Checkout() {
 
             {/* Final Total */}
             <div className="border-t border-[var(--border)] pt-4 flex items-baseline justify-between font-mono">
-              <span className="font-bold text-ink text-xs uppercase tracking-wider">К ОПЛАТЕ:</span>
+              <span className="font-bold text-premium text-xs uppercase tracking-wider">К ОПЛАТЕ:</span>
               <div className="text-right">
-                <span className="text-3xl font-black text-ink tracking-tight">
+                <span className="text-3xl font-black text-premium tracking-tight">
                   {calculatedTotal.toFixed(2)}
                 </span>
                 <span className="text-xs font-bold text-premium ml-1.5">TJS</span>
@@ -613,12 +614,18 @@ export default function Checkout() {
             </div>
 
             {/* Cash-back Preview Pill */}
-            {loyaltyAccount && <div className="rounded-xl border border-[#F59E0B]/30 bg-[#F59E0B]/10 p-3 text-center font-mono text-xs text-[#F59E0B]">
+            {loyaltyAccount && <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-center font-mono text-xs text-amber-500">
               Расчётный кэшбэк {loyaltyAccount.tier_info.cashback_percent}%: ~
               {Math.round(calculatedTotal * Number(loyaltyAccount.tier_info.cashback_rate))}{' '}
               бонусов на клубный счёт
             </div>}
           </aside>
+          <div className="checkout-mobile-summary" aria-live="polite">
+            <div><span>К оплате</span><strong>{calculatedTotal.toFixed(2)} TJS</strong></div>
+            <button type="submit" form="checkout-order-form" disabled={checkoutMutation.isPending || (shippingMethod === 'courier' && !shippingFee)}>
+              {checkoutMutation.isPending ? 'Оформляем…' : 'Подтвердить заказ'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

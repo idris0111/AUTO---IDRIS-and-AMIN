@@ -121,7 +121,7 @@ export default function Garage() {
 
   if (!user) {
     return (
-      <div className="access-page bg-[var(--canvas)] text-ink flex items-center justify-center px-4 py-16">
+      <div className="access-page bg-[var(--canvas)] flex items-center justify-center px-4 py-16">
         <div className="relative max-w-lg w-full rounded-2xl border border-[var(--border)] bg-gradient-to-b from-[var(--surface)] to-[var(--canvas)] p-8 sm:p-10 text-center shadow-2xl overflow-hidden">
           <div className="pointer-events-none absolute -right-20 -top-20 size-60 bg-premium/10 blur-3xl rounded-full" />
           <div className="mx-auto grid size-16 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--canvas)] text-premium shadow-xl">
@@ -130,7 +130,7 @@ export default function Garage() {
           <div className="mt-6 font-mono text-xs uppercase tracking-widest text-premium">
             МОЙ АВТОМОБИЛЬ
           </div>
-          <h1 className="mt-2 text-2xl sm:text-3xl font-black text-ink">
+          <h1 className="mt-2 text-2xl sm:text-3xl font-black">
             {t('myGarage')}
           </h1>
           <p className="mt-3 text-sm leading-relaxed text-muted">
@@ -139,13 +139,13 @@ export default function Garage() {
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
             <Link
               to={`/login?next=${encodeURIComponent(`/garage?${selection.toString()}`)}`}
-              className="flex-1 rounded-xl bg-premium px-6 py-3.5 font-mono text-xs font-bold text-ink transition hover:bg-[#D91F32]"
+              className="flex-1 rounded-xl bg-premium px-6 py-3.5 font-mono text-xs font-bold transition hover:brightness-110"
             >
               ВОЙТИ В АККАУНТ
             </Link>
             <Link
               to="/register"
-              className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-3.5 font-mono text-xs font-bold text-muted transition hover:border-slate-500 hover:text-ink"
+              className="flex-1 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-6 py-3.5 font-mono text-xs font-bold text-muted transition hover:border-slate-500 hover:text-premium"
             >
               РЕГИСТРАЦИЯ
             </Link>
@@ -156,9 +156,9 @@ export default function Garage() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-ink">
+    <div className="min-h-screen bg-[var(--canvas)] pb-24 selection:bg-premium selection:text-[var(--canvas)]">
       {/* Background Architectural Grid Lines */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(227,38,54,0.06),rgba(255,255,255,0))] opacity-50" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,164,65,0.05),rgba(255,255,255,0))] opacity-50" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
         {/* Monospace Telemetry Header */}
@@ -170,7 +170,7 @@ export default function Garage() {
               <span className="text-[#242A32]">/</span>
               <span className="text-muted">СОВМЕСТИМОСТЬ ДЕТАЛЕЙ</span>
             </div>
-            <h1 className="mt-2 text-3xl font-black text-ink tracking-tight">
+            <h1 className="mt-2 text-3xl font-black tracking-tight">
               Мой гараж
             </h1>
             <p className="mt-1 text-sm text-muted">
@@ -182,7 +182,7 @@ export default function Garage() {
             <button
               type="button"
               onClick={() => setIsAddingMode(!isAddingMode)}
-              className="flex items-center gap-2 rounded-xl bg-premium px-5 py-3 font-mono text-xs font-bold text-ink shadow-lg transition hover:bg-[#D91F32]"
+              className="flex items-center gap-2 rounded-xl bg-premium px-5 py-3 font-mono text-xs font-bold shadow-lg transition hover:brightness-110"
             >
               <Plus className="size-4" />
               <span>{isAddingMode ? 'СКРЫТЬ КОНФИГУРАТОР' : 'ДОБАВИТЬ АВТОМОБИЛЬ'}</span>
@@ -218,16 +218,16 @@ export default function Garage() {
                   )}
                 </div>
 
-                <h2 className="text-2xl sm:text-4xl font-black text-ink tracking-tight">
+                <h2 className="text-2xl sm:text-4xl font-black tracking-tight">
                   {activeVehicle.name || `${activeVehicle.make.name} ${activeVehicle.model?.name || ''}`}
                 </h2>
 
                 <div className="flex flex-wrap items-center gap-3 font-mono text-xs text-muted">
-                  <span className="text-ink font-bold">{activeVehicle.make.name}</span>
+                  <span className="font-bold">{activeVehicle.make.name}</span>
                   {activeVehicle.model && <span>/ {activeVehicle.model.name}</span>}
                   {activeVehicle.generation && <span>/ {activeVehicle.generation.name}</span>}
                   {activeVehicle.year && (
-                    <span className="rounded bg-[#242A32] px-2 py-0.5 text-ink">
+                    <span className="rounded bg-[#242A32] px-2 py-0.5">
                       ГОД: {activeVehicle.year}
                     </span>
                   )}
@@ -248,7 +248,7 @@ export default function Garage() {
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
                 <Link
                   to={`/catalog?vehicle_id=${activeVehicle.id}`}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-premium px-6 py-3.5 font-mono text-xs font-bold text-ink shadow-[0_4px_20px_rgba(227,38,54,0.35)] transition hover:bg-[#D91F32]"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-premium px-6 py-3.5 font-mono text-xs font-bold shadow-md transition hover:brightness-110"
                 >
                   <Wrench className="size-4" />
                   <span>ПОДХОДЯЩИЕ ДЕТАЛИ</span>
@@ -257,7 +257,7 @@ export default function Garage() {
 
                 <Link
                   to="/ai-mechanic"
-                  className="flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-5 py-3.5 font-mono text-xs font-bold text-ink transition hover:border-[#E32636] hover:text-ink"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-5 py-3.5 font-mono text-xs font-bold transition hover:border-premium hover:text-premium"
                 >
                   <Bot className="size-4 text-premium" />
                   <span>AI МЕХАНИК</span>
@@ -275,14 +275,14 @@ export default function Garage() {
                 <span className="font-mono text-xs font-bold uppercase tracking-widest text-premium">
                   CONFIGURATOR
                 </span>
-                <h3 className="text-xl font-black text-ink mt-0.5">
+                <h3 className="text-xl font-black mt-0.5">
                   Конфигуратор автомобиля
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddingMode(false)}
-                className="font-mono text-xs text-muted hover:text-ink"
+                className="font-mono text-xs text-muted hover:text-premium"
               >
                 Закрыть [×]
               </button>
@@ -321,8 +321,8 @@ export default function Garage() {
                       }
                       className={`rounded-xl border px-3.5 py-2 font-mono text-xs font-bold transition ${
                         form.make_id === m.id
-                          ? 'border-[#E32636] bg-premium/15 text-premium'
-                          : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500 hover:text-ink'
+                          ? 'border-premium bg-premium/15 text-premium'
+                          : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:border-slate-500 hover:text-premium'
                       }`}
                     >
                       {m.name}
@@ -361,7 +361,7 @@ export default function Garage() {
                         name: m ? m.name : form.name,
                       })
                     }}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink outline-none focus:border-[#E32636]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs outline-none focus:border-premium"
                   >
                     <option value="">Выберите марку</option>
                     {vehicleTree.map((item) => (
@@ -392,7 +392,7 @@ export default function Garage() {
                         name: selectedMake && mod ? `${selectedMake.name} ${mod.name}` : form.name,
                       })
                     }}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink outline-none focus:border-[#E32636] disabled:opacity-40"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs outline-none focus:border-premium disabled:opacity-40"
                   >
                     <option value="">
                       {selectedMake ? 'Выберите модель' : 'Сначала выберите марку'}
@@ -414,7 +414,7 @@ export default function Garage() {
                     disabled={!selectedModel || selectedModel.generations.length === 0}
                     value={form.generation_id}
                     onChange={(e) => setForm({ ...form, generation_id: e.target.value, modification_id: '', engine_id: '' })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink outline-none focus:border-[#E32636] disabled:opacity-40"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs outline-none focus:border-premium disabled:opacity-40"
                   >
                     <option value="">Все поколения</option>
                     {selectedModel?.generations.map((item) => (
@@ -438,7 +438,7 @@ export default function Garage() {
                     placeholder="напр. 2021"
                     value={form.year}
                     onChange={(e) => setForm({ ...form, year: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-[#E32636]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs placeholder-slate-600 outline-none focus:border-premium"
                   />
                 </div>
               </div>
@@ -446,14 +446,14 @@ export default function Garage() {
               <div className="grid gap-6 sm:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-xs font-semibold text-muted">Модификация</label>
-                  <select value={form.modification_id} disabled={!selectedGeneration?.modifications.length} onChange={(e) => setForm({ ...form, modification_id: e.target.value, engine_id: '' })} className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-sm text-ink disabled:opacity-40">
+                  <select value={form.modification_id} disabled={!selectedGeneration?.modifications.length} onChange={(e) => setForm({ ...form, modification_id: e.target.value, engine_id: '' })} className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-sm disabled:opacity-40">
                     <option value="">{selectedGeneration ? 'Выберите модификацию' : 'Сначала выберите поколение'}</option>
                     {selectedGeneration?.modifications.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="mb-2 block text-xs font-semibold text-muted">Двигатель</label>
-                  <select value={form.engine_id} disabled={!selectedModification?.engines.length} onChange={(e) => setForm({ ...form, engine_id: e.target.value })} className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-sm text-ink disabled:opacity-40">
+                  <select value={form.engine_id} disabled={!selectedModification?.engines.length} onChange={(e) => setForm({ ...form, engine_id: e.target.value })} className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 text-sm disabled:opacity-40">
                     <option value="">{selectedModification ? 'Выберите двигатель' : 'Сначала выберите модификацию'}</option>
                     {selectedModification?.engines.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
                   </select>
@@ -472,7 +472,7 @@ export default function Garage() {
                     placeholder="напр. Мой W213 на каждый день"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink placeholder-slate-600 outline-none focus:border-[#E32636]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs placeholder-slate-600 outline-none focus:border-premium"
                   />
                 </div>
 
@@ -486,7 +486,7 @@ export default function Garage() {
                     placeholder="напр. WBA3A5C50DF123456"
                     value={form.vin}
                     onChange={(e) => setForm({ ...form, vin: e.target.value.toUpperCase() })}
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs text-ink uppercase placeholder-slate-600 outline-none focus:border-[#E32636]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-3 font-mono text-xs uppercase placeholder-slate-600 outline-none focus:border-premium"
                   />
                 </div>
               </div>
@@ -497,7 +497,7 @@ export default function Garage() {
                   id="is_primary_checkbox"
                   checked={form.is_primary}
                   onChange={(e) => setForm({ ...form, is_primary: e.target.checked })}
-                  className="size-4 accent-[#E32636] rounded"
+                  className="size-4 accent-premium rounded"
                 />
                 <label
                   htmlFor="is_primary_checkbox"
@@ -508,7 +508,7 @@ export default function Garage() {
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 rounded-xl border border-[#E32636]/40 bg-premium/10 px-4 py-3 text-xs font-mono text-premium">
+                <div className="flex items-center gap-2 rounded-xl border border-premium/40 bg-premium/10 px-4 py-3 text-xs font-mono text-premium">
                   <AlertCircle className="size-4" />
                   <span>{error}</span>
                 </div>
@@ -518,14 +518,14 @@ export default function Garage() {
                 <button
                   type="button"
                   onClick={() => setIsAddingMode(false)}
-                  className="rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-6 py-3 font-mono text-xs font-bold text-muted transition hover:text-ink"
+                  className="rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-6 py-3 font-mono text-xs font-bold text-muted transition hover:text-premium"
                 >
                   ОТМЕНА
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending || !form.make_id}
-                  className="flex items-center gap-2 rounded-xl bg-premium px-8 py-3 font-mono text-xs font-bold text-ink shadow-lg transition hover:bg-[#D91F32] disabled:opacity-40"
+                  className="flex items-center gap-2 rounded-xl bg-premium px-8 py-3 font-mono text-xs font-bold shadow-lg transition hover:brightness-110 disabled:opacity-40"
                 >
                   {createMutation.isPending ? (
                     <RotateCcw className="size-4 animate-spin" />
@@ -546,7 +546,7 @@ export default function Garage() {
               <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted">
                 СОХРАНЁННЫЕ АВТОМОБИЛИ
               </span>
-              <h2 className="text-xl font-black text-ink mt-0.5">
+              <h2 className="text-xl font-black mt-0.5">
                 Ваши автомобили ({vehicles.length})
               </h2>
             </div>
@@ -558,14 +558,14 @@ export default function Garage() {
           {vehicles.length === 0 ? (
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-12 text-center shadow-xl">
               <Car className="mx-auto size-12 text-[#242A32]" />
-              <h3 className="mt-4 text-lg font-bold text-ink">Гараж пуст</h3>
+              <h3 className="mt-4 text-lg font-bold">Гараж пуст</h3>
               <p className="mt-2 text-sm text-muted max-w-md mx-auto">
                 Добавьте автомобиль, чтобы искать подходящие детали по данным каталога.
               </p>
               <button
                 type="button"
                 onClick={() => setIsAddingMode(true)}
-                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 font-mono text-xs font-bold text-ink hover:bg-[#D91F32] transition"
+                className="mt-6 inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 font-mono text-xs font-bold hover:brightness-110 transition"
               >
                 <Plus className="size-4" />
                 <span>ДОБАВИТЬ ПЕРВЫЙ АВТОМОБИЛЬ</span>
@@ -580,7 +580,7 @@ export default function Garage() {
                     key={vehicle.id}
                     className={`rounded-2xl border p-5 transition-all flex flex-col justify-between ${
                       isSelected
-                        ? 'border-[#E32636] bg-[var(--surface)] shadow-[0_0_20px_rgba(227,38,54,0.15)]'
+                        ? 'border-premium bg-[var(--surface)] shadow-sm'
                         : 'border-[var(--border)] bg-[var(--surface)]/60 hover:border-slate-500'
                     }`}
                   >
@@ -588,11 +588,11 @@ export default function Garage() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-bold text-ink text-base">
+                            <h3 className="font-bold text-base">
                               {vehicle.name}
                             </h3>
                             {vehicle.is_primary && (
-                              <Star className="size-3.5 fill-[#E32636] text-premium" />
+                              <Star className="size-3.5 fill-amber-500 text-premium" />
                             )}
                           </div>
                           <div className="mt-1 font-mono text-xs text-muted">
@@ -606,7 +606,7 @@ export default function Garage() {
                           type="button"
                           aria-label={t('remove')}
                           onClick={() => void removeVehicle(vehicle.id)}
-                          className="rounded-lg border border-[var(--border)] p-2 text-slate-500 hover:border-[#E32636] hover:text-premium transition"
+                          className="rounded-lg border border-[var(--border)] p-2 text-slate-500 hover:border-premium hover:text-premium transition"
                           title="Удалить из гаража"
                         >
                           <Trash2 className="size-4" />
@@ -615,7 +615,7 @@ export default function Garage() {
 
                       {vehicle.year && (
                         <div className="mt-3 font-mono text-[11px] text-muted">
-                          Год выпуска: <span className="text-ink font-bold">{vehicle.year}</span>
+                          Год выпуска: <span className="font-bold">{vehicle.year}</span>
                         </div>
                       )}
                       {vehicle.vin && (
@@ -632,7 +632,7 @@ export default function Garage() {
                         className={`rounded-xl border px-3.5 py-2 font-mono text-xs font-bold transition ${
                           isSelected
                             ? 'border-emerald-500 bg-emerald-500/10 text-emerald-400'
-                            : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:text-ink'
+                            : 'border-[var(--border)] bg-[var(--canvas)] text-muted hover:text-premium'
                         }`}
                       >
                         {isSelected ? '✓ ВЫБРАН' : 'ВЫБРАТЬ'}

@@ -15,7 +15,7 @@ from app.models.vehicle import (
     VehicleModification,
     VehicleModel,
 )
-from app.schemas.vehicle import UserVehicleCreate, UserVehicleUpdate
+from app.schemas.vehicle import CompatibilityCreate, UserVehicleCreate, UserVehicleUpdate
 
 
 class FitmentStatus(str, Enum):
@@ -145,34 +145,76 @@ def delete_user_vehicle(db: Session, vehicle: UserVehicle) -> None:
 
 def compute_fitment(db: Session, product_id: uuid.UUID, vehicle: UserVehicle) -> FitmentStatus:
     rows = list(
-        db.scalars(select(ProductCompatibility).where(ProductCompatibility.product_id == product_id))
+        db.scalars(select(ProductCompatibility).options(
+            selectinload(ProductCompatibility.generation),
+            selectinload(ProductCompatibility.modification),
+        ).where(ProductCompatibility.product_id == product_id))
     )
     if not rows:
         return FitmentStatus.UNKNOWN
+    needs_more_vehicle_data = False
     for row in rows:
         if row.make_id != vehicle.make_id:
             continue
-        if row.model_id is not None and vehicle.model_id != row.model_id:
-            continue
-        if row.generation_id is not None and vehicle.generation_id != row.generation_id:
-            continue
-        if row.modification_id is not None and vehicle.modification_id != row.modification_id:
-            continue
-        if row.engine_id is not None and vehicle.engine_id != row.engine_id:
-            continue
-        if vehicle.year is not None:
-            if row.year_from is not None and vehicle.year < row.year_from:
+        required_pairs = (
+            (row.model_id, vehicle.model_id),
+            (row.generation_id, vehicle.generation_id),
+            (row.modification_id, vehicle.modification_id),
+            (row.engine_id, vehicle.engine_id),
+        )
+        row_matches = True
+        for required_id, actual_id in required_pairs:
+            if required_id is None:
                 continue
-            if row.year_to is not None and vehicle.year > row.year_to:
+            if actual_id is None:
+                needs_more_vehicle_data = True
+                row_matches = False
+                break
+            if actual_id != required_id:
+                row_matches = False
+                break
+        if not row_matches:
+            continue
+        year_starts = [value for value in (
+            row.year_from,
+            row.generation.year_from if row.generation else None,
+            row.modification.year_from if row.modification else None,
+        ) if value is not None]
+        year_ends = [value for value in (
+            row.year_to,
+            row.generation.year_to if row.generation else None,
+            row.modification.year_to if row.modification else None,
+        ) if value is not None]
+        effective_year_from = max(year_starts) if year_starts else None
+        effective_year_to = min(year_ends) if year_ends else None
+        if effective_year_from is not None or effective_year_to is not None:
+            if vehicle.year is None:
+                needs_more_vehicle_data = True
+                continue
+            if effective_year_from is not None and vehicle.year < effective_year_from:
+                continue
+            if effective_year_to is not None and vehicle.year > effective_year_to:
                 continue
         return FitmentStatus.COMPATIBLE
-    return FitmentStatus.NOT_COMPATIBLE
+    return FitmentStatus.UNKNOWN if needs_more_vehicle_data else FitmentStatus.NOT_COMPATIBLE
 
 
-def add_compatibility(db: Session, product_id: uuid.UUID, data) -> ProductCompatibility:
+def add_compatibility(db: Session, product_id: uuid.UUID, data: CompatibilityCreate) -> ProductCompatibility:
     _validate_hierarchy(
         db, data.make_id, data.model_id, data.generation_id, data.modification_id, data.engine_id
     )
+    duplicate = db.scalar(select(ProductCompatibility.id).where(
+        ProductCompatibility.product_id == product_id,
+        ProductCompatibility.make_id == data.make_id,
+        ProductCompatibility.model_id == data.model_id,
+        ProductCompatibility.generation_id == data.generation_id,
+        ProductCompatibility.modification_id == data.modification_id,
+        ProductCompatibility.engine_id == data.engine_id,
+        ProductCompatibility.year_from == data.year_from,
+        ProductCompatibility.year_to == data.year_to,
+    ))
+    if duplicate is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This compatibility rule already exists")
     row = ProductCompatibility(product_id=product_id, **data.model_dump())
     db.add(row)
     db.commit()

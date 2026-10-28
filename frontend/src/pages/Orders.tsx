@@ -27,8 +27,8 @@ export const orderStatusLabel = (status: string) => {
 
 export function StatusBadge({ status }: { status: string }) {
   const tone =
-    status === 'cancelled'
-      ? 'bg-premium/15 text-premium'
+    status === 'cancelled' || status === 'returned'
+      ? 'bg-rose-500/15 text-rose-400'
       : status === 'completed' || status === 'delivered'
         ? 'bg-emerald-500/15 text-emerald-500'
         : 'bg-amber-500/15 text-amber-500'

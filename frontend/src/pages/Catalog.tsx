@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import {
   Eye,
@@ -32,6 +33,7 @@ const SORTS = [
 ]
 
 export default function Catalog() {
+  const { t } = useTranslation()
   const [params, setParams] = useSearchParams()
   const { vehicles, selectedVehicleId } = useGarage()
   const { addItem } = useCart()
@@ -119,21 +121,21 @@ export default function Catalog() {
   const selectedCategoryName = categories.data?.flatMap(c => [c, ...c.children]).find(c => c.id === categoryId)?.name
 
   const filtersContent = (
-    <div className="space-y-6 text-ink text-xs">
+    <div className="space-y-6 text-premium text-xs">
       {/* Search within catalog */}
       <div>
         <label className="block font-mono uppercase tracking-wider text-muted mb-2 font-bold">
-          Поиск по названию / SKU
+          {t('Поиск по названию / SKU')}
         </label>
         <div className="relative">
           <input
             defaultValue={q}
             key={q}
-            placeholder="Артикул или название..."
+            placeholder={t('Артикул или название...')}
             onKeyDown={(e) => {
               if (e.key === 'Enter') setParam('q', (e.target as HTMLInputElement).value.trim())
             }}
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 text-xs text-ink outline-none focus:border-premium transition"
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3.5 py-2.5 text-xs text-premium outline-none focus:border-premium transition"
           />
           <Search className="absolute right-3 top-3 size-3.5 text-muted" />
         </div>
@@ -142,17 +144,17 @@ export default function Catalog() {
       {/* Categories */}
       <div>
         <label className="block font-mono uppercase tracking-wider text-muted mb-2 font-bold">
-          Категория узла
+          {t('Категория узла')}
         </label>
         <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
           <button
             type="button"
             onClick={() => setParam('category_id', null)}
             className={`block w-full rounded-lg px-2.5 py-1.5 text-left transition ${
-              !categoryId ? 'bg-premium text-ink font-bold' : 'text-muted hover:text-ink hover:bg-white/5'
+              !categoryId ? 'bg-premium text-premium font-bold' : 'text-muted hover:text-premium hover:bg-white/5'
             }`}
           >
-            Все категории
+            {t('Все категории')}
           </button>
           {(categories.data ?? []).map((cat) => (
             <div key={cat.id}>
@@ -160,7 +162,7 @@ export default function Catalog() {
                 type="button"
                 onClick={() => setParam('category_id', cat.id)}
                 className={`block w-full rounded-lg px-2.5 py-1.5 text-left transition ${
-                  categoryId === cat.id ? 'bg-premium text-ink font-bold' : 'text-muted hover:text-ink hover:bg-white/5'
+                  categoryId === cat.id ? 'bg-premium text-premium font-bold' : 'text-muted hover:text-premium hover:bg-white/5'
                 }`}
               >
                 {cat.name}
@@ -172,7 +174,7 @@ export default function Catalog() {
                     type="button"
                     onClick={() => setParam('category_id', child.id)}
                     className={`block w-full rounded-lg py-1 pl-6 pr-2 text-left text-[11px] transition ${
-                      categoryId === child.id ? 'bg-premium/20 text-premium font-bold' : 'text-muted/80 hover:text-ink'
+                      categoryId === child.id ? 'bg-premium/20 text-premium font-bold' : 'text-muted/80 hover:text-premium'
                     }`}
                   >
                     ↳ {child.name}
@@ -186,7 +188,7 @@ export default function Catalog() {
       {/* Brands */}
       <div>
         <label className="block font-mono uppercase tracking-wider text-muted mb-2 font-bold">
-          Бренды производителей
+          {t('Бренды производителей')}
         </label>
         <div className="max-h-56 space-y-1.5 overflow-y-auto pr-1">
           {(brands.data ?? []).map((b) => (
@@ -201,7 +203,7 @@ export default function Catalog() {
                   onChange={() => toggleBrand(b.id)}
                   className="size-3.5 accent-[#e32636] rounded"
                 />
-                <span className="text-ink">{b.name}</span>
+                <span className="text-premium">{b.name}</span>
               </div>
               {b.country && <span className="font-mono text-[9px] text-muted">{b.country}</span>}
             </label>
@@ -212,28 +214,28 @@ export default function Catalog() {
       {/* Price Range */}
       <div>
         <label className="block font-mono uppercase tracking-wider text-muted mb-2 font-bold">
-          Диапазон цены, TJS
+          {t('Диапазон цены, TJS')}
         </label>
         <div className="flex gap-2">
           <input
             value={priceMin}
-            type="number" min="0" step="0.01" aria-label="Цена от, TJS"
+            type="number" min="0" step="0.01" aria-label={t('Цена от, TJS')}
             onChange={(e) => setPriceMin(e.target.value)}
-            placeholder="От"
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3 py-2 text-xs text-ink outline-none focus:border-premium transition"
+            placeholder={t('От')}
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3 py-2 text-xs text-premium outline-none focus:border-premium transition"
           />
           <input
             value={priceMax}
-            type="number" min="0" step="0.01" aria-label="Цена до, TJS"
+            type="number" min="0" step="0.01" aria-label={t('Цена до, TJS')}
             onChange={(e) => setPriceMax(e.target.value)}
-            placeholder="До"
-            className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3 py-2 text-xs text-ink outline-none focus:border-premium transition"
+            placeholder={t('До')}
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-3 py-2 text-xs text-premium outline-none focus:border-premium transition"
           />
         </div>
         <button
           type="button"
           onClick={() => {
-            if ((priceMin && Number(priceMin) < 0) || (priceMax && Number(priceMax) < 0) || (priceMin && priceMax && Number(priceMin) > Number(priceMax))) { setPriceError('Проверьте диапазон: цена «от» должна быть не больше цены «до».'); return }
+            if ((priceMin && Number(priceMin) < 0) || (priceMax && Number(priceMax) < 0) || (priceMin && priceMax && Number(priceMin) > Number(priceMax))) { setPriceError(t('Проверьте диапазон: цена «от» должна быть не больше цены «до».')); return }
             setPriceError('')
             const next = new URLSearchParams(params)
             if (priceMin) next.set('price_min', priceMin)
@@ -243,9 +245,9 @@ export default function Catalog() {
             next.delete('offset')
             setParams(next)
           }}
-          className="mt-2 w-full rounded-xl border border-[var(--border)] py-2 font-bold text-ink hover:border-premium hover:text-premium transition"
+          className="mt-2 w-full rounded-xl border border-[var(--border)] py-2 font-bold text-premium hover:border-premium hover:text-premium transition"
         >
-          Применить цену
+          {t('Применить цену')}
         </button>
         {priceError && <p role="alert" className="inline-error mt-2">{priceError}</p>}
       </div>
@@ -259,7 +261,7 @@ export default function Catalog() {
             onChange={() => setParam('in_stock', inStock === 'true' ? null : 'true')}
             className="size-3.5 accent-[#e32636] rounded"
           />
-          <span className="text-ink">Только в наличии</span>
+          <span className="text-premium">{t('Только в наличии')}</span>
         </label>
 
         <label className="flex cursor-pointer items-center gap-2">
@@ -269,20 +271,20 @@ export default function Catalog() {
             onChange={() => setParam('has_discount', hasDiscount === 'true' ? null : 'true')}
             className="size-3.5 accent-[#e32636] rounded"
           />
-          <span className="text-ink">Со скидкой / Акции</span>
+          <span className="text-premium">{t('Со скидкой / Акции')}</span>
         </label>
 
         {vehicles.length > 0 && (
           <div className="pt-2">
             <label className="block font-mono uppercase tracking-wider text-muted mb-1 font-bold">
-              Гараж (Совместимость)
+              {t('Гараж (Совместимость)')}
             </label>
             <select
               value={vehicleId}
               onChange={(e) => setParam('vehicle_id', e.target.value || null)}
-              className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-2.5 py-2 text-xs text-ink outline-none focus:border-premium"
+              className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-2.5 py-2 text-xs text-premium outline-none focus:border-premium"
             >
-              <option value="">Любой автомобиль</option>
+              <option value="">{t('Любой автомобиль')}</option>
               {vehicles.map((v) => (
                 <option key={v.id} value={v.id}>
                   {v.name}
@@ -299,14 +301,14 @@ export default function Catalog() {
           onClick={resetAllFilters}
           className="w-full rounded-xl border border-[var(--border)] py-2 text-xs font-bold text-premium hover:bg-premium/10 transition"
         >
-          Сбросить все фильтры
+          {t('Сбросить все фильтры')}
         </button>
       )}
     </div>
   )
 
   return (
-    <div className="market-catalog commerce-container min-h-screen bg-[var(--canvas)] text-ink py-8">
+    <div className="market-catalog commerce-container min-h-screen bg-[var(--canvas)] text-premium py-8">
       {/* Modals */}
       <QuickViewModal
         product={quickViewProduct}
@@ -325,17 +327,17 @@ export default function Catalog() {
       <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[var(--border)] pb-6">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="racing-badge">Каталог</span>
+            <span className="racing-badge">{t('Каталог')}</span>
             <span className="font-mono text-[11px] text-muted tracking-widest uppercase">
-              Подбор для вашего автомобиля
+              {t('Подбор для вашего автомобиля')}
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-ink">
-            {q ? `Поиск: ${q}` : selectedCategoryName ? selectedCategoryName : 'Каталог запчастей'}
+          <h1 className="text-2xl sm:text-4xl font-black uppercase tracking-tight text-premium">
+            {q ? t('Поиск: {{query}}', { query: q }) : selectedCategoryName ? t(selectedCategoryName) : t('Каталог запчастей')}
           </h1>
           <div className="mt-1 font-mono text-xs text-muted">
-            {products.isPending ? 'Ищем нужные детали…' : <>Найдено позиций: <span className="font-bold text-ink">{total}</span></>}
+            {products.isPending ? t('Ищем нужные детали…') : <>{t('Найдено позиций:')} <span className="font-bold text-premium">{total}</span></>}
           </div>
         </div>
 
@@ -346,9 +348,9 @@ export default function Catalog() {
             <button
               type="button"
               onClick={() => setViewMode('grid')}
-              aria-label="Сетка товаров"
+              aria-label={t('Сетка товаров')}
               className={`rounded-lg p-2 transition ${
-                viewMode === 'grid' ? 'bg-premium text-ink shadow' : 'text-muted hover:text-ink'
+                viewMode === 'grid' ? 'bg-premium text-premium shadow' : 'text-muted hover:text-premium'
               }`}
             >
               <LayoutGrid className="size-4" />
@@ -356,9 +358,9 @@ export default function Catalog() {
             <button
               type="button"
               onClick={() => setViewMode('table')}
-              aria-label="Таблица запчастей"
+              aria-label={t('Таблица запчастей')}
               className={`rounded-lg p-2 transition ${
-                viewMode === 'table' ? 'bg-premium text-ink shadow' : 'text-muted hover:text-ink'
+                viewMode === 'table' ? 'bg-premium text-premium shadow' : 'text-muted hover:text-premium'
               }`}
             >
               <List className="size-4" />
@@ -367,14 +369,14 @@ export default function Catalog() {
 
           {/* Sort Selector */}
           <select
-            aria-label="Сортировка товаров"
+            aria-label={t('Сортировка товаров')}
             value={sort}
             onChange={(e) => setParam('sort', e.target.value)}
-            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs text-ink font-medium outline-none focus:border-premium transition"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs text-premium font-medium outline-none focus:border-premium transition"
           >
             {SORTS.map((s) => (
               <option key={s.value} value={s.value}>
-                {s.label}
+                {t(s.label)}
               </option>
             ))}
           </select>
@@ -383,59 +385,59 @@ export default function Catalog() {
           <button
             type="button"
             onClick={() => setMobileFilters(true)}
-            className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs font-bold text-ink lg:hidden hover:border-premium"
+            className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-xs font-bold text-premium lg:hidden hover:border-premium"
           >
             <SlidersHorizontal className="size-4 text-premium" />
-            <span>Фильтры</span>
+            <span>{t('Фильтры')}</span>
             {hasFilters && <span className="size-2 rounded-full bg-premium animate-pulse" />}
           </button>
         </div>
       </div>
 
-      <div className="catalog-shortcuts" aria-label="Быстрые фильтры">
-        <button aria-pressed={inStock === 'true'} className={inStock === 'true' ? 'selected' : ''} onClick={() => setParam('in_stock', inStock === 'true' ? null : 'true')}>В наличии</button>
-        <button aria-pressed={hasDiscount === 'true'} className={hasDiscount === 'true' ? 'selected' : ''} onClick={() => setParam('has_discount', hasDiscount === 'true' ? null : 'true')}>Со скидкой</button>
+      <div className="catalog-shortcuts" aria-label={t('Быстрые фильтры')}>
+        <button aria-pressed={inStock === 'true'} className={inStock === 'true' ? 'selected' : ''} onClick={() => setParam('in_stock', inStock === 'true' ? null : 'true')}>{t('В наличии')}</button>
+        <button aria-pressed={hasDiscount === 'true'} className={hasDiscount === 'true' ? 'selected' : ''} onClick={() => setParam('has_discount', hasDiscount === 'true' ? null : 'true')}>{t('Со скидкой')}</button>
         {(categories.data || []).slice(0, 6).map(c => <button key={c.id} aria-pressed={categoryId === c.id} className={categoryId === c.id ? 'selected' : ''} onClick={() => setParam('category_id', categoryId === c.id ? null : c.id)}>{c.name}</button>)}
       </div>
       {/* Active Filter Chips Bar */}
       {hasFilters && (
         <div className="mb-6 flex flex-wrap items-center gap-2 p-3 rounded-xl border border-[var(--border)] bg-[var(--surface)]/60 text-xs">
           <span className="font-mono text-[10px] text-muted uppercase tracking-wider mr-1">
-            Активные фильтры:
+            {t('Активные фильтры:')}
           </span>
 
           {q && (
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--canvas)] border border-[var(--border)] px-2.5 py-1 text-ink">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--canvas)] border border-[var(--border)] px-2.5 py-1 text-premium">
               Поиск: «{q}»
               <button type="button" onClick={() => setParam('q', null)}>
-                <X className="size-3 text-muted hover:text-ink" />
+                <X className="size-3 text-muted hover:text-premium" />
               </button>
             </span>
           )}
 
           {categoryId && (
-            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--canvas)] border border-[var(--border)] px-2.5 py-1 text-ink">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--canvas)] border border-[var(--border)] px-2.5 py-1 text-premium">
               Категория: {selectedCategoryName || categoryId}
               <button type="button" onClick={() => setParam('category_id', null)}>
-                <X className="size-3 text-muted hover:text-ink" />
+                <X className="size-3 text-muted hover:text-premium" />
               </button>
             </span>
           )}
 
           {inStock === 'true' && (
             <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--canvas)] border border-[var(--border)] px-2.5 py-1 text-emerald-400">
-              В наличии
+              {t('В наличии')}
               <button type="button" onClick={() => setParam('in_stock', null)}>
-                <X className="size-3 text-muted hover:text-ink" />
+                <X className="size-3 text-muted hover:text-premium" />
               </button>
             </span>
           )}
 
           {hasDiscount === 'true' && (
             <span className="inline-flex items-center gap-1.5 rounded-md bg-[var(--canvas)] border border-[var(--border)] px-2.5 py-1 text-premium">
-              Со скидкой
+              {t('Со скидкой')}
               <button type="button" onClick={() => setParam('has_discount', null)}>
-                <X className="size-3 text-muted hover:text-ink" />
+                <X className="size-3 text-muted hover:text-premium" />
               </button>
             </span>
           )}
@@ -445,7 +447,7 @@ export default function Catalog() {
             onClick={resetAllFilters}
             className="ml-auto font-mono text-[11px] text-premium hover:underline font-bold"
           >
-            Сбросить всё ✕
+            {t('Сбросить всё ✕')}
           </button>
         </div>
       )}
@@ -456,9 +458,9 @@ export default function Catalog() {
         <aside className="hidden w-64 shrink-0 lg:block">
           <div className="sticky top-24 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 shadow-xl">
             <div className="flex items-center justify-between border-b border-[var(--border)] pb-3 mb-4">
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-ink flex items-center gap-1.5">
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-premium flex items-center gap-1.5">
                 <Filter className="size-3.5 text-premium" />
-                Параметры
+                {t('Параметры')}
               </span>
               {hasFilters && (
                 <button
@@ -466,7 +468,7 @@ export default function Catalog() {
                   onClick={resetAllFilters}
                   className="font-mono text-[10px] text-premium hover:underline"
                 >
-                  Сбросить
+                  {t('Сбросить')}
                 </button>
               )}
             </div>
@@ -487,21 +489,21 @@ export default function Catalog() {
             </div>
           ) : products.isError ? (
             <div className="rounded-2xl border border-red-500/40 bg-red-500/10 p-8 text-center text-sm text-red-400">
-              Не удалось загрузить каталог. Пожалуйста, проверьте соединение.
-              <button className="block mx-auto mt-4 underline" onClick={() => void products.refetch()}>Повторить загрузку</button>
+              {t('Не удалось загрузить каталог. Пожалуйста, проверьте соединение.')}
+              <button className="block mx-auto mt-4 underline" onClick={() => void products.refetch()}>{t('Повторить загрузку')}</button>
             </div>
           ) : (products.data?.items.length ?? 0) === 0 ? (
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-14 text-center">
-              <div className="text-xl font-bold uppercase text-ink">Детали не найдены</div>
+              <div className="text-xl font-bold uppercase text-premium">{t('Детали не найдены')}</div>
               <p className="mt-2 text-xs text-muted max-w-sm mx-auto">
-                Попробуйте изменить параметры фильтрации, сбросить поисковый запрос или выбрать другой бренд.
+                {t('Попробуйте изменить параметры фильтрации, сбросить поисковый запрос или выбрать другой бренд.')}
               </p>
               <button
                 type="button"
                 onClick={resetAllFilters}
-                className="mt-6 rounded-xl bg-premium px-6 py-2.5 text-xs font-bold text-ink hover:brightness-110 transition"
+                className="mt-6 rounded-xl bg-premium px-6 py-2.5 text-xs font-bold text-premium hover:brightness-110 transition"
               >
-                Показать весь ассортимент
+                {t('Показать весь ассортимент')}
               </button>
             </div>
           ) : viewMode === 'grid' ? (
@@ -515,16 +517,16 @@ export default function Catalog() {
                     <button
                       type="button"
                       onClick={() => setQuickViewProduct(product)}
-                      className="rounded-lg border border-[var(--border)] bg-[var(--canvas)]/90 p-1.5 text-ink hover:text-premium hover:border-premium shadow-lg"
-                      title="Быстрый просмотр"
+                      className="rounded-lg border border-[var(--border)] bg-[var(--canvas)]/90 p-1.5 text-premium hover:text-premium hover:border-premium shadow-lg"
+                      title={t('Быстрый просмотр')}
                     >
                       <Eye className="size-3.5" />
                     </button>
                     <button
                       type="button"
                       onClick={() => setQuickOrderProduct(product)}
-                      className="rounded-lg bg-premium p-1.5 text-ink hover:brightness-110 shadow-lg"
-                      title="Купить в 1 клик"
+                      className="rounded-lg bg-premium p-1.5 text-premium hover:brightness-110 shadow-lg"
+                      title={t('Купить в 1 клик')}
                     >
                       <Zap className="size-3.5" />
                     </button>
@@ -538,12 +540,12 @@ export default function Catalog() {
               <table className="w-full text-left text-xs">
                 <thead className="border-b border-[var(--border)] bg-[var(--canvas)] font-mono text-[10px] uppercase text-muted">
                   <tr>
-                    <th className="py-3 px-4">Деталь</th>
-                    <th className="py-3 px-4">Бренд & Артикул</th>
-                    <th className="py-3 px-4">Совместимость</th>
-                    <th className="py-3 px-4">Склад</th>
-                    <th className="py-3 px-4 text-right">Цена, TJS</th>
-                    <th className="py-3 px-4 text-right">Заказ</th>
+                    <th className="py-3 px-4">{t('Деталь')}</th>
+                    <th className="py-3 px-4">{t('Бренд & Артикул')}</th>
+                    <th className="py-3 px-4">{t('Совместимость')}</th>
+                    <th className="py-3 px-4">{t('Склад')}</th>
+                    <th className="py-3 px-4 text-right">{t('Цена, TJS')}</th>
+                    <th className="py-3 px-4 text-right">{t('Заказ')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#242A32]">
@@ -560,7 +562,7 @@ export default function Catalog() {
                           </div>
                           <Link
                             to={`/product/${prod.slug}`}
-                            className="font-semibold text-ink hover:text-premium transition line-clamp-1 max-w-xs"
+                            className="font-semibold text-premium hover:text-premium transition line-clamp-1 max-w-xs"
                           >
                             {prod.name}
                           </Link>
@@ -578,11 +580,11 @@ export default function Catalog() {
 
                       <td className="py-3 px-4">
                         <span className={prod.stock_quantity > 0 ? 'text-emerald-400 font-semibold' : 'text-muted'}>
-                          {prod.stock_quantity > 0 ? `${prod.stock_quantity} шт.` : 'Под заказ'}
+                          {prod.stock_quantity > 0 ? t('{{count}} шт.', { count: prod.stock_quantity }) : t('outOfStock')}
                         </span>
                       </td>
 
-                      <td className="py-3 px-4 text-right font-mono font-bold text-ink text-sm">
+                      <td className="py-3 px-4 text-right font-mono font-bold text-premium text-sm">
                         {Number(prod.price).toFixed(2)}
                       </td>
 
@@ -591,25 +593,25 @@ export default function Catalog() {
                           <button
                             type="button"
                             onClick={() => setQuickViewProduct(prod)}
-                            className="rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-ink"
-                            title="Быстрый просмотр"
+                            className="rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-premium"
+                            title={t('Быстрый просмотр')}
                           >
                             <Eye className="size-3.5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => setQuickOrderProduct(prod)}
-                            className="rounded-lg bg-premium/15 border border-premium/30 px-2 py-1 text-[11px] font-bold text-premium hover:bg-premium hover:text-ink transition"
-                            title="Купить в 1 клик"
+                            className="rounded-lg bg-premium/15 border border-premium/30 px-2 py-1 text-[11px] font-bold text-premium hover:bg-premium hover:text-premium transition"
+                            title={t('Купить в 1 клик')}
                           >
-                            1 клик
+                            {t('1 клик')}
                           </button>
                           <button
                             type="button"
                             onClick={() => void addItem(prod.id, 1)}
                             disabled={prod.stock_quantity <= 0}
-                            className="rounded-lg bg-premium p-1.5 text-ink hover:brightness-110 disabled:opacity-40"
-                            title="В корзину"
+                            className="rounded-lg bg-premium p-1.5 text-premium hover:brightness-110 disabled:opacity-40"
+                            title={t('В корзину')}
                           >
                             <ShoppingCart className="size-3.5" />
                           </button>
@@ -633,13 +635,13 @@ export default function Catalog() {
                   next.set('offset', String(Math.max(0, offset - 12)))
                   setParams(next)
                 }}
-                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 font-bold text-ink hover:border-premium disabled:opacity-40 transition"
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 font-bold text-premium hover:border-premium disabled:opacity-40 transition"
               >
-                ← Назад
+                {t('← Назад')}
               </button>
               <span className="text-muted px-2">
-                Страница <span className="text-ink font-bold">{Math.floor(offset / 12) + 1}</span> из{' '}
-                <span className="text-ink font-bold">{Math.ceil(total / 12)}</span>
+                {t('Страница')} <span className="font-bold">{Math.floor(offset / 12) + 1}</span> из{' '}
+                <span className="font-bold">{Math.ceil(total / 12)}</span>
               </span>
               <button
                 type="button"
@@ -649,9 +651,9 @@ export default function Catalog() {
                   next.set('offset', String(offset + 12))
                   setParams(next)
                 }}
-                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 font-bold text-ink hover:border-premium disabled:opacity-40 transition"
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 font-bold text-premium hover:border-premium disabled:opacity-40 transition"
               >
-                Вперед →
+                {t('Вперед →')}
               </button>
             </div>
           )}
@@ -666,16 +668,16 @@ export default function Catalog() {
             onClick={() => setMobileFilters(false)}
             aria-hidden
           />
-          <div ref={filterDialog} role="dialog" aria-modal="true" aria-label="Фильтры каталога" tabIndex={-1} className="w-80 max-w-[90vw] overflow-y-auto p-6 border-l border-[var(--border)] bg-[var(--surface)] text-ink">
+          <div ref={filterDialog} role="dialog" aria-modal="true" aria-label={t('Фильтры каталога')} tabIndex={-1} className="w-80 max-w-[90vw] overflow-y-auto p-6 border-l border-[var(--border)] bg-[var(--surface)] text-premium">
             <div className="mb-6 flex items-center justify-between border-b border-[var(--border)] pb-4">
-              <span className="font-mono text-sm font-bold uppercase tracking-wider text-ink">
-                Фильтры каталога
+              <span className="font-mono text-sm font-bold uppercase tracking-wider text-premium">
+                {t('Фильтры каталога')}
               </span>
               <button
                 type="button"
                 onClick={() => setMobileFilters(false)}
-                aria-label="Закрыть фильтры"
-                className="rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-ink"
+                aria-label={t('Закрыть фильтры')}
+                className="rounded-lg border border-[var(--border)] p-1.5 text-muted hover:text-premium"
               >
                 <X className="size-4" />
               </button>

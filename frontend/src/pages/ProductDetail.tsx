@@ -185,7 +185,7 @@ export default function ProductDetail() {
 
   if (product.isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--canvas)] text-ink py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-[var(--canvas)] py-12 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl animate-pulse space-y-8">
           <div className="h-6 w-72 rounded bg-[var(--surface)]" />
           <div className="grid gap-10 lg:grid-cols-2">
@@ -210,13 +210,13 @@ export default function ProductDetail() {
           <div className="inline-flex size-14 items-center justify-center rounded-xl bg-premium/10 text-premium mb-4">
             <Wrench className="size-7" />
           </div>
-          <h1 className="text-2xl font-black text-ink">{t('notFound')}</h1>
+          <h1 className="text-2xl font-black">{t('notFound')}</h1>
           <p className="mt-2 text-sm text-muted">
             Запрашиваемая запчасть не найдена или перемещена в архив каталога.
           </p>
           <Link
             to="/catalog"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 text-sm font-bold text-ink transition hover:bg-[#D91F32]"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-premium px-6 py-3 text-sm font-bold transition hover:brightness-110"
           >
             {t('backHome')}
             <ArrowRight className="size-4" />
@@ -255,9 +255,9 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="market-product-detail min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-ink">
+    <div className="market-product-detail min-h-screen bg-[var(--canvas)] pb-24 selection:bg-premium selection:text-[var(--canvas)]">
       {/* Background Architectural Grid Lines */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(227,38,54,0.06),rgba(255,255,255,0))] opacity-50" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,164,65,0.05),rgba(255,255,255,0))] opacity-50" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
         {/* Monospace Telemetry Breadcrumb */}
@@ -265,13 +265,13 @@ export default function ProductDetail() {
           className="mb-8 flex flex-wrap items-center gap-2 font-mono text-xs uppercase tracking-wider text-muted"
           aria-label="Breadcrumbs"
         >
-          <Link to="/" className="transition hover:text-ink">Главная</Link>
+          <Link to="/" className="transition hover:text-premium">Главная</Link>
           <ChevronRight className="size-3 text-[#242A32]" />
-          <Link to="/catalog" className="transition hover:text-ink">{t('explore')}</Link>
+          <Link to="/catalog" className="transition hover:text-premium">{t('explore')}</Link>
           <ChevronRight className="size-3 text-[#242A32]" />
           <Link
             to={`/catalog?category_id=${item.category.id}`}
-            className="text-ink hover:text-premium transition"
+            className="hover:text-premium transition"
           >
             {item.category.name}
           </Link>
@@ -292,7 +292,7 @@ export default function ProductDetail() {
               {/* Status Badges */}
               <div className="absolute left-4 top-4 z-10 flex flex-col gap-2">
                 {discount > 0 && (
-                  <span className="rounded bg-premium px-2.5 py-1 font-mono text-xs font-black uppercase tracking-wider text-ink shadow-lg">
+                  <span className="rounded bg-premium px-2.5 py-1 font-mono text-xs font-black uppercase tracking-wider shadow-lg">
                     -{discount}%
                   </span>
                 )}
@@ -324,7 +324,7 @@ export default function ProductDetail() {
                       onClick={() => setActiveImage(index)}
                       className={`relative size-20 shrink-0 overflow-hidden rounded-xl border p-1 transition-all ${
                         isActive
-                          ? 'border-[#E32636] bg-[var(--surface)] shadow-[0_0_12px_rgba(227,38,54,0.3)]'
+                          ? 'border-premium bg-[var(--surface)] shadow-sm'
                           : 'border-[var(--border)] bg-[var(--surface)]/40 hover:border-slate-500'
                       }`}
                       aria-label={`Фото ${index + 1}`}
@@ -341,24 +341,24 @@ export default function ProductDetail() {
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-3 text-center backdrop-blur-sm">
                 <ShieldCheck className="mx-auto size-5 text-premium mb-1" />
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Гарантия</div>
-                <div className="text-xs font-bold text-ink mt-0.5">
+                <div className="text-xs font-bold mt-0.5">
                   {item.warranty_months ? `${item.warranty_months} мес.` : 'Уточните условия'}
                 </div>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-3 text-center backdrop-blur-sm">
                 <Truck className="mx-auto size-5 text-premium mb-1" />
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Доставка</div>
-                <div className="text-xs font-bold text-ink mt-0.5">Расчёт при оформлении</div>
+                <div className="text-xs font-bold mt-0.5">Расчёт при оформлении</div>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-3 text-center backdrop-blur-sm">
                 <RotateCcw className="mx-auto size-5 text-premium mb-1" />
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Возврат</div>
-                <div className="text-xs font-bold text-ink mt-0.5">Через поддержку</div>
+                <div className="text-xs font-bold mt-0.5">Через поддержку</div>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-3 text-center backdrop-blur-sm">
                 <Sparkles className="mx-auto size-5 text-premium mb-1" />
                 <div className="font-mono text-[10px] uppercase tracking-wider text-muted">Качество</div>
-                <div className="text-xs font-bold text-ink mt-0.5">Характеристики ниже</div>
+                <div className="text-xs font-bold mt-0.5">Характеристики ниже</div>
               </div>
             </div>
           </div>
@@ -377,7 +377,7 @@ export default function ProductDetail() {
                 </span>
               </div>
 
-              <h1 className="product-detail-desktop-title mt-2 text-2xl sm:text-3xl font-black tracking-tight text-ink leading-tight">
+              <h1 className="product-detail-desktop-title mt-2 text-2xl sm:text-3xl font-black tracking-tight leading-tight">
                 {item.name}
               </h1>
 
@@ -387,15 +387,15 @@ export default function ProductDetail() {
                 <button
                   type="button"
                   onClick={() => handleCopySku(item.sku)}
-                  className="group inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1 font-mono text-xs text-muted transition hover:border-[#E32636] hover:text-ink"
+                  className="group inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1 font-mono text-xs text-muted transition hover:border-premium hover:text-premium"
                   title="Скопировать артикул"
                 >
                   <span className="text-[10px] text-slate-500">АРТ:</span>
-                  <span className="font-bold text-ink">{item.sku}</span>
+                  <span className="font-bold">{item.sku}</span>
                   {copiedSku ? (
                     <Check className="size-3 text-emerald-400" />
                   ) : (
-                    <Copy className="size-3 text-slate-500 group-hover:text-ink" />
+                    <Copy className="size-3 text-slate-500 group-hover:text-premium" />
                   )}
                 </button>
 
@@ -403,12 +403,12 @@ export default function ProductDetail() {
                 {item.oem_numbers[0] && (
                   <div className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1 font-mono text-xs text-muted">
                     <span className="text-[10px] text-slate-500">OEM:</span>
-                    <span className="font-bold text-ink">{item.oem_numbers[0].number}</span>
+                    <span className="font-bold">{item.oem_numbers[0].number}</span>
                   </div>
                 )}
 
                 {/* Star Rating */}
-                {item.rating_count > 0 && <div className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1 text-xs text-ink">
+                {item.rating_count > 0 && <div className="inline-flex items-center gap-1 rounded-md border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1 text-xs">
                   <Star className="size-3.5 fill-amber-400 text-amber-400" />
                   <span className="font-mono font-bold">
                     {Number(item.rating_avg).toFixed(1)}
@@ -426,7 +426,7 @@ export default function ProductDetail() {
                     Розничная цена (TJS)
                   </div>
                   <div className="mt-1 flex items-baseline gap-3">
-                    <span className="text-3xl sm:text-4xl font-black tracking-tight text-ink font-mono">
+                    <span className="text-3xl sm:text-4xl font-black tracking-tight font-mono">
                       {Number(item.price).toLocaleString('ru-RU', { minimumFractionDigits: 2 })}
                     </span>
                     <span className="text-sm font-bold text-premium font-mono">TJS</span>
@@ -469,7 +469,7 @@ export default function ProductDetail() {
                     {selectedVehicleObj ? (
                       <div className="text-xs">
                         <span className="text-slate-400 font-medium">Выбрано авто: </span>
-                        <span className="font-bold text-ink">
+                        <span className="font-bold">
                           {selectedVehicleObj.name} ({selectedVehicleObj.make.name} {selectedVehicleObj.model?.name})
                         </span>
                       </div>
@@ -486,6 +486,34 @@ export default function ProductDetail() {
                     Гараж →
                   </Link>
                 </div>
+                {item.compatibilities.length > 0 ? (
+                  <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
+                    <div className="text-[10px] font-bold uppercase tracking-wider text-muted">Совместимость по базе магазина</div>
+                    <ul className="mt-2 space-y-1.5">
+                      {item.compatibilities.map(rule => {
+                        const vehicleName = [rule.make_name, rule.model_name, rule.generation_name,
+                          rule.modification_name, rule.engine_name].filter(Boolean).join(' ')
+                        const years = rule.year_from || rule.year_to
+                          ? ` · ${rule.year_from ?? '…'}–${rule.year_to ?? '…'} гг.`
+                          : ''
+                        return <li key={rule.id} className="flex items-start gap-2 text-xs">
+                          <Wrench className="mt-0.5 size-3.5 shrink-0 text-muted" />
+                          <span>{vehicleName}{years}<small className="block text-muted">{rule.note ? `Источник: ${rule.note}` : 'Источник проверки не указан'}</small></span>
+                        </li>
+                      })}
+                    </ul>
+                  </div>
+                ) : (
+                  <p className="mt-3 border-t pt-3 text-xs text-amber-300" style={{ borderColor: 'var(--border)' }}>
+                    Совместимость не заполнена в каталоге. Сверьте OEM-номер или уточните применимость перед покупкой.
+                  </p>
+                )}
+                {selectedVehicleObj && item.fitment === 'unknown' && item.compatibilities.length > 0 && (
+                  <p className="mt-2 text-xs text-amber-300">Для точной проверки не хватает данных об автомобиле — добавьте год и двигатель в гараже.</p>
+                )}
+                {selectedVehicleObj && item.fitment === 'not_compatible' && (
+                  <p className="mt-2 text-xs text-rose-400">В каталоге нет совпадения с выбранным автомобилем. Не добавляйте деталь в заказ без проверки специалистом.</p>
+                )}
               </div>
 
               {/* Buy Actions Hub */}
@@ -495,17 +523,17 @@ export default function ProductDetail() {
                   <div className="flex items-center rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-1 font-mono">
                     <button
                       type="button"
-                      className="grid size-9 place-items-center rounded-lg text-slate-400 transition hover:bg-[var(--surface)] hover:text-ink disabled:opacity-30"
+                      className="grid size-9 place-items-center rounded-lg text-slate-400 transition hover:bg-[var(--surface)] hover:text-premium disabled:opacity-30"
                       onClick={() => setQuantity((v) => Math.max(1, v - 1))}
                       disabled={quantity <= 1}
                       aria-label="Уменьшить количество"
                     >
                       <Minus className="size-4" />
                     </button>
-                    <span className="w-10 text-center font-bold text-ink text-sm">{quantity}</span>
+                    <span className="w-10 text-center font-bold text-sm">{quantity}</span>
                     <button
                       type="button"
-                      className="grid size-9 place-items-center rounded-lg text-slate-400 transition hover:bg-[var(--surface)] hover:text-ink disabled:opacity-30"
+                      className="grid size-9 place-items-center rounded-lg text-slate-400 transition hover:bg-[var(--surface)] hover:text-premium disabled:opacity-30"
                       onClick={() => setQuantity((v) => Math.min(item.stock_quantity || 99, v + 1))}
                       disabled={quantity >= item.stock_quantity}
                       aria-label="Увеличить количество"
@@ -519,7 +547,7 @@ export default function ProductDetail() {
                     type="button"
                     disabled={item.stock_quantity <= 0 || addMutation.isPending}
                     onClick={() => addMutation.mutate()}
-                    className="flex-1 flex items-center justify-center gap-2.5 rounded-xl bg-premium px-6 py-3.5 font-bold text-ink shadow-[0_4px_20px_rgba(227,38,54,0.35)] transition-all hover:bg-[#D91F32] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flex-1 flex items-center justify-center gap-2.5 rounded-xl bg-premium px-6 py-3.5 font-bold shadow-md transition-all hover:brightness-110 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {added ? (
                       <>
@@ -540,7 +568,7 @@ export default function ProductDetail() {
                   type="button"
                   onClick={() => setIsQuickOrderOpen(true)}
                   disabled={item.stock_quantity <= 0}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-[#E32636]/60 bg-premium/10 px-6 py-3.5 font-bold text-premium transition-all hover:bg-premium/20 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-premium/60 bg-premium/10 px-6 py-3.5 font-bold text-premium transition-all hover:bg-premium/20 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Zap className="size-4 fill-current" />
                   <span>КУПИТЬ В 1 КЛИК (TELEGRAM / WHATSAPP / ЗВОНОК)</span>
@@ -553,8 +581,8 @@ export default function ProductDetail() {
                     onClick={() => toggleCompare(item.id)}
                     className={`flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-semibold transition ${
                       inCompare
-                        ? 'border-[#E32636] bg-premium/10 text-premium'
-                        : 'border-[var(--border)] bg-[var(--canvas)]/50 text-muted hover:border-slate-500 hover:text-ink'
+                        ? 'border-premium bg-premium/10 text-premium'
+                        : 'border-[var(--border)] bg-[var(--canvas)]/50 text-muted hover:border-slate-500 hover:text-premium'
                     }`}
                   >
                     <GitCompare className="size-4" />
@@ -567,11 +595,11 @@ export default function ProductDetail() {
                       onClick={() => void toggleFavorite()}
                       className={`flex-1 flex items-center justify-center gap-2 rounded-xl border py-2.5 text-xs font-semibold transition ${
                         favorite
-                          ? 'border-[#E32636] bg-premium/10 text-premium'
-                          : 'border-[var(--border)] bg-[var(--canvas)]/50 text-muted hover:border-slate-500 hover:text-ink'
+                          ? 'border-premium bg-premium/10 text-premium'
+                          : 'border-[var(--border)] bg-[var(--canvas)]/50 text-muted hover:border-slate-500 hover:text-premium'
                       }`}
                     >
-                      <Heart className={`size-4 ${favorite ? 'fill-[#E32636] text-premium' : ''}`} />
+                      <Heart className={`size-4 ${favorite ? 'fill-amber-500 text-premium' : ''}`} />
                       <span>{favorite ? 'В избранном' : 'В избранное'}</span>
                     </button>
                   )}
@@ -591,7 +619,7 @@ export default function ProductDetail() {
                 <Sparkles className="size-4" />
                 <span>ИЗ КАТАЛОГА</span>
               </div>
-              <h2 className="mt-1 text-xl sm:text-2xl font-black text-ink">
+              <h2 className="mt-1 text-xl sm:text-2xl font-black">
                 Другие товары для вашего выбора
               </h2>
               <p className="mt-1 text-sm text-muted">
@@ -606,7 +634,7 @@ export default function ProductDetail() {
                     <div className="aspect-square w-full overflow-hidden rounded-lg bg-[var(--surface)] p-2 flex items-center justify-center">
                       <ProductMedia src={images[0]?.url} alt={item.name} categorySlug={item.category.slug} categoryName={item.category.name} />
                     </div>
-                    <div className="mt-2 line-clamp-1 font-bold text-ink">{item.name}</div>
+                    <div className="mt-2 line-clamp-1 font-bold">{item.name}</div>
                     <div className="font-mono font-black text-premium mt-0.5">
                       {Number(item.price).toFixed(2)} TJS
                     </div>
@@ -619,15 +647,15 @@ export default function ProductDetail() {
                     <div key={bItem.id} className="flex items-center gap-3">
                       <Link
                         to={`/product/${bItem.slug}`}
-                        className="w-40 rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 text-xs transition hover:border-[#E32636] group"
+                        className="w-40 rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-3 text-xs transition hover:border-premium group"
                       >
                         <div className="aspect-square w-full overflow-hidden rounded-lg bg-[var(--surface)] p-2 flex items-center justify-center">
                           <ProductMedia src={bItem.image_url} alt={bItem.name} categorySlug={bItem.category.slug} categoryName={bItem.category.name} />
                         </div>
-                        <div className="mt-2 line-clamp-1 font-bold text-ink group-hover:text-premium transition">
+                        <div className="mt-2 line-clamp-1 font-bold group-hover:text-premium transition">
                           {bItem.name}
                         </div>
-                        <div className="font-mono font-black text-ink mt-0.5">
+                        <div className="font-mono font-black mt-0.5">
                           {Number(bItem.price).toFixed(2)} TJS
                         </div>
                       </Link>
@@ -644,13 +672,13 @@ export default function ProductDetail() {
                   <div className="font-mono text-xs uppercase tracking-wider text-muted">
                     Итого за все товары:
                   </div>
-                  <div className="mt-1 text-2xl font-black text-ink font-mono">
+                  <div className="mt-1 text-2xl font-black font-mono">
                     {Number(fbt.data.total_bundle_price).toFixed(2)} TJS
                   </div>
                   <button
                     type="button"
                     onClick={handleBuyBundle}
-                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-premium px-4 py-3 font-mono text-xs font-bold text-ink transition hover:bg-[#D91F32]"
+                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-premium px-4 py-3 font-mono text-xs font-bold transition hover:brightness-110"
                   >
                     <ShoppingCart className="size-4" />
                     <span>{bundleAdded ? 'ТОВАРЫ В КОРЗИНЕ' : 'ДОБАВИТЬ ВСЁ В КОРЗИНУ'}</span>
@@ -697,7 +725,7 @@ export default function ProductDetail() {
                           }`}
                         >
                           <td className="w-1/2 px-4 py-3 text-xs text-muted">{spec.name}</td>
-                          <td className="px-4 py-3 text-xs font-bold text-ink">
+                          <td className="px-4 py-3 text-xs font-bold">
                             {spec.value} {spec.unit ?? ''}
                           </td>
                         </tr>
@@ -721,7 +749,7 @@ export default function ProductDetail() {
                   {item.cross_references.map((cross) => (
                     <span
                       key={cross.id}
-                      className="rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-1.5 font-mono text-xs text-ink"
+                      className="rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-1.5 font-mono text-xs"
                     >
                       <span className="font-bold">{cross.number}</span>
                       {cross.brand_name && <span className="text-muted ml-1.5">· {cross.brand_name}</span>}
@@ -786,7 +814,7 @@ export default function ProductDetail() {
                 <span className="font-mono text-xs font-bold uppercase tracking-widest text-premium">
                   ИЗ КАТАЛОГА
                 </span>
-                <h2 className="text-2xl font-black text-ink mt-1">Сопутствующие компоненты</h2>
+                <h2 className="text-2xl font-black mt-1">Сопутствующие компоненты</h2>
               </div>
               <Link
                 to="/catalog"
@@ -812,7 +840,7 @@ export default function ProductDetail() {
                 <span className="font-mono text-xs font-bold uppercase tracking-widest text-muted">
                   ИСТОРИЯ ПРОСМОТРА
                 </span>
-                <h2 className="text-2xl font-black text-ink mt-1">{t('recentlyViewed')}</h2>
+                <h2 className="text-2xl font-black mt-1">{t('recentlyViewed')}</h2>
               </div>
               <Link
                 to="/catalog"
@@ -844,7 +872,7 @@ export default function ProductDetail() {
                 <ProductMedia src={images[0]?.url} alt={item.name} categorySlug={item.category.slug} categoryName={item.category.name} />
               </div>
               <div className="min-w-0">
-                <div className="truncate font-bold text-ink text-sm">{item.name}</div>
+                <div className="truncate font-bold text-sm">{item.name}</div>
                 <div className="flex items-center gap-2 font-mono text-xs text-muted">
                   <span>{item.brand.name}</span>
                   <span>·</span>
@@ -857,7 +885,7 @@ export default function ProductDetail() {
             <div className="flex items-center gap-3 shrink-0">
               <div className="hidden sm:block text-right">
                 <div className="font-mono text-xs text-muted">Цена:</div>
-                <div className="font-mono text-lg font-black text-ink">
+                <div className="font-mono text-lg font-black">
                   {Number(item.price).toLocaleString('ru-RU', { minimumFractionDigits: 2 })} TJS
                 </div>
               </div>
@@ -866,7 +894,7 @@ export default function ProductDetail() {
                 type="button"
                 onClick={() => setIsQuickOrderOpen(true)}
                 disabled={item.stock_quantity <= 0}
-                className="hidden md:flex items-center gap-1.5 rounded-xl border border-[#E32636] bg-premium/15 px-4 py-2.5 font-mono text-xs font-bold text-premium transition hover:bg-premium/25"
+                className="hidden md:flex items-center gap-1.5 rounded-xl border border-premium bg-premium/15 px-4 py-2.5 font-mono text-xs font-bold text-premium transition hover:bg-premium/25"
               >
                 <Zap className="size-3.5 fill-current" />
                 <span>1 КЛИК</span>
@@ -876,7 +904,7 @@ export default function ProductDetail() {
                 type="button"
                 disabled={item.stock_quantity <= 0 || addMutation.isPending}
                 onClick={() => addMutation.mutate()}
-                className="flex items-center gap-2 rounded-xl bg-premium px-5 py-2.5 font-mono text-xs font-bold text-ink shadow-lg transition hover:bg-[#D91F32]"
+                className="flex items-center gap-2 rounded-xl bg-premium px-5 py-2.5 font-mono text-xs font-bold shadow-lg transition hover:brightness-110"
               >
                 {added ? <CheckCircle2 className="size-4" /> : <ShoppingCart className="size-4" />}
                 <span>{added ? 'В КОРЗИНЕ' : 'В КОРЗИНУ'}</span>

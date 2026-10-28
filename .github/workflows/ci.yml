@@ -1,0 +1,72 @@
+name: Test and build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      APP_ENV: test
+      JWT_SECRET: ci-only-test-value-never-use-in-production
+      SITE_URL: https://zapchast.king.tj
+      DATABASE_URL: postgresql+psycopg:///zapchast_migrations_test?host=/var/run/postgresql
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: python -m pip install -r requirements.txt
+      - name: Start native PostgreSQL (no containers)
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y postgresql postgresql-client
+          sudo systemctl start postgresql
+          sudo -u postgres createuser --no-superuser --createdb --no-createrole "$(id -un)"
+          createdb --template=template0 --encoding=UTF8 --locale-provider=icu --icu-locale=ru-TJ zapchast_migrations_test
+          createdb --template=template0 --encoding=UTF8 --locale-provider=icu --icu-locale=ru-TJ zapchast_ci_test
+      - name: Check migrations on a separate empty database
+        run: |
+          python -m alembic upgrade head
+          python -m alembic check
+      - name: Run API tests on a dedicated database
+        env:
+          TEST_DATABASE_URL: postgresql+psycopg:///zapchast_ci_test?host=/var/run/postgresql
+        run: python -m pytest -q --tb=short
+      - name: Check deployment script syntax
+        run: |
+          bash -n ../deploy/scripts/preflight.sh
+          bash -n ../deploy/scripts/backup-db.sh

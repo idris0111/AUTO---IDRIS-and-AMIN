@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { AlertCircle, ArrowRight, Lock, LogIn, Mail } from 'lucide-react'
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, LogIn, Mail } from 'lucide-react'
 
 import { useAuth } from '../stores/auth'
 import { useCart } from '../stores/cart'
 import AuthPanel from '../components/layout/AuthPanel'
+import { formError } from '../lib/formError'
 
 export default function Login() {
   const { t } = useTranslation()
@@ -15,107 +16,68 @@ export default function Login() {
   const { mergeGuestCart } = useCart()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
 
   async function submit(event: React.FormEvent) {
     event.preventDefault()
+    if (loading) return
     setError('')
     try {
-      await login(email, password)
+      await login(email.trim(), password)
       await mergeGuestCart()
       const next = params.get('next') || '/'
       navigate(next.startsWith('/') && !next.startsWith('//') ? next : '/')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Не удалось войти в аккаунт')
+      setError(formError(err, 'Не удалось войти в аккаунт'))
     }
   }
 
   return (
     <div className="auth-layout commerce-container">
       <AuthPanel />
-      <div className="auth-card w-full rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-8 sm:p-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex size-12 items-center justify-center rounded-xl bg-premium/15 text-premium border border-[#E32636]/30 mb-3">
-            <LogIn className="size-6" />
-          </div>
-          <div className="font-mono text-xs uppercase tracking-widest text-premium">
-            ЛИЧНЫЙ КАБИНЕТ
-          </div>
-          <h1 className="mt-1 text-2xl sm:text-3xl font-black text-ink tracking-tight">
-            {t('login')}
-          </h1>
-          <p className="mt-2 text-xs text-muted">
-            Войдите, чтобы видеть свои заказы, избранное и гараж.
-          </p>
+      <div className="au-auth-card">
+        <div className="au-auth-head">
+          <span className="au-auth-icon"><LogIn size={22} /></span>
+          <span className="mp-kicker">{t('ЛИЧНЫЙ КАБИНЕТ')}</span>
+          <h1>{t('login')}</h1>
+          <p>{t('Войдите, чтобы видеть свои заказы, избранное и гараж.')}</p>
         </div>
 
-        <form onSubmit={submit} className="space-y-5">
-          <div>
-            <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-2">
-              {t('email')}
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                <Mail className="size-4" />
-              </div>
-              <input
-                type="email"
-                aria-label={t('email')}
-                required
-                autoComplete="email"
-                placeholder="name@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] py-3 pl-10 pr-4 font-mono text-xs text-ink placeholder-slate-600 outline-none transition focus:border-[#E32636]"
-              />
+        <form onSubmit={submit} className="au-auth-form">
+          <label className="au-field">
+            <span>{t('email')}</span>
+            <div className="au-input-wrap">
+              <Mail size={15} />
+              <input type="email" required autoComplete="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} aria-label={t('email')} />
             </div>
-          </div>
+          </label>
 
-          <div>
-            <label className="block font-mono text-xs uppercase tracking-wider text-muted mb-2">
-              {t('password')}
-            </label>
-            <div className="relative">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500">
-                <Lock className="size-4" />
-              </div>
-              <input
-                type="password"
-                aria-label={t('password')}
-                required
-                autoComplete="current-password"
-                placeholder="Введите пароль"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] py-3 pl-10 pr-4 font-mono text-xs text-ink placeholder-slate-600 outline-none transition focus:border-[#E32636]"
-              />
+          <label className="au-field">
+            <span>{t('password')}</span>
+            <div className="au-input-wrap">
+              <Lock size={15} />
+              <input type={showPassword ? 'text' : 'password'} required autoComplete="current-password" placeholder={t('Введите пароль')} value={password} onChange={(e) => setPassword(e.target.value)} aria-label={t('password')} />
+              <button type="button" className="password-toggle" aria-label={t(showPassword ? 'Скрыть пароль' : 'Показать пароль')} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)}>{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
             </div>
-          </div>
+          </label>
 
           {error && (
-            <div className="flex items-center gap-2 rounded-xl border border-[#E32636]/40 bg-premium/10 p-3.5 text-xs font-mono text-premium">
-              <AlertCircle className="size-4 shrink-0" />
+            <div className="au-alert" role="alert">
+              <AlertCircle size={15} />
               <span>{error}</span>
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 rounded-xl bg-premium py-3.5 font-mono text-xs font-bold text-ink shadow-[0_4px_20px_rgba(227,38,54,0.35)] transition hover:bg-[#D91F32] disabled:opacity-50"
-          >
-            <span>{loading ? 'ВХОД...' : 'ВОЙТИ'}</span>
-            <ArrowRight className="size-4" />
+          <button type="submit" className="au-btn-primary au-shine" disabled={loading}>
+            <span>{loading ? t('loading') : t('login')}</span>
+            <ArrowRight size={15} />
           </button>
         </form>
 
-        <div className="mt-8 border-t border-[var(--border)] pt-6 text-center">
-          <p className="font-mono text-xs text-muted">
-            {t('noAccount')}{' '}
-            <Link to="/register" className="font-bold text-premium hover:underline">
-              {t('freeRegistration')}
-            </Link>
-          </p>
+        <div className="au-auth-foot">
+          {t('noAccount')}{' '}
+          <Link to="/register">{t('freeRegistration')}</Link>
         </div>
       </div>
     </div>

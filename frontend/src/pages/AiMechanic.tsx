@@ -128,7 +128,7 @@ export default function AiMechanic() {
       case 'critical':
         return {
           label: t('aiUrgencyCritical'),
-          bg: 'bg-premium/15 text-premium border-[#E32636]/30',
+          bg: 'bg-premium/15 text-premium border-premium/30',
         }
       case 'high':
         return {
@@ -149,9 +149,9 @@ export default function AiMechanic() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--canvas)] text-ink pb-24 selection:bg-premium selection:text-ink">
+    <div className="min-h-screen bg-[var(--canvas)] pb-24 selection:bg-premium selection:text-[var(--canvas)]">
       {/* Background Architectural Grid Lines */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(227,38,54,0.06),rgba(255,255,255,0))] opacity-50" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(217,164,65,0.05),rgba(255,255,255,0))] opacity-50" />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
         {/* Header HUD Banner */}
@@ -160,11 +160,11 @@ export default function AiMechanic() {
 
           <div className="relative z-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E32636]/30 bg-premium/10 px-3 py-1 font-mono text-xs font-bold text-premium">
+              <div className="inline-flex items-center gap-2 rounded-full border border-premium/30 bg-premium/10 px-3 py-1 font-mono text-xs font-bold text-premium">
                 <Sparkles className="size-3.5" />
                 <span>ПОМОЩНИК ПО СИМПТОМАМ</span>
               </div>
-              <h1 className="mt-3 text-2xl sm:text-4xl font-black text-ink tracking-tight">
+              <h1 className="mt-3 text-2xl sm:text-4xl font-black tracking-tight">
                 {t('aiMechanicTitle')}
               </h1>
               <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
@@ -179,14 +179,14 @@ export default function AiMechanic() {
                   <Car className="size-3.5" />
                   {t('vehicle')}
                 </span>
-                <Link to="/garage" className="text-muted hover:text-ink transition">
+                <Link to="/garage" className="text-muted hover:text-premium transition">
                   {t('garage')} →
                 </Link>
               </div>
 
               {activeVehicle ? (
                 <div className="mt-2.5">
-                  <div className="font-bold text-ink text-sm truncate">
+                  <div className="font-bold text-sm truncate">
                     {activeVehicle.name || `${activeVehicle.make?.name || ''} ${activeVehicle.model?.name || ''}`}
                   </div>
                   <div className="font-mono text-xs text-muted">
@@ -194,7 +194,7 @@ export default function AiMechanic() {
                   </div>
                   {vehicles.length > 1 && (
                     <select
-                      className="mt-2.5 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-mono text-xs text-ink outline-none focus:border-[#E32636]"
+                      className="mt-2.5 w-full rounded-lg border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1.5 font-mono text-xs outline-none focus:border-premium"
                       value={activeVehicle.id}
                       onChange={(e) => {
                         setSelectedVehicleOverride(e.target.value)
@@ -202,7 +202,7 @@ export default function AiMechanic() {
                       }}
                     >
                       {vehicles.map((v) => (
-                        <option key={v.id} value={v.id} className="bg-[var(--canvas)] text-ink">
+                        <option key={v.id} value={v.id} className="bg-[var(--canvas)]">
                           {v.name} ({v.make?.name} {v.model?.name})
                         </option>
                       ))}
@@ -211,7 +211,7 @@ export default function AiMechanic() {
                 </div>
               ) : (
                 <div className="mt-2">
-                  <div className="text-sm font-semibold text-ink">Автомобиль не привязан</div>
+                  <div className="text-sm font-semibold">Автомобиль не привязан</div>
                   <p className="font-mono text-xs text-muted mt-0.5">
                     Добавьте автомобиль в гараж, чтобы учитывать доступные данные о совместимости деталей.
                   </p>
@@ -253,7 +253,7 @@ export default function AiMechanic() {
                         onClick={() => handleSelectQuickSymptom(chip)}
                         className={`group relative flex flex-col items-start rounded-2xl border p-5 text-left transition-all ${
                           isSelected
-                            ? 'border-[#E32636] bg-[var(--surface)] shadow-[0_0_20px_rgba(227,38,54,0.15)]'
+                            ? 'border-premium bg-[var(--surface)] shadow-sm'
                             : 'border-[var(--border)] bg-[var(--surface)]/60 hover:border-slate-500 hover:bg-[var(--surface)]'
                         }`}
                       >
@@ -267,12 +267,12 @@ export default function AiMechanic() {
                             {chip.icon === 'oil' && <Wrench className="size-4" />}
                           </span>
                           {isSelected && (
-                            <span className="rounded-md bg-premium px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-ink">
+                            <span className="rounded-md bg-premium px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider">
                               Выбрано
                             </span>
                           )}
                         </div>
-                        <div className="mt-4 font-bold text-ink group-hover:text-premium transition">
+                        <div className="mt-4 font-bold group-hover:text-premium transition">
                           {chip.title}
                         </div>
                         <div className="mt-1 line-clamp-2 font-mono text-xs text-muted">
@@ -297,7 +297,7 @@ export default function AiMechanic() {
                     value={symptom}
                     onChange={(e) => setSymptom(e.target.value)}
                     placeholder="Например: Появился сильный металлический скрежет спереди при торможении на перекрестках, педаль стала мягче, вибрация в руль..."
-                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-4 text-sm text-ink placeholder-slate-600 outline-none transition focus:border-[#E32636]"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--canvas)] p-4 text-sm placeholder-slate-600 outline-none transition focus:border-premium"
                   />
                 </div>
 
@@ -311,7 +311,7 @@ export default function AiMechanic() {
                       value={mileage}
                       onChange={(e) => setMileage(e.target.value)}
                       placeholder="120000"
-                      className="w-36 rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2 font-mono text-xs text-ink outline-none focus:border-[#E32636]"
+                      className="w-36 rounded-lg border border-[var(--border)] bg-[var(--canvas)] px-3 py-2 font-mono text-xs outline-none focus:border-premium"
                     />
                     <span className="font-mono text-xs text-muted">км</span>
                   </div>
@@ -319,7 +319,7 @@ export default function AiMechanic() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-premium px-8 py-3.5 font-mono text-xs font-bold text-ink shadow-[0_4px_20px_rgba(227,38,54,0.35)] transition hover:bg-[#D91F32] disabled:opacity-50"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-premium px-8 py-3.5 font-mono text-xs font-bold shadow-md transition hover:brightness-110 disabled:opacity-50"
                   >
                     {isLoading ? (
                       <>
@@ -336,7 +336,7 @@ export default function AiMechanic() {
                 </div>
 
                 {errorMessage && (
-                  <div className="flex items-center gap-2 rounded-xl border border-[#E32636]/40 bg-premium/10 p-4 font-mono text-xs text-premium">
+                  <div className="flex items-center gap-2 rounded-xl border border-premium/40 bg-premium/10 p-4 font-mono text-xs text-premium">
                     <AlertCircle className="size-4 shrink-0" />
                     <span>{errorMessage}</span>
                   </div>
@@ -356,9 +356,9 @@ export default function AiMechanic() {
                   </span>
                   <div>
                     <div className="font-mono text-xs font-semibold uppercase tracking-wider text-muted">
-                      Система: <span className="text-ink font-bold">{diagnosticResult.system_affected}</span>
+                      Система: <span className="font-bold">{diagnosticResult.system_affected}</span>
                     </div>
-                    <h2 className="text-xl sm:text-2xl font-black text-ink tracking-tight mt-0.5">
+                    <h2 className="text-xl sm:text-2xl font-black tracking-tight mt-0.5">
                       {diagnosticResult.primary_diagnosis}
                     </h2>
                   </div>
@@ -380,7 +380,7 @@ export default function AiMechanic() {
                       {t('aiCanDriveYes')}
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[#E32636]/30 bg-premium/15 px-3 py-1 font-mono text-xs font-bold text-premium">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-premium/30 bg-premium/15 px-3 py-1 font-mono text-xs font-bold text-premium">
                       <ShieldAlert className="size-3.5" />
                       {t('aiCanDriveNo')}
                     </span>
@@ -389,7 +389,7 @@ export default function AiMechanic() {
                   <button
                     type="button"
                     onClick={handleReset}
-                    className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-2 font-mono text-xs font-bold text-muted transition hover:text-ink"
+                    className="flex items-center gap-1.5 rounded-xl border border-[var(--border)] bg-[var(--canvas)] px-4 py-2 font-mono text-xs font-bold text-muted transition hover:text-premium"
                   >
                     <RotateCcw className="size-3.5" />
                     <span>НОВЫЙ ЗАПРОС</span>
@@ -399,7 +399,7 @@ export default function AiMechanic() {
 
               {/* Critical Safety Alert Banner if present */}
               {diagnosticResult.safety_warning && (
-                <div className="flex items-start gap-3 border-b border-[#E32636]/30 bg-premium/10 p-4 text-sm text-premium">
+                <div className="flex items-start gap-3 border-b border-premium/30 bg-premium/10 p-4 text-sm text-premium">
                   <AlertCircle className="size-5 shrink-0 mt-0.5" />
                   <div className="font-semibold">{diagnosticResult.safety_warning}</div>
                 </div>
@@ -412,7 +412,7 @@ export default function AiMechanic() {
                     <Gauge className="size-4 text-premium" />
                     <span>{t('aiConfidence')}</span>
                   </div>
-                  <div className="mt-2 font-mono text-3xl font-black text-ink">
+                  <div className="mt-2 font-mono text-3xl font-black">
                     {Math.round(diagnosticResult.confidence_score * 100)}%
                   </div>
                   <div className="mt-1 font-mono text-[11px] text-muted">
@@ -425,7 +425,7 @@ export default function AiMechanic() {
                     <Clock className="size-4 text-premium" />
                     <span>{t('aiRepairTime')}</span>
                   </div>
-                  <div className="mt-2 font-mono text-3xl font-black text-ink">
+                  <div className="mt-2 font-mono text-3xl font-black">
                     {diagnosticResult.estimated_repair_time}
                   </div>
                   <div className="mt-1 font-mono text-[11px] text-muted">
@@ -438,7 +438,7 @@ export default function AiMechanic() {
                     <Wrench className="size-4 text-premium" />
                     <span>{t('aiDifficulty')}</span>
                   </div>
-                  <div className="mt-2 font-mono text-lg font-black text-ink capitalize">
+                  <div className="mt-2 font-mono text-lg font-black capitalize">
                     {diagnosticResult.difficulty === 'easy' && 'Базовая (своими руками)'}
                     {diagnosticResult.difficulty === 'medium' && 'Средняя (гараж / инструмент)'}
                     {diagnosticResult.difficulty === 'hard' && 'Сложная (автосервис / подъемник)'}
@@ -452,7 +452,7 @@ export default function AiMechanic() {
 
               {/* Possible Root Causes & Technical Details */}
               <div className="border-t border-[var(--border)] p-6">
-                <h3 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-ink">
+                <h3 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider">
                   <AlertCircle className="size-4 text-premium" />
                   <span>{t('aiCausesTitle')}</span>
                 </h3>
@@ -469,7 +469,7 @@ export default function AiMechanic() {
               {/* Step-by-step Interactive Inspection Checklist */}
               <div className="border-t border-[var(--border)] p-6">
                 <div className="flex items-center justify-between">
-                  <h3 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider text-ink">
+                  <h3 className="flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-wider">
                     <CheckCircle2 className="size-4 text-emerald-400" />
                     <span>{t('aiStepsTitle')}</span>
                   </h3>
@@ -494,13 +494,13 @@ export default function AiMechanic() {
                         <span
                           className={`flex size-6 shrink-0 items-center justify-center rounded-lg border font-mono text-xs font-bold ${
                             isChecked
-                              ? 'border-emerald-500 bg-emerald-500 text-ink'
+                              ? 'border-emerald-500 bg-emerald-500'
                               : 'border-[var(--border)] bg-[var(--surface)] text-muted'
                           }`}
                         >
                           {isChecked ? '✓' : idx + 1}
                         </span>
-                        <span className="text-sm text-ink">{step}</span>
+                        <span className="text-sm">{step}</span>
                       </button>
                     )
                   })}
@@ -532,7 +532,7 @@ export default function AiMechanic() {
                   <div className="font-mono text-xs font-bold uppercase tracking-widest text-premium">
                     CERTIFIED REPAIR PARTS
                   </div>
-                  <h2 className="text-2xl font-black text-ink mt-0.5">
+                  <h2 className="text-2xl font-black mt-0.5">
                     {t('aiPartsTitle')}
                   </h2>
                 </div>
@@ -552,7 +552,7 @@ export default function AiMechanic() {
                     return (
                       <div
                         key={part.id}
-                        className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] transition hover:border-[#E32636]/60 shadow-xl"
+                        className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] transition hover:border-premium/60 shadow-xl"
                       >
                         <div>
                           {/* Image & Badges */}
@@ -572,13 +572,13 @@ export default function AiMechanic() {
                             {/* Fitment badge */}
                             <div className="absolute left-3 top-3">
                               {part.fitment_status === 'compatible' && (
-                                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/90 px-2 py-0.5 font-mono text-[10px] font-bold text-ink shadow">
+                                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/90 px-2 py-0.5 font-mono text-[10px] font-bold shadow">
                                   <CheckCircle2 className="size-3" />
                                   100% ПОДХОДИТ
                                 </span>
                               )}
                               {part.fitment_status === 'not_compatible' && (
-                                <span className="inline-flex items-center gap-1 rounded-md bg-premium/90 px-2 py-0.5 font-mono text-[10px] font-bold text-ink shadow">
+                                <span className="inline-flex items-center gap-1 rounded-md bg-premium/90 px-2 py-0.5 font-mono text-[10px] font-bold shadow">
                                   <XCircle className="size-3" />
                                   НЕ ПОДХОДИТ
                                 </span>
@@ -599,7 +599,7 @@ export default function AiMechanic() {
                             </div>
                             <Link
                               to={`/product/${part.slug}`}
-                              className="mt-1 block font-bold text-ink text-sm line-clamp-2 transition hover:text-premium"
+                              className="mt-1 block font-bold text-sm line-clamp-2 transition hover:text-premium"
                             >
                               {part.name}
                             </Link>
@@ -613,7 +613,7 @@ export default function AiMechanic() {
                         <div className="border-t border-[var(--border)] p-4 bg-[var(--canvas)]/50">
                           <div className="flex items-baseline justify-between">
                             <div>
-                              <div className="font-mono text-lg font-black text-ink">
+                              <div className="font-mono text-lg font-black">
                                 {Number(part.price).toFixed(2)} TJS
                               </div>
                               {part.old_price && (
@@ -640,8 +640,8 @@ export default function AiMechanic() {
                               disabled={part.stock_quantity <= 0}
                               className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 font-mono text-xs font-bold transition ${
                                 isAdded
-                                  ? 'bg-emerald-600 text-ink'
-                                  : 'bg-premium text-ink hover:bg-[#D91F32]'
+                                  ? 'bg-emerald-600'
+                                  : 'bg-premium hover:brightness-110'
                               } disabled:cursor-not-allowed disabled:opacity-40`}
                             >
                               <ShoppingCart className="size-3.5" />
@@ -650,7 +650,7 @@ export default function AiMechanic() {
 
                             <Link
                               to={`/product/${part.slug}`}
-                              className="grid size-9 place-items-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-muted transition hover:border-[#E32636] hover:text-ink"
+                              className="grid size-9 place-items-center rounded-xl border border-[var(--border)] bg-[var(--surface)] text-muted transition hover:border-premium hover:text-premium"
                               title="Подробнее о детали"
                             >
                               <ArrowRight className="size-4" />

@@ -9,12 +9,13 @@ from app.database import get_db
 from app.dependencies import get_current_user_optional
 from app.models.catalog import Brand, Product, ProductStatus
 from app.models.user import User
-from app.models.vehicle import UserVehicle
+from app.models.vehicle import ProductCompatibility, UserVehicle
 from app.schemas.catalog import (
     BrandRead,
     CategoryRead,
     PaginatedProducts,
     ProductComparisonResponse,
+    ProductFitmentRead,
     ProductListItem,
     ProductRead,
 )
@@ -53,6 +54,20 @@ def _resolve_vehicle(db: Session, user: User | None, vehicle_id: uuid.UUID | Non
     if vehicle_id is None or user is None:
         return None
     return vehicle_service.get_user_vehicle(db, user, vehicle_id)
+
+
+def _compatibility_year_bounds(rule: ProductCompatibility) -> tuple[int | None, int | None]:
+    starts = [year for year in (
+        rule.year_from,
+        rule.generation.year_from if rule.generation else None,
+        rule.modification.year_from if rule.modification else None,
+    ) if year is not None]
+    ends = [year for year in (
+        rule.year_to,
+        rule.generation.year_to if rule.generation else None,
+        rule.modification.year_to if rule.modification else None,
+    ) if year is not None]
+    return max(starts) if starts else None, min(ends) if ends else None
 
 
 @router.get("/categories", response_model=list[CategoryRead])
@@ -98,6 +113,9 @@ def list_products(
         sort=sort,
         vehicle_make_id=vehicle.make_id if vehicle else None,
         vehicle_model_id=vehicle.model_id if vehicle else None,
+        vehicle_generation_id=vehicle.generation_id if vehicle else None,
+        vehicle_modification_id=vehicle.modification_id if vehicle else None,
+        vehicle_engine_id=vehicle.engine_id if vehicle else None,
         vehicle_year=vehicle.year if vehicle else None,
     )
     fitments: dict[uuid.UUID, str] = {}
@@ -161,6 +179,32 @@ def product_detail(
 ) -> ProductRead:
     product = catalog_service.get_product_by_slug(db, slug, count_view=True)
     data = ProductRead.model_validate(product)
+    rules = list(db.scalars(
+        select(ProductCompatibility)
+        .options(
+            selectinload(ProductCompatibility.make),
+            selectinload(ProductCompatibility.model),
+            selectinload(ProductCompatibility.generation),
+            selectinload(ProductCompatibility.modification),
+            selectinload(ProductCompatibility.engine),
+        )
+        .where(ProductCompatibility.product_id == product.id)
+        .order_by(ProductCompatibility.year_from, ProductCompatibility.year_to)
+    ))
+    data.compatibilities = []
+    for rule in rules:
+        year_from, year_to = _compatibility_year_bounds(rule)
+        data.compatibilities.append(ProductFitmentRead(
+            id=rule.id,
+            make_name=rule.make.name,
+            model_name=rule.model.name if rule.model else None,
+            generation_name=rule.generation.name if rule.generation else None,
+            modification_name=rule.modification.name if rule.modification else None,
+            engine_name=rule.engine.name if rule.engine else None,
+            year_from=year_from,
+            year_to=year_to,
+            note=rule.note,
+        ))
     vehicle = _resolve_vehicle(db, current_user, vehicle_id)
     if vehicle is not None:
         data.fitment = vehicle_service.compute_fitment(db, product.id, vehicle).value
